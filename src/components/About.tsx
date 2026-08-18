@@ -11,9 +11,11 @@ export default function About() {
               problema, desenhar o fluxo, construir a aplicação e colocar no ar.
             </p>
             <p>
-              Já entreguei controle financeiro com lançamento por WhatsApp, app de rotina
-              para casais, gestão de dívidas, sites de suporte técnico e ferramentas
-              desktop. O fio comum é o mesmo: software claro, rápido e útil no dia a dia.
+              Já entreguei o Little Learners Planner para professoras de inglês na
+              educação infantil, controle financeiro com lançamento por WhatsApp, app de
+              rotina para casais, gestão de dívidas, sites de suporte técnico e
+              ferramentas desktop. O fio comum é o mesmo: software claro, rápido e útil
+              no dia a dia.
             </p>
             <p>
               Se você tem uma ideia, um sistema antigo travado ou um processo que ainda

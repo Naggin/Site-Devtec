@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 
@@ -8,6 +8,14 @@ describe("site Devtec", () => {
     render(<App />);
 
     expect(screen.getByRole("heading", { name: /Devtec/i })).toBeInTheDocument();
+
+    const littleLearners = screen.getByRole("heading", { name: "Little Learners Planner" }).closest("article");
+    expect(littleLearners).not.toBeNull();
+    expect(within(littleLearners!).getByRole("link", { name: "Abrir site" })).toHaveAttribute(
+      "href",
+      "https://www.littlelearnersplanner.com.br/home",
+    );
+
     expect(screen.getByRole("heading", { name: "Moneyzin" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "JantaJá" })).toBeInTheDocument();
 

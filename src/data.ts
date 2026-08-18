@@ -49,7 +49,28 @@ export const services = [
   },
 ] as const;
 
-export const projects = [
+export type Project = {
+  year: string;
+  title: string;
+  kind: string;
+  stack: readonly string[];
+  summary: string;
+  href: string;
+  repo?: string;
+  live: boolean;
+};
+
+export const projects: Project[] = [
+  {
+    year: "2026",
+    title: "Little Learners Planner",
+    kind: "Produto entregue",
+    stack: ["Web app", "Vercel", "EdTech"],
+    summary:
+      "Plataforma para professoras de inglês na educação infantil: plano da semana, pareceres dos alunos e flashcards para imprimir em minutos, com exportação em PDF e envio no WhatsApp.",
+    href: "https://www.littlelearnersplanner.com.br/home",
+    live: true,
+  },
   {
     year: "2026",
     title: "Moneyzin",
@@ -105,7 +126,7 @@ export const projects = [
     repo: "https://github.com/Naggin/IAcockpit-releases",
     live: false,
   },
-] as const;
+];
 
 export const projectTypes = [
   "Site institucional",

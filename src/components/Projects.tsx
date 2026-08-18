@@ -7,8 +7,8 @@ export default function Projects() {
         <p className="kicker">03 / Projetos</p>
         <h2>Trabalhos recentes.</h2>
         <p className="section-intro">
-          Uma seleção do que já saiu do repositório e foi para a mão de alguém. Clique
-          para ver a demo ou o código.
+          Produtos no ar e trabalhos recentes — do cliente em produção ao código
+          aberto. Abra o site ou o repositório.
         </p>
         <div className="project-grid">
           {projects.map((project) => (
@@ -26,9 +26,9 @@ export default function Projects() {
               </div>
               <div className="project-links">
                 <a href={project.href} target="_blank" rel="noreferrer">
-                  {project.live ? "Abrir demo" : "Ver no GitHub"}
+                  {project.live ? "Abrir site" : "Ver no GitHub"}
                 </a>
-                {project.live ? (
+                {project.repo ? (
                   <a href={project.repo} target="_blank" rel="noreferrer">
                     Código
                   </a>
