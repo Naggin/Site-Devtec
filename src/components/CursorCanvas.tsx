@@ -34,6 +34,7 @@ type Token = {
   vx: number; vy: number;
   opacity: number; targetOpacity: number;
   text: string; life: number; maxLife: number;
+  color: string;   // fixed at spawn — never changes
 };
 
 type Dot = { x: number; y: number; alpha: number };
@@ -66,13 +67,14 @@ export default function CursorCanvas() {
       tokens.push({
         x: nearCursor ? mx + (Math.random() - 0.5) * 320 : Math.random() * W,
         y: nearCursor ? my + (Math.random() - 0.5) * 320 : Math.random() * H,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3 - 0.1,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25 - 0.08,
         opacity: 0,
-        targetOpacity: Math.random() * 0.45 + 0.25,   // 0.25 – 0.70
+        targetOpacity: Math.random() * 0.40 + 0.25, // 0.25 – 0.65
         text: SNIPPETS[Math.floor(Math.random() * SNIPPETS.length)]!,
         life: 0,
-        maxLife: Math.random() * 280 + 200,
+        maxLife: Math.random() * 340 + 260,          // longer life = smoother
+        color: Math.random() > 0.38 ? "#e02020" : "#f4f4f4", // fixed once
       });
     }
 
@@ -128,16 +130,23 @@ export default function CursorCanvas() {
         }
         t.vx *= 0.99; t.vy *= 0.99;
 
+        // smooth ease-in / hold / ease-out — no sudden jumps
         const prog = t.life / t.maxLife;
-        if (prog < 0.10)       t.opacity = Math.min(t.targetOpacity, t.opacity + 0.025);
-        else if (prog > 0.82)  t.opacity = Math.max(0, t.opacity - 0.012);
-        else                   t.opacity += (t.targetOpacity - t.opacity) * 0.06;
+        if (prog < 0.15) {
+          // ease-in: lerp toward target slowly
+          t.opacity += (t.targetOpacity - t.opacity) * 0.04;
+        } else if (prog > 0.80) {
+          // ease-out: lerp toward 0 slowly
+          t.opacity += (0 - t.opacity) * 0.03;
+        } else {
+          // hold at target with tiny drift
+          t.opacity += (t.targetOpacity - t.opacity) * 0.02;
+        }
 
         if (t.life > t.maxLife || t.opacity < 0.005) { tokens.splice(i, 1); continue; }
 
         ctx!.globalAlpha = t.opacity;
-        /* alternates: some snippets white, some red for contrast */
-        ctx!.fillStyle = t.life % 3 === 0 ? "#f4f4f4" : "#e02020";
+        ctx!.fillStyle = t.color;
         ctx!.fillText(t.text, t.x, t.y);
       }
       ctx!.globalAlpha = 1;
