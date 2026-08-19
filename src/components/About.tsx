@@ -4,15 +4,15 @@ export default function About() {
       <div className="wrap">
         <p className="kicker reveal">01 / Sobre</p>
         <h2 className="section-title reveal" data-delay="1">
-          Código que vira produto.
+          Do zero ao deploy.
         </h2>
 
         <div className="about-grid">
           <div>
             <div className="about-copy reveal-left" data-delay="2">
               <p>
-                Sou <strong>Antonio Junior</strong>. Desenvolvo do zero ao
-                deploy — banco, API, interface e tudo no meio.
+                Sou <strong>Antonio Junior</strong>. Desenvolvo de ponta a ponta:
+                banco, API, interface e tudo no meio.
               </p>
               <p>
                 Já entreguei plataformas EdTech, apps mobile com Firebase,
@@ -32,8 +32,8 @@ export default function About() {
           <div className="skills">
             {[
               { b: "Full-stack", s: "React · Next.js · TypeScript · Node" },
-              { b: "Mobile", s: "React Native · Expo · Firebase" },
-              { b: "IA aplicada", s: "Claude AI · WhatsApp · NLP" },
+              { b: "Mobile",     s: "React Native · Expo · Firebase" },
+              { b: "IA aplicada",s: "Claude AI · WhatsApp · NLP" },
               { b: "Infra & TI", s: "Docker · Vercel · consultoria" },
             ].map((item, i) => (
               <div className="skill-card reveal" key={item.b} data-delay={String(i + 2)}>

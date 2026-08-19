@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 
-/* ── snippets that float in the background ── */
 const SNIPPETS = [
   "const build = () =>",
   "npm run dev",
@@ -13,7 +12,7 @@ const SNIPPETS = [
   "fetch('/api/data')",
   "border-radius: 12px",
   "flex-direction: column",
-  "SELECT * FROM",
+  "SELECT * FROM users",
   "docker compose up",
   "ssh ubuntu@prod",
   "yarn add react",
@@ -26,171 +25,139 @@ const SNIPPETS = [
   "require('express')",
   "padding: 0 24px",
   "border: 1px solid",
+  "git push origin main",
+  "npm run build",
 ];
 
-type FloatingToken = {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  opacity: number;
-  targetOpacity: number;
-  text: string;
-  size: number;
-  life: number;
-  maxLife: number;
+type Token = {
+  x: number; y: number;
+  vx: number; vy: number;
+  opacity: number; targetOpacity: number;
+  text: string; life: number; maxLife: number;
 };
 
-type TrailDot = { x: number; y: number; alpha: number };
+type Dot = { x: number; y: number; alpha: number };
 
 export default function CursorCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = ref.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let w = window.innerWidth;
-    let h = window.innerHeight;
-    let mx = w / 2;
-    let my = h / 2;
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+    let mx = W / 2;
+    let my = H / 2;
     let raf = 0;
 
     function resize() {
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas!.width = w;
-      canvas!.height = h;
+      W = window.innerWidth; H = window.innerHeight;
+      canvas!.width = W; canvas!.height = H;
     }
     resize();
 
-    /* trail dots following cursor */
-    const trail: TrailDot[] = [];
+    const trail: Dot[] = [];
+    const tokens: Token[] = [];
 
-    /* floating code tokens */
-    const tokens: FloatingToken[] = [];
-
-    function spawnToken(near = false) {
-      const idx = Math.floor(Math.random() * SNIPPETS.length);
-      const token: FloatingToken = {
-        x: near ? mx + (Math.random() - 0.5) * 300 : Math.random() * w,
-        y: near ? my + (Math.random() - 0.5) * 300 : Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35 - 0.12,
+    function spawn(nearCursor = false) {
+      tokens.push({
+        x: nearCursor ? mx + (Math.random() - 0.5) * 320 : Math.random() * W,
+        y: nearCursor ? my + (Math.random() - 0.5) * 320 : Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3 - 0.1,
         opacity: 0,
-        targetOpacity: Math.random() * 0.22 + 0.08,
-        text: SNIPPETS[idx]!,
-        size: Math.random() * 2 + 11,
+        targetOpacity: Math.random() * 0.18 + 0.06,
+        text: SNIPPETS[Math.floor(Math.random() * SNIPPETS.length)]!,
         life: 0,
-        maxLife: Math.random() * 260 + 160,
-      };
-      tokens.push(token);
+        maxLife: Math.random() * 220 + 160,
+      });
     }
 
-    /* seed initial tokens */
-    for (let i = 0; i < 18; i++) spawnToken(false);
+    for (let i = 0; i < 20; i++) spawn(false);
 
     let lastSpawn = 0;
 
-    function draw(ts: number) {
-      raf = requestAnimationFrame(draw);
-      ctx!.clearRect(0, 0, w, h);
+    function frame(ts: number) {
+      raf = requestAnimationFrame(frame);
+      ctx!.clearRect(0, 0, W, H);
 
-      /* ── cursor glow ── */
-      const grd = ctx!.createRadialGradient(mx, my, 0, mx, my, 200);
-      grd.addColorStop(0, "rgba(108,143,255,0.12)");
-      grd.addColorStop(0.5, "rgba(108,143,255,0.04)");
-      grd.addColorStop(1, "transparent");
-      ctx!.fillStyle = grd;
+      /* — cursor glow (red) — */
+      const g = ctx!.createRadialGradient(mx, my, 0, mx, my, 220);
+      g.addColorStop(0, "rgba(224,32,32,0.10)");
+      g.addColorStop(0.5, "rgba(224,32,32,0.03)");
+      g.addColorStop(1, "transparent");
+      ctx!.fillStyle = g;
       ctx!.beginPath();
-      ctx!.arc(mx, my, 200, 0, Math.PI * 2);
+      ctx!.arc(mx, my, 220, 0, Math.PI * 2);
       ctx!.fill();
 
-      /* ── trail ── */
-      trail.push({ x: mx, y: my, alpha: 0.6 });
-      if (trail.length > 28) trail.shift();
-
+      /* — trail — */
+      trail.push({ x: mx, y: my, alpha: 0.55 });
+      if (trail.length > 26) trail.shift();
       for (let i = 0; i < trail.length; i++) {
-        const t = trail[i]!;
-        t.alpha *= 0.88;
-        const r = (i / trail.length) * 5;
+        const d = trail[i]!;
+        d.alpha *= 0.87;
+        const r = (i / trail.length) * 4.5;
         ctx!.beginPath();
-        ctx!.arc(t.x, t.y, r, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(108,143,255,${t.alpha * 0.55})`;
+        ctx!.arc(d.x, d.y, r, 0, Math.PI * 2);
+        ctx!.fillStyle = `rgba(224,32,32,${d.alpha * 0.5})`;
         ctx!.fill();
       }
 
-      /* ── tokens ── */
-      if (ts - lastSpawn > 1400 && tokens.length < 26) {
-        spawnToken(Math.random() > 0.55);
+      /* — tokens — */
+      if (ts - lastSpawn > 1600 && tokens.length < 28) {
+        spawn(Math.random() > 0.5);
         lastSpawn = ts;
       }
 
-      ctx!.font = `500 12px "GeistMono", monospace`;
-
+      ctx!.font = `400 11.5px "GeistMono", monospace`;
       for (let i = tokens.length - 1; i >= 0; i--) {
         const t = tokens[i]!;
         t.life++;
-        t.x += t.vx;
-        t.y += t.vy;
+        t.x += t.vx; t.y += t.vy;
 
-        /* repel slightly from cursor */
-        const dx = t.x - mx;
-        const dy = t.y - my;
+        /* repel from cursor */
+        const dx = t.x - mx; const dy = t.y - my;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 180) {
-          t.vx += (dx / dist) * 0.06;
-          t.vy += (dy / dist) * 0.06;
+        if (dist < 160 && dist > 0) {
+          t.vx += (dx / dist) * 0.05;
+          t.vy += (dy / dist) * 0.05;
         }
-        /* dampen velocity */
-        t.vx *= 0.99;
-        t.vy *= 0.99;
+        t.vx *= 0.99; t.vy *= 0.99;
 
-        /* fade in / out */
-        const progress = t.life / t.maxLife;
-        if (progress < 0.15) {
-          t.opacity += 0.008;
-        } else if (progress > 0.75) {
-          t.opacity -= 0.006;
-        } else {
-          t.opacity += (t.targetOpacity - t.opacity) * 0.04;
-        }
-        t.opacity = Math.max(0, Math.min(1, t.opacity));
+        const prog = t.life / t.maxLife;
+        if (prog < 0.12)       t.opacity = Math.min(t.targetOpacity, t.opacity + 0.007);
+        else if (prog > 0.80)  t.opacity = Math.max(0, t.opacity - 0.005);
+        else                   t.opacity += (t.targetOpacity - t.opacity) * 0.03;
 
-        if (t.life > t.maxLife || t.opacity <= 0.005) {
-          tokens.splice(i, 1);
-          continue;
-        }
+        if (t.life > t.maxLife || t.opacity < 0.005) { tokens.splice(i, 1); continue; }
 
         ctx!.globalAlpha = t.opacity;
-        ctx!.fillStyle = "#6c8fff";
+        ctx!.fillStyle = "#e02020";
         ctx!.fillText(t.text, t.x, t.y);
       }
-
       ctx!.globalAlpha = 1;
     }
 
-    raf = requestAnimationFrame(draw);
+    raf = requestAnimationFrame(frame);
 
-    function onMove(e: MouseEvent) { mx = e.clientX; my = e.clientY; }
-    function onTouch(e: TouchEvent) {
-      const t = e.touches[0];
-      if (t) { mx = t.clientX; my = t.clientY; }
-    }
+    const onMove  = (e: MouseEvent)  => { mx = e.clientX; my = e.clientY; };
+    const onTouch = (e: TouchEvent)  => { const t = e.touches[0]; if (t) { mx = t.clientX; my = t.clientY; } };
 
-    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("mousemove", onMove,  { passive: true });
     window.addEventListener("touchmove", onTouch, { passive: true });
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize",    resize);
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("touchmove", onTouch);
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize",    resize);
     };
   }, []);
 
-  return <canvas ref={canvasRef} id="cursor-canvas" aria-hidden />;
+  return <canvas ref={ref} id="cursor-canvas" aria-hidden />;
 }

@@ -9,39 +9,37 @@ export default function Hero() {
           </div>
 
           <h1>
-            Desenvolvo
-            <br />
-            <span className="accent">software</span> que
-            <br />
-            as pessoas usam.
+            <span className="line-white">Transformo</span>
+            <span className="line-red">ideias</span>
+            <span className="line-white">em produto.</span>
           </h1>
 
           <p className="hero-sub">
-            Antonio Junior — desenvolvedor full-stack. Pego um problema real
-            e entrego um produto funcional: web, mobile ou sistema.
+            Antonio Junior — desenvolvedor full-stack. Pego o problema,
+            projeto, escrevo o código e entrego rodando.
           </p>
 
           <div className="hero-actions">
             <a className="btn btn-primary" href="#contato">Falar sobre o projeto</a>
-            <a className="btn btn-ghost" href="#projetos">Ver trabalhos</a>
+            <a className="btn btn-ghost"   href="#projetos">Ver trabalhos</a>
           </div>
 
           <div className="hero-terminal" aria-hidden>
             <div className="tline">
-              <span className="hero-prompt">~</span>
-              <span className="hero-cmd">git clone</span>
-              <span className="hero-arg"> seu-projeto</span>
+              <span className="tprompt">~</span>
+              <span className="tcmd">git clone</span>
+              <span className="targ"> seu-projeto</span>
             </div>
             <div className="tline">
-              <span className="hero-prompt">~</span>
-              <span className="hero-cmd">npm install</span>
-              <span className="hero-comment"> &amp;&amp; npm run dev</span>
+              <span className="tprompt">~</span>
+              <span className="tcmd">npm install</span>
+              <span className="tcomment"> &amp;&amp; npm run dev</span>
             </div>
             <div className="tline">
-              <span className="hero-prompt">~</span>
-              <span className="hero-arg">Servidor rodando em </span>
-              <span className="hero-cmd">localhost:3000</span>
-              <span className="hero-cursor-blink" />
+              <span className="tprompt">~</span>
+              <span className="targ">Servidor rodando em </span>
+              <span className="tcmd">localhost:3000</span>
+              <span className="tcursor" />
             </div>
           </div>
         </div>
