@@ -101,10 +101,10 @@ body {
   z-index: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(224, 32, 32, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(224, 32, 32, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(224, 32, 32, 0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(224, 32, 32, 0.10) 1px, transparent 1px);
   background-size: 52px 52px;
-  mask-image: radial-gradient(ellipse 85% 65% at 50% 25%, black 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse 95% 80% at 50% 30%, black 30%, transparent 85%);
 }
 
 /* ─── layout ─────────────────────────────────────────────────────── */

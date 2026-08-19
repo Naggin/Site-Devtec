@@ -69,14 +69,14 @@ export default function CursorCanvas() {
         vx: (Math.random() - 0.5) * 0.3,
         vy: (Math.random() - 0.5) * 0.3 - 0.1,
         opacity: 0,
-        targetOpacity: Math.random() * 0.18 + 0.06,
+        targetOpacity: Math.random() * 0.45 + 0.25,   // 0.25 – 0.70
         text: SNIPPETS[Math.floor(Math.random() * SNIPPETS.length)]!,
         life: 0,
-        maxLife: Math.random() * 220 + 160,
+        maxLife: Math.random() * 280 + 200,
       });
     }
 
-    for (let i = 0; i < 20; i++) spawn(false);
+    for (let i = 0; i < 30; i++) spawn(false);
 
     let lastSpawn = 0;
 
@@ -85,10 +85,10 @@ export default function CursorCanvas() {
       ctx!.clearRect(0, 0, W, H);
 
       /* — cursor glow (red) — */
-      const g = ctx!.createRadialGradient(mx, my, 0, mx, my, 220);
-      g.addColorStop(0, "rgba(224,32,32,0.10)");
-      g.addColorStop(0.5, "rgba(224,32,32,0.03)");
-      g.addColorStop(1, "transparent");
+      const g = ctx!.createRadialGradient(mx, my, 0, mx, my, 280);
+      g.addColorStop(0,   "rgba(224,32,32,0.28)");
+      g.addColorStop(0.4, "rgba(224,32,32,0.10)");
+      g.addColorStop(1,   "transparent");
       ctx!.fillStyle = g;
       ctx!.beginPath();
       ctx!.arc(mx, my, 220, 0, Math.PI * 2);
@@ -99,21 +99,21 @@ export default function CursorCanvas() {
       if (trail.length > 26) trail.shift();
       for (let i = 0; i < trail.length; i++) {
         const d = trail[i]!;
-        d.alpha *= 0.87;
-        const r = (i / trail.length) * 4.5;
+        d.alpha *= 0.90;
+        const r = (i / trail.length) * 6;
         ctx!.beginPath();
         ctx!.arc(d.x, d.y, r, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(224,32,32,${d.alpha * 0.5})`;
+        ctx!.fillStyle = `rgba(224,32,32,${d.alpha * 0.75})`;
         ctx!.fill();
       }
 
       /* — tokens — */
-      if (ts - lastSpawn > 1600 && tokens.length < 28) {
+      if (ts - lastSpawn > 900 && tokens.length < 40) {
         spawn(Math.random() > 0.5);
         lastSpawn = ts;
       }
 
-      ctx!.font = `400 11.5px "GeistMono", monospace`;
+      ctx!.font = `500 13px "GeistMono", monospace`;
       for (let i = tokens.length - 1; i >= 0; i--) {
         const t = tokens[i]!;
         t.life++;
@@ -129,14 +129,15 @@ export default function CursorCanvas() {
         t.vx *= 0.99; t.vy *= 0.99;
 
         const prog = t.life / t.maxLife;
-        if (prog < 0.12)       t.opacity = Math.min(t.targetOpacity, t.opacity + 0.007);
-        else if (prog > 0.80)  t.opacity = Math.max(0, t.opacity - 0.005);
-        else                   t.opacity += (t.targetOpacity - t.opacity) * 0.03;
+        if (prog < 0.10)       t.opacity = Math.min(t.targetOpacity, t.opacity + 0.025);
+        else if (prog > 0.82)  t.opacity = Math.max(0, t.opacity - 0.012);
+        else                   t.opacity += (t.targetOpacity - t.opacity) * 0.06;
 
         if (t.life > t.maxLife || t.opacity < 0.005) { tokens.splice(i, 1); continue; }
 
         ctx!.globalAlpha = t.opacity;
-        ctx!.fillStyle = "#e02020";
+        /* alternates: some snippets white, some red for contrast */
+        ctx!.fillStyle = t.life % 3 === 0 ? "#f4f4f4" : "#e02020";
         ctx!.fillText(t.text, t.x, t.y);
       }
       ctx!.globalAlpha = 1;
