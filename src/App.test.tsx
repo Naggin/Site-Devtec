@@ -8,7 +8,7 @@ describe("site Devtec", () => {
     render(<App />);
 
     // Hero
-    expect(screen.getByRole("heading", { name: /Software que resolve/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Desenvolvo/i })).toBeInTheDocument();
 
     // Little Learners — primeiro projeto
     const llCard = screen.getByRole("heading", { name: "Little Learners Planner" }).closest("article");

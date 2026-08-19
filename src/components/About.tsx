@@ -4,35 +4,39 @@ export default function About() {
       <div className="wrap">
         <p className="kicker reveal">01 / Sobre</p>
         <h2 className="section-title reveal" data-delay="1">
-          Produto, não só código.
+          Código que vira produto.
         </h2>
 
         <div className="about-grid">
-          <div className="about-copy reveal-left" data-delay="2">
-            <p>
-              Meu nome é <strong>Antonio Junior</strong>. Trabalho ponta a
-              ponta: entendo o problema, projeto o fluxo, construo e coloco no
-              ar.
-            </p>
-            <p>
-              Já entreguei plataformas EdTech, controle financeiro com IA,
-              apps mobile, sistemas de gestão e ferramentas desktop. O fio
-              comum é: funciona de verdade.
-            </p>
+          <div>
+            <div className="about-copy reveal-left" data-delay="2">
+              <p>
+                Sou <strong>Antonio Junior</strong>. Desenvolvo do zero ao
+                deploy — banco, API, interface e tudo no meio.
+              </p>
+              <p>
+                Já entreguei plataformas EdTech, apps mobile com Firebase,
+                sistemas financeiros com IA e ferramentas desktop com
+                atualização automática.
+              </p>
+            </div>
+
+            <div className="code-chip reveal-left" data-delay="3" aria-hidden>
+              <div><span className="ck-kw">const</span> dev = <span className="ck-kw">await</span> <span className="ck-fn">hire</span>(<span className="ck-str">'Antonio'</span>);</div>
+              <div><span className="ck-cm">// entrega: web · mobile · IA</span></div>
+              <div><span className="ck-fn">console</span>.<span className="ck-fn">log</span>(dev.stack);</div>
+              <div><span className="ck-cm">// ['React','Next.js','RN','Node','TS']</span></div>
+            </div>
           </div>
 
           <div className="skills">
             {[
-              { b: "Full-stack", s: "React · Next.js · TypeScript · APIs" },
+              { b: "Full-stack", s: "React · Next.js · TypeScript · Node" },
               { b: "Mobile", s: "React Native · Expo · Firebase" },
-              { b: "IA aplicada", s: "WhatsApp · NLP · Claude AI" },
-              { b: "Suporte TI", s: "Consultoria · infra · manutenção" },
+              { b: "IA aplicada", s: "Claude AI · WhatsApp · NLP" },
+              { b: "Infra & TI", s: "Docker · Vercel · consultoria" },
             ].map((item, i) => (
-              <div
-                className="skill-card reveal"
-                key={item.b}
-                data-delay={String(i + 2)}
-              >
+              <div className="skill-card reveal" key={item.b} data-delay={String(i + 2)}>
                 <b>{item.b}</b>
                 <span>{item.s}</span>
               </div>

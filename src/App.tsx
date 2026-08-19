@@ -1,3 +1,4 @@
+import CursorCanvas from "./components/CursorCanvas";
 import Background from "./components/Background";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
@@ -15,9 +16,8 @@ export default function App() {
 
   return (
     <>
-      <a className="skip-link" href="#conteudo">
-        Pular para o conteúdo
-      </a>
+      <a className="skip-link" href="#conteudo">Pular para o conteúdo</a>
+      <CursorCanvas />
       <Background />
       <Header />
       <main id="conteudo">

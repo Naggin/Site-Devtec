@@ -5,8 +5,8 @@ export default function Header() {
     <header className="site-header">
       <div className="wrap header-inner">
         <a className="brand" href="#topo">
-          Dev<em>tec</em>
-          <span className="brand-dot" aria-hidden />
+          <span className="brand-icon">dt</span>
+          Devtec
         </a>
         <nav className="nav" aria-label="Principal">
           {navItems.map((item) => (
