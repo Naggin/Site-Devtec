@@ -1,44 +1,42 @@
 export default function About() {
   return (
-    <section className="section" id="sobre">
+    <section className="section section-border" id="sobre">
       <div className="wrap">
-        <p className="kicker">01 / Sobre</p>
-        <h2>Um desenvolvedor que entrega produto, não só código.</h2>
+        <p className="kicker reveal">01 / Sobre</p>
+        <h2 className="section-title reveal" data-delay="1">
+          Produto, não só código.
+        </h2>
+
         <div className="about-grid">
-          <div className="about-copy">
+          <div className="about-copy reveal-left" data-delay="2">
             <p>
-              A <strong>Devtec</strong> é o meu estúdio. Trabalho ponta a ponta: entender o
-              problema, desenhar o fluxo, construir a aplicação e colocar no ar.
+              Meu nome é <strong>Antonio Junior</strong>. Trabalho ponta a
+              ponta: entendo o problema, projeto o fluxo, construo e coloco no
+              ar.
             </p>
             <p>
-              Já entreguei o Little Learners Planner para professoras de inglês na
-              educação infantil, controle financeiro com lançamento por WhatsApp, app de
-              rotina para casais, gestão de dívidas, sites de suporte técnico e
-              ferramentas desktop. O fio comum é o mesmo: software claro, rápido e útil
-              no dia a dia.
-            </p>
-            <p>
-              Se você tem uma ideia, um sistema antigo travado ou um processo que ainda
-              vive em planilha, eu ajudo a transformar isso em produto.
+              Já entreguei plataformas EdTech, controle financeiro com IA,
+              apps mobile, sistemas de gestão e ferramentas desktop. O fio
+              comum é: funciona de verdade.
             </p>
           </div>
-          <div className="stat-list">
-            <div className="stat">
-              <b>Full-stack</b>
-              <span>React, Next.js, TypeScript, APIs e banco</span>
-            </div>
-            <div className="stat">
-              <b>Mobile</b>
-              <span>React Native + Expo em produção</span>
-            </div>
-            <div className="stat">
-              <b>IA no produto</b>
-              <span>WhatsApp, NLP e copilots aplicados</span>
-            </div>
-            <div className="stat">
-              <b>Suporte TI</b>
-              <span>Consultoria e manutenção quando precisa</span>
-            </div>
+
+          <div className="skills">
+            {[
+              { b: "Full-stack", s: "React · Next.js · TypeScript · APIs" },
+              { b: "Mobile", s: "React Native · Expo · Firebase" },
+              { b: "IA aplicada", s: "WhatsApp · NLP · Claude AI" },
+              { b: "Suporte TI", s: "Consultoria · infra · manutenção" },
+            ].map((item, i) => (
+              <div
+                className="skill-card reveal"
+                key={item.b}
+                data-delay={String(i + 2)}
+              >
+                <b>{item.b}</b>
+                <span>{item.s}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

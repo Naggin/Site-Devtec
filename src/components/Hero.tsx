@@ -1,47 +1,33 @@
-import { profile } from "../data";
-
 export default function Hero() {
   return (
     <section className="hero" id="topo">
-      <div className="wrap hero-grid">
-        <div>
-          <p className="kicker">Estúdio de software · {profile.location}</p>
+      <div className="wrap">
+        <div className="hero-inner">
+          <p className="hero-badge">Devtec · Estúdio de software</p>
+
           <h1>
-            {profile.brand}
-            <br />
-            <em>{profile.tagline}</em>
+            Software que
+            <span className="line-acc">resolve.</span>
           </h1>
-          <p className="lede">
-            Eu sou {profile.name}, {profile.role}. Projeto e construo sites, apps e sistemas
-            para quem precisa de uma ferramenta que as pessoas realmente usam.
+
+          <p className="hero-sub">
+            Eu construo produtos que as pessoas abrem todo dia —
+            sites, apps, sistemas e integrações com IA.
           </p>
+
           <div className="hero-actions">
             <a className="btn btn-primary" href="#contato">
-              Pedir um orçamento
+              Falar sobre o projeto
             </a>
             <a className="btn btn-ghost" href="#projetos">
-              Ver projetos
+              Ver trabalhos
             </a>
           </div>
         </div>
-        <aside className="hero-card" aria-label="Resumo">
-          <dl>
-            <div>
-              <dt>Foco</dt>
-              <dd>Web, mobile e produtos com IA</dd>
-            </div>
-            <div>
-              <dt>Disponível para</dt>
-              <dd>Projetos novos e parcerias</dd>
-            </div>
-            <div>
-              <dt>Contato</dt>
-              <dd>
-                <a href={`mailto:${profile.email}`}>{profile.email}</a>
-              </dd>
-            </div>
-          </dl>
-        </aside>
+
+        <div className="scroll-hint" aria-hidden>
+          <span>scroll</span>
+        </div>
       </div>
     </section>
   );
