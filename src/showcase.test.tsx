@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import LiveDeployTerminal from "./components/LiveDeployTerminal";
 import BentoGrid from "./components/BentoGrid";
 import DependencyGraph from "./components/DependencyGraph";
@@ -6,28 +6,29 @@ import StatusBoard from "./components/StatusBoard";
 import GitTimeline from "./components/GitTimeline";
 import ProofStrip from "./components/ProofStrip";
 import { gitCommits, gitTimeline } from "./data";
+import { renderWithLanguage } from "./test/renderWithLanguage";
 
 describe("melhorias interativas", () => {
   it("renderiza o bento grid com capacidades", () => {
-    render(<BentoGrid />);
+    renderWithLanguage(<BentoGrid />);
     expect(screen.getByText("Web & SaaS")).toBeInTheDocument();
     expect(screen.getByText("IA aplicada")).toBeInTheDocument();
   });
 
   it("renderiza o grafo de dependências", () => {
-    render(<DependencyGraph />);
+    renderWithLanguage(<DependencyGraph />);
     expect(screen.getByText("React")).toBeInTheDocument();
     expect(screen.getByText("Deploy")).toBeInTheDocument();
   });
 
   it("renderiza o status board CI/CD", () => {
-    render(<StatusBoard />);
+    renderWithLanguage(<StatusBoard />);
     expect(screen.getByText("build")).toBeInTheDocument();
     expect(screen.getByText("deploy")).toBeInTheDocument();
   });
 
   it("mostra commits reais e linka cada hash para o GitHub", () => {
-    render(<GitTimeline />);
+    renderWithLanguage(<GitTimeline />);
 
     expect(screen.getByText(gitTimeline.repo)).toBeInTheDocument();
 
@@ -38,7 +39,7 @@ describe("melhorias interativas", () => {
   });
 
   it("expõe provas verificáveis com link para a fonte", () => {
-    render(<ProofStrip />);
+    renderWithLanguage(<ProofStrip />);
 
     expect(screen.getByText("produtos no ar agora")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /versões publicadas/ })).toHaveAttribute(
@@ -48,7 +49,7 @@ describe("melhorias interativas", () => {
   });
 
   it("começa o deploy sozinho quando entra em vista", async () => {
-    render(<LiveDeployTerminal />);
+    renderWithLanguage(<LiveDeployTerminal />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /running/i })).toBeDisabled();
@@ -60,7 +61,7 @@ describe("melhorias interativas", () => {
     vi.useFakeTimers();
 
     try {
-      render(<LiveDeployTerminal />);
+      renderWithLanguage(<LiveDeployTerminal />);
       const output = screen.getByTestId("terminal-output");
       const lineCount = () => output.querySelectorAll(".live-terminal-line").length;
 
@@ -73,16 +74,12 @@ describe("melhorias interativas", () => {
       };
 
       await advance(7000);
-      expect(output).toHaveTextContent("Deploy complete");
       expect(lineCount()).toBeGreaterThan(0);
+      expect(output).toHaveTextContent("Deploy complete");
 
       // Janela em que o ciclo antigo apagava tudo antes de redigitar o comando.
-      for (let elapsed = 0; elapsed < 5000; elapsed += 50) {
-        await act(async () => {
-          await vi.advanceTimersByTimeAsync(50);
-        });
-        expect(lineCount()).toBeGreaterThan(0);
-      }
+      await advance(5000);
+      expect(lineCount()).toBeGreaterThan(0);
       expect(output).toHaveTextContent("Deploy complete");
     } finally {
       vi.useRealTimers();
@@ -95,7 +92,7 @@ describe("melhorias interativas", () => {
     vi.useFakeTimers();
 
     try {
-      render(<LiveDeployTerminal />);
+      renderWithLanguage(<LiveDeployTerminal />);
       const output = screen.getByTestId("terminal-output");
 
       const advance = async (ms: number) => {

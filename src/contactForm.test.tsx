@@ -1,11 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Contact from "./components/Contact";
+import { renderWithLanguage } from "./test/renderWithLanguage";
 
 describe("acessibilidade do formulário", () => {
   it("marca os campos inválidos, associa a mensagem e foca o primeiro erro", async () => {
     const user = userEvent.setup();
-    render(<Contact />);
+    renderWithLanguage(<Contact />);
 
     await user.click(screen.getByRole("button", { name: "Enviar briefing" }));
 
@@ -19,7 +20,7 @@ describe("acessibilidade do formulário", () => {
 
   it("limpa o aviso conforme os campos são preenchidos", async () => {
     const user = userEvent.setup();
-    render(<Contact />);
+    renderWithLanguage(<Contact />);
 
     await user.type(screen.getByLabelText("Nome"), "Ana");
     await user.type(screen.getByLabelText("E-mail"), "ana@cliente.com");

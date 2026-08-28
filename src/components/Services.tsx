@@ -1,16 +1,17 @@
 import { useState } from "react";
-import { services } from "../data";
+import { useLanguage } from "../i18n/useLanguage";
 
 export default function Services() {
+  const { t } = useLanguage();
   const [active, setActive] = useState(0);
-  const current = services[active];
+  const current = t.services[active];
 
   return (
     <section className="section section-border" id="servicos">
       <div className="wrap">
-        <p className="kicker reveal">02 / Serviços</p>
+        <p className="kicker reveal">{t.sections.services.kicker}</p>
         <h2 className="section-title reveal" data-delay="1">
-          O que eu construo.
+          {t.sections.services.title}
         </h2>
 
         <div className="service-terminal reveal" data-delay="2">
@@ -19,7 +20,9 @@ export default function Services() {
             <span className="stack-dot stack-dot-yellow" aria-hidden />
             <span className="stack-dot stack-dot-green" aria-hidden />
             <span className="service-terminal-title">devtec — services</span>
-            <span className="service-terminal-count">{services.length} módulos</span>
+            <span className="service-terminal-count">
+              {t.services.length} {t.sections.services.modules}
+            </span>
           </div>
 
           <div className="service-terminal-body">
@@ -28,8 +31,8 @@ export default function Services() {
               <span className="tcmd">devtec services --list</span>
             </div>
 
-            <ul className="service-list" role="listbox" aria-label="Serviços oferecidos">
-              {services.map((service, i) => (
+            <ul className="service-list" role="listbox" aria-label={t.a11y.servicesList}>
+              {t.services.map((service, i) => (
                 <li key={service.code}>
                   <button
                     type="button"

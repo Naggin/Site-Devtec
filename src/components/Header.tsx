@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { navItems } from "../data";
+import { useLanguage } from "../i18n/useLanguage";
 
 export default function Header() {
+  const { t, locale, toggleLanguage, isTransitioning } = useLanguage();
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -29,16 +30,19 @@ export default function Header() {
     };
   }, [open]);
 
+  const langLabel = locale === "pt-BR" ? t.a11y.switchToEn : t.a11y.switchToPt;
+  const langShort = locale === "pt-BR" ? "EN" : "PT";
+
   return (
     <header className="site-header">
       <div className="wrap header-inner">
         <a className="brand" href="#topo">
           <span className="brand-icon">dt</span>
-          Devtec
+          {t.profile.brand}
         </a>
 
-        <nav className="nav" aria-label="Principal">
-          {navItems.map((item) => (
+        <nav className="nav" aria-label={t.a11y.navPrimary}>
+          {t.navItems.map((item) => (
             <a
               key={item.href}
               href={item.href}
@@ -47,19 +51,40 @@ export default function Header() {
               {item.label}
             </a>
           ))}
+          <button
+            type="button"
+            className="lang-toggle"
+            aria-label={langLabel}
+            disabled={isTransitioning}
+            onClick={toggleLanguage}
+          >
+            <span className="lang-toggle-code" aria-hidden>{langShort}</span>
+          </button>
         </nav>
 
-        <button
-          ref={toggleRef}
-          type="button"
-          className="nav-toggle"
-          aria-expanded={open}
-          aria-controls="nav-mobile"
-          aria-label={open ? "Fechar menu" : "Abrir menu"}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span className={`nav-toggle-bars${open ? " is-open" : ""}`} aria-hidden />
-        </button>
+        <div className="header-actions">
+          <button
+            type="button"
+            className="lang-toggle lang-toggle-mobile"
+            aria-label={langLabel}
+            disabled={isTransitioning}
+            onClick={toggleLanguage}
+          >
+            <span className="lang-toggle-code" aria-hidden>{langShort}</span>
+          </button>
+
+          <button
+            ref={toggleRef}
+            type="button"
+            className="nav-toggle"
+            aria-expanded={open}
+            aria-controls="nav-mobile"
+            aria-label={open ? t.a11y.closeMenu : t.a11y.openMenu}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span className={`nav-toggle-bars${open ? " is-open" : ""}`} aria-hidden />
+          </button>
+        </div>
       </div>
 
       <div
@@ -68,12 +93,24 @@ export default function Header() {
         className={`nav-mobile${open ? " is-open" : ""}`}
         hidden={!open}
       >
-        <nav aria-label="Principal (mobile)">
-          {navItems.map((item) => (
+        <nav aria-label={t.a11y.navMobile}>
+          {t.navItems.map((item) => (
             <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
               {item.label}
             </a>
           ))}
+          <button
+            type="button"
+            className="lang-toggle lang-toggle-menu"
+            aria-label={langLabel}
+            disabled={isTransitioning}
+            onClick={() => {
+              toggleLanguage();
+              setOpen(false);
+            }}
+          >
+            {langLabel}
+          </button>
         </nav>
       </div>
     </header>

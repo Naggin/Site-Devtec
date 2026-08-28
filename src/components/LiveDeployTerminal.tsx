@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { deploySteps } from "../data";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
+import { useLanguage } from "../i18n/useLanguage";
 
 const COMMAND = "npm run deploy";
 const TYPE_MS = 65;
@@ -9,12 +9,8 @@ const HOLD_MS = 4000;
 
 type Phase = "idle" | "typing" | "running" | "done";
 
-const allLines = () => [
-  `> ${COMMAND}`,
-  ...deploySteps.map((step) => `  ${step.label}… ${step.text}`),
-];
-
 export default function LiveDeployTerminal() {
+  const { t } = useLanguage();
   const reducedMotion = usePrefersReducedMotion();
   const [inView, setInView] = useState(false);
   const [phase, setPhase] = useState<Phase>("idle");
@@ -22,6 +18,13 @@ export default function LiveDeployTerminal() {
   const [stepIndex, setStepIndex] = useState(-1);
   const [lines, setLines] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const deploySteps = t.deploySteps;
+
+  const allLines = () => [
+    `> ${COMMAND}`,
+    ...deploySteps.map((step) => `  ${step.label}… ${step.text}`),
+  ];
 
   useEffect(() => {
     const el = containerRef.current;
@@ -36,8 +39,6 @@ export default function LiveDeployTerminal() {
     return () => observer.disconnect();
   }, []);
 
-  // O ciclo recomeça sozinho enquanto o terminal estiver visível, então quem
-  // chega depois da primeira execução ainda vê a animação em vez de uma caixa vazia.
   useEffect(() => {
     if (reducedMotion || !inView || phase !== "idle") return;
     setPhase("typing");
@@ -47,44 +48,42 @@ export default function LiveDeployTerminal() {
     if (phase !== "typing") return;
 
     if (typed.length < COMMAND.length) {
-      const t = setTimeout(() => setTyped(COMMAND.slice(0, typed.length + 1)), TYPE_MS);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => setTyped(COMMAND.slice(0, typed.length + 1)), TYPE_MS);
+      return () => clearTimeout(timer);
     }
 
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       setPhase("running");
       setStepIndex(0);
       setLines([`> ${COMMAND}`]);
     }, 400);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [phase, typed]);
 
   useEffect(() => {
     if (phase !== "running" || stepIndex < 0) return;
 
     if (stepIndex >= deploySteps.length) {
-      const t = setTimeout(() => setPhase("done"), 600);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => setPhase("done"), 600);
+      return () => clearTimeout(timer);
     }
 
     const step = deploySteps[stepIndex];
     setLines((prev) => [...prev, `  ${step.label}… ${step.text}`]);
 
-    const t = setTimeout(() => setStepIndex((i) => i + 1), STEP_MS);
-    return () => clearTimeout(t);
-  }, [phase, stepIndex]);
+    const timer = setTimeout(() => setStepIndex((i) => i + 1), STEP_MS);
+    return () => clearTimeout(timer);
+  }, [phase, stepIndex, deploySteps]);
 
-  // Segura o resultado, reinicia e mantém a saída anterior na tela enquanto o
-  // comando é redigitado — assim o terminal nunca pisca vazio entre os ciclos.
   useEffect(() => {
     if (phase !== "done" || reducedMotion) return;
 
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       setTyped("");
       setStepIndex(-1);
       setPhase("idle");
     }, HOLD_MS);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [phase, reducedMotion]);
 
   const staticResult = reducedMotion;
@@ -105,7 +104,7 @@ export default function LiveDeployTerminal() {
         <span className="stack-dot stack-dot-red" aria-hidden />
         <span className="stack-dot stack-dot-yellow" aria-hidden />
         <span className="stack-dot stack-dot-green" aria-hidden />
-        <span className="live-terminal-title">deploy — live</span>
+        <span className="live-terminal-title">{t.terminal.deployTitle}</span>
       </div>
 
       <div className="live-terminal-body" data-testid="terminal-output">
@@ -143,7 +142,7 @@ export default function LiveDeployTerminal() {
         onClick={replay}
         disabled={phase === "typing" || phase === "running"}
       >
-        {phase === "typing" || phase === "running" ? "running…" : "▶ run deploy"}
+        {phase === "typing" || phase === "running" ? t.terminal.running : t.terminal.runDeploy}
       </button>
     </div>
   );

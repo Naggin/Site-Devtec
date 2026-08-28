@@ -1,11 +1,12 @@
-import { render, screen, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
+import { renderWithLanguage } from "./test/renderWithLanguage";
 
 describe("site Devtec", () => {
   it("mostra o site, os projetos e aceita um briefing de contato", async () => {
     const user = userEvent.setup();
-    render(<App />);
+    renderWithLanguage(<App />);
 
     // Hero
     expect(screen.getByRole("heading", { name: /Transformo/i })).toBeInTheDocument();
@@ -41,7 +42,7 @@ describe("site Devtec", () => {
   });
 
   it("explica o processo, o que fica com o cliente e responde às dúvidas", () => {
-    render(<App />);
+    renderWithLanguage(<App />);
 
     expect(
       screen.getByRole("heading", { name: /Como isso funciona na prática/ }),

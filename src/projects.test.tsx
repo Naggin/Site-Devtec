@@ -1,10 +1,11 @@
-import { render, screen, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import Projects from "./components/Projects";
 import { projects } from "./data";
+import { renderWithLanguage } from "./test/renderWithLanguage";
 
 describe("cards de projeto", () => {
   it("nunca oferece dois links para o mesmo endereço", () => {
-    render(<Projects />);
+    renderWithLanguage(<Projects />);
 
     for (const project of projects) {
       const card = screen.getByRole("heading", { name: project.title }).closest("article");
@@ -17,7 +18,7 @@ describe("cards de projeto", () => {
   });
 
   it("descreve o resultado de cada projeto, não só a stack", () => {
-    render(<Projects />);
+    renderWithLanguage(<Projects />);
 
     for (const project of projects) {
       expect(screen.getByText(project.outcome)).toBeInTheDocument();

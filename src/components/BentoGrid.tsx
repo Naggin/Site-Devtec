@@ -1,9 +1,11 @@
-import { bentoItems } from "../data";
+import { useLanguage } from "../i18n/useLanguage";
 
 export default function BentoGrid() {
+  const { t } = useLanguage();
+
   return (
     <div className="bento-grid reveal" data-delay="2">
-      {bentoItems.map((item, i) => (
+      {t.bentoItems.map((item, i) => (
         <article
           key={item.id}
           className={`bento-card bento-${item.span}`}
@@ -15,8 +17,8 @@ export default function BentoGrid() {
             </span>
             <h3>{item.title}</h3>
             <div className="bento-tech">
-              {item.tech.map((t) => (
-                <span key={t}>{t}</span>
+              {item.tech.map((tech) => (
+                <span key={tech}>{tech}</span>
               ))}
             </div>
           </div>

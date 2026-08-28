@@ -1,9 +1,10 @@
-import { profile, type ProjectType } from "./data";
+import { profile } from "./data";
+import type { Translation } from "./i18n/types";
 
 export type Inquiry = {
   name: string;
   email: string;
-  projectType: ProjectType | "";
+  projectType: string;
   message: string;
 };
 
@@ -11,37 +12,40 @@ export type InquiryField = keyof Inquiry;
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function validateInquiry(inquiry: Inquiry): Partial<Record<InquiryField, string>> {
-  const errors: Partial<Record<InquiryField, string>> = {};
+export function validateInquiry(
+  inquiry: Inquiry,
+  errors: Translation["contactErrors"],
+): Partial<Record<InquiryField, string>> {
+  const result: Partial<Record<InquiryField, string>> = {};
 
   if (inquiry.name.trim().length < 2) {
-    errors.name = "Informe seu nome.";
+    result.name = errors.name;
   }
 
   if (!emailPattern.test(inquiry.email.trim())) {
-    errors.email = "Informe um e-mail válido.";
+    result.email = errors.email;
   }
 
   if (!inquiry.projectType) {
-    errors.projectType = "Escolha o tipo de projeto.";
+    result.projectType = errors.projectType;
   }
 
   if (inquiry.message.trim().length < 12) {
-    errors.message = "Conte um pouco mais sobre o que você precisa.";
+    result.message = errors.message;
   }
 
-  return errors;
+  return result;
 }
 
-export function buildMailto(inquiry: Inquiry): string {
+export function buildMailto(inquiry: Inquiry, t: Translation): string {
   const subject = encodeURIComponent(
-    `[Devtec] ${inquiry.projectType || "Novo projeto"} — ${inquiry.name.trim()}`,
+    t.mailto.subject(inquiry.projectType || "", inquiry.name.trim()),
   );
   const body = encodeURIComponent(
     [
-      `Nome: ${inquiry.name.trim()}`,
-      `E-mail: ${inquiry.email.trim()}`,
-      `Tipo: ${inquiry.projectType}`,
+      `${t.mailto.bodyLabels.name}: ${inquiry.name.trim()}`,
+      `${t.mailto.bodyLabels.email}: ${inquiry.email.trim()}`,
+      `${t.mailto.bodyLabels.type}: ${inquiry.projectType}`,
       "",
       inquiry.message.trim(),
     ].join("\n"),
