@@ -65,6 +65,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Locale>(readStoredLocale);
   const [pendingLocale, setPendingLocale] = useState<Locale | null>(null);
   const [phase, setPhase] = useState<"idle" | "out" | "clean" | "in">("idle");
+  const [snapshotReady, setSnapshotReady] = useState(false);
   const scrollYRef = useRef(0);
   const announceRef = useRef<HTMLDivElement>(null);
 
@@ -87,7 +88,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const finishTransition = useCallback(() => {
     setPhase("idle");
     setPendingLocale(null);
+    setSnapshotReady(false);
     window.scrollTo(0, scrollYRef.current);
+  }, []);
+
+  const handleSnapshotReady = useCallback(() => {
+    setSnapshotReady(true);
   }, []);
 
   const applyLocale = useCallback((next: Locale) => {
@@ -117,6 +123,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    setSnapshotReady(false);
     setPendingLocale(next);
     setPhase("out");
   }, [applyLocale, locale, phase, reducedMotion]);
@@ -145,7 +152,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         aria-live="polite"
         aria-atomic="true"
       />
-      <div className={`app-shell${isTransitioning ? " is-transitioning" : ""}`}>
+      <div
+        className={`app-shell${isTransitioning ? " is-transitioning" : ""}${snapshotReady ? " is-captured" : ""}`}
+      >
         {children}
       </div>
       {!reducedMotion && phase !== "idle" ? (
@@ -153,6 +162,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
           phase={phase}
           onPhaseChange={handlePhaseChange}
           onComplete={finishTransition}
+          onSnapshotReady={handleSnapshotReady}
         />
       ) : null}
     </LanguageContext.Provider>

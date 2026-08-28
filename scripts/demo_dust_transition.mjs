@@ -5,7 +5,7 @@ import path from "node:path";
 
 const URL = "http://localhost:5173";
 const OUT_DIR = "/tmp/dust-demo-video";
-const ARTIFACT = "/opt/cursor/artifacts/demo_transicao_thanos_areia.mp4";
+const ARTIFACT = "/opt/cursor/artifacts/demo_dust_desintegracao_corrigida.mp4";
 
 mkdirSync(OUT_DIR, { recursive: true });
 mkdirSync(path.dirname(ARTIFACT), { recursive: true });
