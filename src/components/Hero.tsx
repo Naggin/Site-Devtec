@@ -1,4 +1,5 @@
 import StackPanel from "./StackPanel";
+import LiveDeployTerminal from "./LiveDeployTerminal";
 
 export default function Hero() {
   return (
@@ -31,25 +32,7 @@ export default function Hero() {
               </a>
             </div>
 
-            <div className="hero-terminal" aria-hidden>
-              <div className="tline">
-                <span className="tprompt">~</span>
-                <span className="tcmd">npx create-devtec</span>
-                <span className="tcomment"> --stack=all</span>
-              </div>
-              <div className="tline">
-                <span className="tprompt">~</span>
-                <span className="targ">Building </span>
-                <span className="tcmd">web · mobile · IA</span>
-                <span className="targ">…</span>
-              </div>
-              <div className="tline">
-                <span className="tprompt">~</span>
-                <span className="targ">Deploy em </span>
-                <span className="tcmd">production</span>
-                <span className="tcursor" />
-              </div>
-            </div>
+            <LiveDeployTerminal />
           </div>
 
           <StackPanel />

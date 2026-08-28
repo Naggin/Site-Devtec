@@ -1,4 +1,6 @@
-import { processSteps } from "../data";
+import DependencyGraph from "./DependencyGraph";
+import BentoGrid from "./BentoGrid";
+import StatusBoard from "./StatusBoard";
 
 export default function About() {
   return (
@@ -6,20 +8,17 @@ export default function About() {
       <div className="wrap">
         <p className="kicker reveal">01 / Sobre</p>
         <h2 className="section-title reveal" data-delay="1">
-          Como eu trabalho.
+          Como eu construo.
         </h2>
         <p className="section-sub reveal" data-delay="2">
-          Processo enxuto, foco em entregar valor — do briefing ao produto no ar.
+          Da interface ao deploy — arquitetura, código e pipeline em produção.
         </p>
 
-        <div className="process-grid">
-          {processSteps.map((step, i) => (
-            <article className="process-card reveal" key={step.num} data-delay={String(i + 2)}>
-              <span className="process-num">{step.num}</span>
-              <h3>{step.title}</h3>
-              <p>{step.text}</p>
-            </article>
-          ))}
+        <DependencyGraph />
+
+        <div className="about-showcase">
+          <BentoGrid />
+          <StatusBoard />
         </div>
       </div>
     </section>

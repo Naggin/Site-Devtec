@@ -50,6 +50,107 @@ export const stackPipeline = [
   { icon: "✓", label: "produto" },
 ] as const;
 
+export const deploySteps = [
+  { label: "install", text: "Resolving dependencies…" },
+  { label: "build", text: "Compiling TypeScript + Vite bundle…" },
+  { label: "test", text: "Running vitest — 6 passed" },
+  { label: "deploy", text: "Publishing to Vercel production…" },
+  { label: "live", text: "✓ Deploy complete — produto no ar" },
+] as const;
+
+export const dependencyNodes = [
+  { id: "react", label: "React", sub: "UI + estado" },
+  { id: "api", label: "API", sub: "Node / Next.js" },
+  { id: "db", label: "DB", sub: "Prisma + Postgres" },
+  { id: "deploy", label: "Deploy", sub: "Vercel / Docker" },
+] as const;
+
+export const bentoItems = [
+  {
+    id: "web",
+    span: "wide",
+    icon: "⚛",
+    title: "Web & SaaS",
+    tech: ["React", "Next.js", "TS"],
+    snippet: "export default function App() {\n  return <Dashboard />;\n}",
+  },
+  {
+    id: "mobile",
+    span: "tall",
+    icon: "📱",
+    title: "Mobile",
+    tech: ["Expo", "RN", "Firebase"],
+    snippet: "const app = await Expo\n  .build({ platform: 'all' });",
+  },
+  {
+    id: "ai",
+    span: "normal",
+    icon: "🤖",
+    title: "IA aplicada",
+    tech: ["Claude", "NLP"],
+    snippet: "const reply = await ai\n  .chat({ channel: 'wa' });",
+  },
+  {
+    id: "api",
+    span: "normal",
+    icon: "🔌",
+    title: "APIs",
+    tech: ["Node", "Prisma"],
+    snippet: "app.get('/api/data',\n  async (req, res) => …);",
+  },
+  {
+    id: "infra",
+    span: "wide",
+    icon: "☁",
+    title: "Infra & deploy",
+    tech: ["Docker", "Vercel", "CI/CD"],
+    snippet: "vercel deploy --prod\n# ✓ build · test · deploy",
+  },
+  {
+    id: "desktop",
+    span: "normal",
+    icon: "🖥",
+    title: "Desktop",
+    tech: ["Tauri", "Rust"],
+    snippet: "tauri build --release\n# installer ready",
+  },
+] as const;
+
+export const ciChecks = [
+  { name: "build", duration: "12s", status: "passed" as const },
+  { name: "test", duration: "4s", status: "passed" as const },
+  { name: "lint", duration: "2s", status: "passed" as const },
+  { name: "deploy", duration: "8s", status: "passed" as const },
+] as const;
+
+export const gitCommits = [
+  {
+    hash: "a3f91c2",
+    message: "feat: dashboard financeiro com gráficos",
+    date: "12 Jan 2026",
+  },
+  {
+    hash: "7b2e4d0",
+    message: "feat: integração WhatsApp para registrar gastos",
+    date: "18 Jan 2026",
+  },
+  {
+    hash: "c8f1a33",
+    message: "feat: categorização automática com Claude AI",
+    date: "02 Fev 2026",
+  },
+  {
+    hash: "e4d9021",
+    message: "fix: sync Prisma + Supabase em produção",
+    date: "14 Fev 2026",
+  },
+  {
+    hash: "1ac7f88",
+    message: "chore: deploy Vercel — moneyzin.vercel.app",
+    date: "20 Fev 2026",
+  },
+] as const;
+
 export const processSteps = [
   {
     num: "01",

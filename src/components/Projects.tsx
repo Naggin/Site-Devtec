@@ -1,4 +1,5 @@
 import { projects, type Project } from "../data";
+import GitTimeline from "./GitTimeline";
 
 export default function Projects() {
   return (
@@ -8,6 +9,11 @@ export default function Projects() {
         <h2 className="section-title reveal" data-delay="1">
           Trabalhos no ar.
         </h2>
+
+        <div className="projects-showcase reveal" data-delay="2">
+          <p className="projects-showcase-label">Evolução em produção</p>
+          <GitTimeline />
+        </div>
 
         <div className="project-grid">
           {projects.map((project, i) => (
