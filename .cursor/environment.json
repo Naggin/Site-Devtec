@@ -1,0 +1,17 @@
+{
+  "name": "Devtec portfolio",
+  "install": "npm install",
+  "terminals": [
+    {
+      "name": "dev server",
+      "command": "npm run dev",
+      "description": "Vite dev server on port 5173"
+    }
+  ],
+  "ports": [
+    {
+      "name": "web server",
+      "port": 5173
+    }
+  ]
+}
