@@ -6,9 +6,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { flushSync } from "react-dom";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
-import DustTransition from "../components/DustTransition";
-import { captureViewport, type DustCapture } from "../lib/dustCapture";
+import DustTransition, { SWEEP_MS, type Phase } from "../components/DustTransition";
+import { clearPieces, markPieces, sampleViewport, type DustSample } from "../lib/dustSample";
 import {
   getTranslation,
   isLocale,
@@ -17,6 +18,9 @@ import {
   type Locale,
 } from "./index";
 import { LanguageContext } from "./useLanguage";
+
+/** Abaixo disso não há tinta suficiente na tela para a poeira convencer. */
+const MIN_PARTICLES = 80;
 
 function readStoredLocale(): Locale {
   if (typeof window === "undefined") return "pt-BR";
@@ -64,10 +68,10 @@ function updateDocumentMeta(locale: Locale) {
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const reducedMotion = usePrefersReducedMotion();
   const [locale, setLocale] = useState<Locale>(readStoredLocale);
-  const [pendingLocale, setPendingLocale] = useState<Locale | null>(null);
-  const [phase, setPhase] = useState<"idle" | "out" | "clean" | "in">("idle");
-  const [capture, setCapture] = useState<DustCapture | null>(null);
-  const [snapshotReady, setSnapshotReady] = useState(false);
+  const [phase, setPhase] = useState<Phase | "idle">("idle");
+  const [sample, setSample] = useState<DustSample | null>(null);
+  const pendingRef = useRef<Locale | null>(null);
+  const markedRef = useRef<HTMLElement[]>([]);
   const scrollYRef = useRef(0);
   const announceRef = useRef<HTMLDivElement>(null);
 
@@ -87,17 +91,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     };
   }, [isTransitioning, phase]);
 
-  const finishTransition = useCallback(() => {
-    setPhase("idle");
-    setPendingLocale(null);
-    setCapture(null);
-    setSnapshotReady(false);
-    window.scrollTo(0, scrollYRef.current);
-  }, []);
-
-  const handleSnapshotReady = useCallback(() => {
-    setSnapshotReady(true);
-  }, []);
+  // Se o componente desmontar no meio da transição, as peças ficariam invisíveis.
+  useEffect(() => () => clearPieces(markedRef.current), []);
 
   const applyLocale = useCallback((next: Locale) => {
     setLocale(next);
@@ -115,7 +110,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (announceRef.current) announceRef.current.textContent = msg;
   }, []);
 
-  const toggleLanguage = useCallback(async () => {
+  const toggleLanguage = useCallback(() => {
     if (phase !== "idle") return;
 
     const next = otherLocale(locale);
@@ -126,37 +121,65 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    setSnapshotReady(false);
-    setPendingLocale(next);
-
-    const captured = await captureViewport();
-    if (captured.particles.length < 80) {
+    // Síncrono: a poeira começa no mesmo frame do clique, sem espera.
+    const shot = sampleViewport();
+    if (shot.particles.length < MIN_PARTICLES) {
       applyLocale(next);
-      setPendingLocale(null);
       return;
     }
 
-    setCapture(captured);
+    pendingRef.current = next;
+    markPieces(shot.pieces, SWEEP_MS, shot.W, shot.H);
+    markedRef.current = shot.pieces;
+    setSample(shot);
     setPhase("out");
   }, [applyLocale, locale, phase, reducedMotion]);
 
-  const handlePhaseChange = useCallback(
-    (nextPhase: typeof phase) => {
-      if (nextPhase === "clean" && pendingLocale) {
-        applyLocale(pendingLocale);
-      }
-      setPhase(nextPhase);
-    },
-    [applyLocale, pendingLocale],
-  );
+  /**
+   * Fim do "out": as peças já estão em opacity 0, então a troca de idioma e o
+   * reflow acontecem fora da vista. `flushSync` garante que o novo texto esteja
+   * no DOM antes de medirmos o layout de chegada.
+   */
+  const handleSwap = useCallback((): DustSample | null => {
+    const next = pendingRef.current;
+    if (!next) return null;
+    pendingRef.current = null;
+
+    flushSync(() => {
+      applyLocale(next);
+    });
+    window.scrollTo(0, scrollYRef.current);
+
+    clearPieces(markedRef.current);
+    const shot = sampleViewport();
+    markPieces(shot.pieces, SWEEP_MS, shot.W, shot.H);
+    markedRef.current = shot.pieces;
+    return shot;
+  }, [applyLocale]);
+
+  const finishTransition = useCallback(() => {
+    clearPieces(markedRef.current);
+    markedRef.current = [];
+    setPhase("idle");
+    setSample(null);
+  }, []);
 
   const value = useMemo(
     () => ({ locale, t, toggleLanguage, isTransitioning }),
     [locale, t, toggleLanguage, isTransitioning],
   );
 
-  const hideShell =
-    snapshotReady && (phase === "out" || phase === "clean");
+  const shellClass = [
+    "app-shell",
+    isTransitioning ? "is-transitioning" : "",
+    phase === "out" || phase === "swap" ? "is-dusting" : "",
+    // Durante o swap as peças são remarcadas para o novo layout; sem cortar a
+    // transição, uma peça recém-marcada faria um fade fantasma de 300ms.
+    phase === "swap" ? "is-instant" : "",
+    phase === "in" ? "is-reforming" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <LanguageContext.Provider value={value}>
@@ -167,18 +190,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         aria-live="polite"
         aria-atomic="true"
       />
-      <div
-        className={`app-shell${isTransitioning ? " is-transitioning" : ""}${hideShell ? " is-captured" : ""}`}
-      >
-        {children}
-      </div>
-      {capture && phase !== "idle" ? (
+      <div className={shellClass}>{children}</div>
+      {sample && phase !== "idle" ? (
         <DustTransition
           phase={phase}
-          capture={capture}
-          onPhaseChange={handlePhaseChange}
+          sample={sample}
+          onSwap={handleSwap}
+          onPhaseChange={setPhase}
           onComplete={finishTransition}
-          onSnapshotReady={handleSnapshotReady}
         />
       ) : null}
     </LanguageContext.Provider>

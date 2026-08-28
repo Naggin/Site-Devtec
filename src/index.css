@@ -216,18 +216,26 @@ body {
   font-family: var(--sans); font-size: 14px; letter-spacing: 0;
 }
 
-/* Thanos dust language transition */
+/* ─── Thanos dust: transição de idioma ───────────────────────────── */
+/* O fundo (.bg-grid, #cursor-canvas) fica intocado durante toda a transição —
+   só o conteúdo vira poeira. É isso que evita a sensação de "trocou o tema". */
 .dust-overlay {
   position: fixed; inset: 0; z-index: 500;
   pointer-events: all; touch-action: none;
-  opacity: 1;
 }
 .app-shell.is-transitioning { pointer-events: none; }
-body[data-lang-phase="out"] .app-shell.is-captured,
-body[data-lang-phase="clean"] .app-shell.is-captured {
-  visibility: hidden;
+
+/* Cada peça some e volta no seu tempo, escalonada na diagonal por --dust-d.
+   O !important é necessário: o hero chega aqui com `animation: fade-up forwards`
+   segurando a opacidade, e animação vence estilo normal na cascata. */
+.app-shell.is-dusting .dust-piece,
+.app-shell.is-reforming .dust-piece {
+  transition: opacity 300ms linear;
+  transition-delay: var(--dust-d, 0ms);
+  will-change: opacity;
 }
-body.language-transitioning #cursor-canvas { opacity: 0; }
+.app-shell.is-dusting .dust-piece { opacity: 0 !important; }
+.app-shell.is-instant .dust-piece { transition: none !important; }
 
 /* menu mobile */
 .nav-toggle {
