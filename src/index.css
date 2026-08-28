@@ -221,7 +221,7 @@ body {
   position: fixed; inset: 0; z-index: 500;
   pointer-events: all; touch-action: none;
   opacity: 0;
-  transition: opacity 0.05s linear;
+  transition: opacity 0.08s linear;
 }
 .dust-overlay.is-active { opacity: 1; }
 .app-shell.is-transitioning { pointer-events: none; }

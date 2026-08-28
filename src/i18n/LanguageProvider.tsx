@@ -8,6 +8,7 @@ import {
 } from "react";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import DustTransition from "../components/DustTransition";
+import { captureViewport } from "../lib/dustCapture";
 import {
   getTranslation,
   isLocale,
@@ -67,6 +68,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<"idle" | "out" | "clean" | "in">("idle");
   const [snapshotReady, setSnapshotReady] = useState(false);
   const scrollYRef = useRef(0);
+  const captureRef = useRef<ReturnType<typeof captureViewport> | null>(null);
   const announceRef = useRef<HTMLDivElement>(null);
 
   const t = useMemo(() => getTranslation(locale), [locale]);
@@ -89,6 +91,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setPhase("idle");
     setPendingLocale(null);
     setSnapshotReady(false);
+    captureRef.current = null;
     window.scrollTo(0, scrollYRef.current);
   }, []);
 
@@ -125,6 +128,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     setSnapshotReady(false);
     setPendingLocale(next);
+    captureRef.current = captureViewport();
     setPhase("out");
   }, [applyLocale, locale, phase, reducedMotion]);
 
@@ -157,9 +161,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       >
         {children}
       </div>
-      {!reducedMotion && phase !== "idle" ? (
+      {!reducedMotion && phase !== "idle" && captureRef.current ? (
         <DustTransition
           phase={phase}
+          capturePromise={captureRef.current}
           onPhaseChange={handlePhaseChange}
           onComplete={finishTransition}
           onSnapshotReady={handleSnapshotReady}
