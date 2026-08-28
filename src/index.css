@@ -216,18 +216,39 @@ body {
   font-family: var(--sans); font-size: 14px; letter-spacing: 0;
 }
 
-/* Thanos dust language transition */
+/* ─── Thanos dust: transição de idioma ───────────────────────────── */
+/* O fundo (.bg-grid, #cursor-canvas) fica intocado durante toda a transição —
+   só o conteúdo vira poeira. É isso que evita a sensação de "trocou o tema". */
 .dust-overlay {
   position: fixed; inset: 0; z-index: 500;
   pointer-events: all; touch-action: none;
-  opacity: 1;
 }
 .app-shell.is-transitioning { pointer-events: none; }
-body[data-lang-phase="out"] .app-shell.is-captured,
-body[data-lang-phase="clean"] .app-shell.is-captured {
-  visibility: hidden;
+
+/* Cada peça some e volta no seu tempo, escalonada na diagonal por --dust-d.
+   O !important é necessário: o hero chega aqui com `animation: fade-up forwards`
+   segurando a opacidade, e animação vence estilo normal na cascata. */
+/* O atraso vai DENTRO do shorthand: declarar `transition-delay` à parte e depois
+   um `transition:` mata o atraso, e sem atraso não há varrimento — a tela toda
+   se desfaz junto. Curva simétrica e sem pressa, no mesmo ritmo da poeira. */
+.app-shell.is-dusting .dust-piece,
+.app-shell.is-reforming .dust-piece {
+  will-change: opacity;
 }
-body.language-transitioning #cursor-canvas { opacity: 0; }
+.app-shell.is-dusting .dust-piece {
+  transition: opacity 520ms cubic-bezier(0.4, 0, 0.6, 1) var(--dust-d, 0ms);
+  opacity: 0 !important;
+}
+/* O alvo da volta é explícito, e não a opacidade "natural" da peça: o hero vive
+   sob `animation: fade-up ... forwards`, e na cascata animação perde para
+   !important mas ganha de declaração normal. Ao soltar o !important a opacidade
+   voltava a ser ditada pela animação — e transição não interpola valor vindo de
+   animação, então a peça reaparecia de estalo em vez de surgir. */
+.app-shell.is-reforming .dust-piece {
+  transition: opacity 460ms cubic-bezier(0.4, 0, 0.6, 1) var(--dust-d, 0ms);
+  opacity: 1 !important;
+}
+.app-shell.is-instant .dust-piece { transition: none !important; }
 
 /* menu mobile */
 .nav-toggle {
