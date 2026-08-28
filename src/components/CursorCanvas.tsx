@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
 const SNIPPETS = [
   "const build = () =>",
@@ -29,6 +30,24 @@ const SNIPPETS = [
   "npm run build",
 ];
 
+/**
+ * Texto que o fundo não pode atrapalhar. Blocos com fundo próprio já escondem
+ * os snippets; aqui entram só os que ficam direto sobre a página.
+ */
+const QUIET_SELECTOR = [
+  ".hero h1",
+  ".hero-sub",
+  ".hero-badge",
+  ".section-title",
+  ".section-sub",
+  ".proof-item",
+  ".faq-item",
+  ".contact-info",
+  ".projects-showcase-label",
+].join(", ");
+const QUIET_PADDING = 24;
+const QUIET_REFRESH_FRAMES = 20;
+
 type Token = {
   x: number; y: number;
   vx: number; vy: number;
@@ -38,11 +57,15 @@ type Token = {
 };
 
 type Dot = { x: number; y: number; alpha: number };
+type Rect = { top: number; right: number; bottom: number; left: number };
 
 export default function CursorCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
+    if (reducedMotion) return;
+
     const canvas = ref.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -53,15 +76,48 @@ export default function CursorCanvas() {
     let mx = W / 2;
     let my = H / 2;
     let raf = 0;
+    let maxTokens = 0;
 
     function resize() {
       W = window.innerWidth; H = window.innerHeight;
-      canvas!.width = W; canvas!.height = H;
+      // Sem o devicePixelRatio o texto do fundo sai borrado em tela retina.
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas!.width = Math.round(W * dpr);
+      canvas!.height = Math.round(H * dpr);
+      canvas!.style.width = `${W}px`;
+      canvas!.style.height = `${H}px`;
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // Densidade proporcional à tela: num celular o mesmo número de snippets
+      // vira poluição em cima do texto.
+      maxTokens = Math.round(Math.min(30, Math.max(8, W / 46)));
     }
     resize();
 
     const trail: Dot[] = [];
     const tokens: Token[] = [];
+    let quietZones: Rect[] = [];
+
+    function readQuietZones() {
+      const zones: Rect[] = [];
+      for (const el of document.querySelectorAll(QUIET_SELECTOR)) {
+        const r = el.getBoundingClientRect();
+        if (r.bottom < -QUIET_PADDING || r.top > H + QUIET_PADDING) continue;
+        zones.push({
+          top: r.top - QUIET_PADDING,
+          right: r.right + QUIET_PADDING,
+          bottom: r.bottom + QUIET_PADDING,
+          left: r.left - QUIET_PADDING,
+        });
+      }
+      quietZones = zones;
+    }
+
+    function inQuietZone(x: number, y: number) {
+      for (const z of quietZones) {
+        if (x >= z.left && x <= z.right && y >= z.top && y <= z.bottom) return true;
+      }
+      return false;
+    }
 
     function spawn(nearCursor = false) {
       tokens.push({
@@ -70,7 +126,7 @@ export default function CursorCanvas() {
         vx: (Math.random() - 0.5) * 0.25,
         vy: (Math.random() - 0.5) * 0.25 - 0.08,
         opacity: 0,
-        targetOpacity: Math.random() * 0.40 + 0.25, // 0.25 – 0.65
+        targetOpacity: Math.random() * 0.16 + 0.10, // 0.10 – 0.26
         text: SNIPPETS[Math.floor(Math.random() * SNIPPETS.length)]!,
         life: 0,
         maxLife: Math.random() * 340 + 260,          // longer life = smoother
@@ -78,18 +134,23 @@ export default function CursorCanvas() {
       });
     }
 
-    for (let i = 0; i < 30; i++) spawn(false);
+    for (let i = 0; i < maxTokens; i++) spawn(false);
+    readQuietZones();
 
     let lastSpawn = 0;
+    let frameCount = 0;
 
     function frame(ts: number) {
       raf = requestAnimationFrame(frame);
+      if (document.hidden) return;
+
+      if (frameCount++ % QUIET_REFRESH_FRAMES === 0) readQuietZones();
       ctx!.clearRect(0, 0, W, H);
 
       /* — cursor glow (red) — */
       const g = ctx!.createRadialGradient(mx, my, 0, mx, my, 280);
-      g.addColorStop(0,   "rgba(224,32,32,0.28)");
-      g.addColorStop(0.4, "rgba(224,32,32,0.10)");
+      g.addColorStop(0,   "rgba(224,32,32,0.20)");
+      g.addColorStop(0.4, "rgba(224,32,32,0.07)");
       g.addColorStop(1,   "transparent");
       ctx!.fillStyle = g;
       ctx!.beginPath();
@@ -105,12 +166,12 @@ export default function CursorCanvas() {
         const r = (i / trail.length) * 6;
         ctx!.beginPath();
         ctx!.arc(d.x, d.y, r, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(224,32,32,${d.alpha * 0.75})`;
+        ctx!.fillStyle = `rgba(224,32,32,${d.alpha * 0.6})`;
         ctx!.fill();
       }
 
       /* — tokens — */
-      if (ts - lastSpawn > 900 && tokens.length < 40) {
+      if (ts - lastSpawn > 900 && tokens.length < maxTokens) {
         spawn(Math.random() > 0.5);
         lastSpawn = ts;
       }
@@ -145,6 +206,8 @@ export default function CursorCanvas() {
 
         if (t.life > t.maxLife || t.opacity < 0.005) { tokens.splice(i, 1); continue; }
 
+        if (inQuietZone(t.x, t.y)) continue;
+
         ctx!.globalAlpha = t.opacity;
         ctx!.fillStyle = t.color;
         ctx!.fillText(t.text, t.x, t.y);
@@ -156,18 +219,23 @@ export default function CursorCanvas() {
 
     const onMove  = (e: MouseEvent)  => { mx = e.clientX; my = e.clientY; };
     const onTouch = (e: TouchEvent)  => { const t = e.touches[0]; if (t) { mx = t.clientX; my = t.clientY; } };
+    const onScroll = () => readQuietZones();
 
     window.addEventListener("mousemove", onMove,  { passive: true });
     window.addEventListener("touchmove", onTouch, { passive: true });
+    window.addEventListener("scroll",    onScroll, { passive: true });
     window.addEventListener("resize",    resize);
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("touchmove", onTouch);
+      window.removeEventListener("scroll",    onScroll);
       window.removeEventListener("resize",    resize);
     };
-  }, []);
+  }, [reducedMotion]);
+
+  if (reducedMotion) return null;
 
   return <canvas ref={ref} id="cursor-canvas" aria-hidden />;
 }

@@ -69,8 +69,8 @@ export default function StackPanel() {
       <div className="stack-pipeline" aria-label="Do zero ao deploy">
         {stackPipeline.map((step, i) => (
           <div className="stack-pipeline-step" key={step.label}>
-            <span className="stack-pipeline-icon" aria-hidden>
-              {step.icon}
+            <span className="stack-pipeline-index" aria-hidden>
+              {String(i + 1).padStart(2, "0")}
             </span>
             <span className="stack-pipeline-label">{step.label}</span>
             {i < stackPipeline.length - 1 && (

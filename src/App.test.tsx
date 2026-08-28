@@ -13,7 +13,7 @@ describe("site Devtec", () => {
     // Little Learners — primeiro projeto
     const llCard = screen.getByRole("heading", { name: "Little Learners Planner" }).closest("article");
     expect(llCard).not.toBeNull();
-    expect(within(llCard!).getByRole("link", { name: "Abrir site" })).toHaveAttribute(
+    expect(within(llCard!).getByRole("link", { name: /Abrir site/ })).toHaveAttribute(
       "href",
       "https://www.littlelearnersplanner.com.br/home",
     );
@@ -30,7 +30,7 @@ describe("site Devtec", () => {
       screen.getByLabelText("O que você precisa?"),
       "Quero um site para divulgar meu trabalho.",
     );
-    await user.click(screen.getByRole("button", { name: "Enviar" }));
+    await user.click(screen.getByRole("button", { name: "Enviar briefing" }));
 
     expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Carla");
     expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Site institucional");
@@ -38,5 +38,19 @@ describe("site Devtec", () => {
       "href",
       expect.stringContaining("mailto:antoniocjr1998@gmail.com"),
     );
+  });
+
+  it("explica o processo, o que fica com o cliente e responde às dúvidas", () => {
+    render(<App />);
+
+    expect(
+      screen.getByRole("heading", { name: /Como isso funciona na prática/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Entender o problema" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /O que fica com você no final/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("O código no seu repositório")).toBeInTheDocument();
+    expect(screen.getByText(/O código é meu mesmo\?/)).toBeInTheDocument();
   });
 });
