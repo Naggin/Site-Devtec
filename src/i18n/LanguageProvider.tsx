@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
-import TvStaticTransition from "../components/TvStaticTransition";
+import DustTransition from "../components/DustTransition";
 import {
   getTranslation,
   isLocale,
@@ -149,13 +149,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         {children}
       </div>
       {!reducedMotion && phase !== "idle" ? (
-        <TvStaticTransition
+        <DustTransition
           phase={phase}
-          signalLabel={
-            pendingLocale === "en"
-              ? getTranslation("en").a11y.noSignal
-              : getTranslation("pt-BR").a11y.noSignal
-          }
           onPhaseChange={handlePhaseChange}
           onComplete={finishTransition}
         />
