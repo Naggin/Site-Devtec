@@ -74,12 +74,16 @@ describe("melhorias interativas", () => {
       };
 
       await advance(7000);
-      expect(lineCount()).toBeGreaterThan(0);
       expect(output).toHaveTextContent("Deploy complete");
+      expect(lineCount()).toBeGreaterThan(0);
 
       // Janela em que o ciclo antigo apagava tudo antes de redigitar o comando.
-      await advance(5000);
-      expect(lineCount()).toBeGreaterThan(0);
+      for (let elapsed = 0; elapsed < 5000; elapsed += 50) {
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(50);
+        });
+        expect(lineCount()).toBeGreaterThan(0);
+      }
       expect(output).toHaveTextContent("Deploy complete");
     } finally {
       vi.useRealTimers();

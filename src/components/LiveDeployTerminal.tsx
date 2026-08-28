@@ -75,6 +75,8 @@ export default function LiveDeployTerminal() {
     return () => clearTimeout(timer);
   }, [phase, stepIndex, deploySteps]);
 
+  // Segura o resultado, reinicia e mantém a saída anterior na tela enquanto o
+  // comando é redigitado — assim o terminal nunca pisca vazio entre os ciclos.
   useEffect(() => {
     if (phase !== "done" || reducedMotion) return;
 
