@@ -279,6 +279,10 @@ body {
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--line);
 }
+/* O atributo `hidden` sozinho não fecha o painel: `[hidden]` vem da folha do
+   agente de usuário, e o `display: block` que o media query aplica no celular
+   ganha dela por ser regra de autor. Sem isto o menu fica aberto desde o load. */
+.nav-mobile[hidden] { display: none; }
 .nav-mobile nav { display: flex; flex-direction: column; padding: 8px 0 16px; }
 .nav-mobile a {
   padding: 14px 24px; text-decoration: none;

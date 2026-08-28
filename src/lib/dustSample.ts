@@ -30,7 +30,12 @@ const LAYOUT_TAGS = new Set(["MAIN", "SECTION", "HEADER", "FOOTER", "NAV"]);
 /** Fatia máxima do orçamento que uma única fonte de tinta pode puxar. */
 const MAX_SOURCE_SHARE = 0.05;
 const BUDGET_DESKTOP = 3400;
-const BUDGET_MOBILE = 1500;
+/**
+ * Menos que o desktop em número absoluto, mas ainda mais denso por área: uma
+ * viewport de celular tem ~1/4 dos pixels. O que pesa no telefone é o volume
+ * de partículas desenhadas por frame, então densidade equivalente sai barato.
+ */
+const BUDGET_MOBILE = 1000;
 
 export type DustParticle = {
   homeX: number;

@@ -150,7 +150,10 @@ export default function DustTransition({
     const resize = () => {
       W = window.innerWidth;
       H = window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // Teto de DPR mais baixo no celular: o custo de desenhar cresce com o
+      // número de pixels do canvas, e telas de telefone chegam a 3x. Poeira e
+      // fragmentos borrados não ganham nada com resolução extra.
+      const dpr = Math.min(window.devicePixelRatio || 1, W < 768 ? 1.5 : 2);
       canvas.width = Math.round(W * dpr);
       canvas.height = Math.round(H * dpr);
       canvas.style.width = `${W}px`;
