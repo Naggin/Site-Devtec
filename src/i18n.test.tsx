@@ -15,7 +15,7 @@ describe("internacionalização", () => {
     expect(document.documentElement.lang).toBe("pt-BR");
   });
 
-  it("alterna para inglês com reduced motion (sem efeito de TV)", async () => {
+  it("alterna para inglês com reduced motion (sem efeito de poeira)", async () => {
     const user = userEvent.setup();
     const matchMedia = vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({
       matches: query.includes("prefers-reduced-motion"),
@@ -38,6 +38,7 @@ describe("internacionalização", () => {
     expect(document.documentElement.lang).toBe("en");
     expect(localStorage.getItem(STORAGE_KEY)).toBe("en");
     expect(screen.getAllByRole("status")[0]).toHaveTextContent("Language changed to English");
+    expect(document.querySelector(".dust-overlay")).not.toBeInTheDocument();
 
     matchMedia.mockRestore();
   });
