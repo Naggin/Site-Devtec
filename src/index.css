@@ -216,10 +216,11 @@ body {
   font-family: var(--sans); font-size: 14px; letter-spacing: 0;
 }
 
-/* fragment transition */
-.fragment-overlay {
+/* TV static language transition */
+.tv-static-overlay {
   position: fixed; inset: 0; z-index: 500;
   pointer-events: all; touch-action: none;
+  background: #080808;
 }
 .app-shell.is-transitioning { pointer-events: none; }
 body[data-lang-phase="clean"] .app-shell {

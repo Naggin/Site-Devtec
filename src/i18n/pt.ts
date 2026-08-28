@@ -30,6 +30,7 @@ export const pt: Translation = {
     switchToPt: "Mudar para português",
     languageChanged: "Idioma alterado para português",
     languageChangedEn: "Language changed to English",
+    noSignal: "SEM SINAL",
   },
   profile: {
     brand: "Devtec",

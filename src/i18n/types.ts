@@ -89,6 +89,7 @@ export type Translation = {
     switchToPt: string;
     languageChanged: string;
     languageChangedEn: string;
+    noSignal: string;
   };
   profile: {
     brand: string;

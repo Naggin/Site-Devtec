@@ -15,7 +15,7 @@ describe("internacionalização", () => {
     expect(document.documentElement.lang).toBe("pt-BR");
   });
 
-  it("alterna para inglês com reduced motion (sem fragmentação)", async () => {
+  it("alterna para inglês com reduced motion (sem efeito de TV)", async () => {
     const user = userEvent.setup();
     const matchMedia = vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({
       matches: query.includes("prefers-reduced-motion"),
