@@ -55,6 +55,40 @@ describe("melhorias interativas", () => {
     });
   });
 
+  // Regressão: entre ciclos o terminal não pode ficar sem linhas de saída.
+  it("mantém linhas visíveis ao reiniciar o ciclo (sem piscar vazio)", async () => {
+    vi.useFakeTimers();
+
+    try {
+      render(<LiveDeployTerminal />);
+      const output = screen.getByTestId("terminal-output");
+      const lineCount = () => output.querySelectorAll(".live-terminal-line").length;
+
+      const advance = async (ms: number) => {
+        for (let elapsed = 0; elapsed < ms; elapsed += 50) {
+          await act(async () => {
+            await vi.advanceTimersByTimeAsync(50);
+          });
+        }
+      };
+
+      await advance(7000);
+      expect(output).toHaveTextContent("Deploy complete");
+      expect(lineCount()).toBeGreaterThan(0);
+
+      // Janela em que o ciclo antigo apagava tudo antes de redigitar o comando.
+      for (let elapsed = 0; elapsed < 5000; elapsed += 50) {
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(50);
+        });
+        expect(lineCount()).toBeGreaterThan(0);
+      }
+      expect(output).toHaveTextContent("Deploy complete");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   // Regressão: o ciclo antigo zerava as linhas e parava, deixando uma caixa
   // vazia no hero para quem chegasse depois da primeira execução.
   it("reinicia o ciclo sozinho em vez de terminar em branco", async () => {
