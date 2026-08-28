@@ -1,5 +1,4 @@
 import StackPanel from "./StackPanel";
-import LiveDeployTerminal from "./LiveDeployTerminal";
 import { useLanguage } from "../i18n/useLanguage";
 
 export default function Hero() {
@@ -34,8 +33,6 @@ export default function Hero() {
                 {t.hero.ctaSecondary}
               </a>
             </div>
-
-            <LiveDeployTerminal />
           </div>
 
           <StackPanel />

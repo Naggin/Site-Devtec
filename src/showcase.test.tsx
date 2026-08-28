@@ -1,5 +1,4 @@
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
-import LiveDeployTerminal from "./components/LiveDeployTerminal";
+import { screen } from "@testing-library/react";
 import BentoGrid from "./components/BentoGrid";
 import DependencyGraph from "./components/DependencyGraph";
 import StatusBoard from "./components/StatusBoard";
@@ -46,87 +45,5 @@ describe("melhorias interativas", () => {
       "href",
       "https://github.com/Naggin/IAcockpit-releases/releases",
     );
-  });
-
-  it("começa o deploy sozinho quando entra em vista", async () => {
-    renderWithLanguage(<LiveDeployTerminal />);
-
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: /running/i })).toBeDisabled();
-    });
-  });
-
-  // Regressão: entre ciclos o terminal não pode ficar sem linhas de saída.
-  it("mantém linhas visíveis ao reiniciar o ciclo (sem piscar vazio)", async () => {
-    vi.useFakeTimers();
-
-    try {
-      renderWithLanguage(<LiveDeployTerminal />);
-      const output = screen.getByTestId("terminal-output");
-      const lineCount = () => output.querySelectorAll(".live-terminal-line").length;
-
-      const advance = async (ms: number) => {
-        for (let elapsed = 0; elapsed < ms; elapsed += 50) {
-          await act(async () => {
-            await vi.advanceTimersByTimeAsync(50);
-          });
-        }
-      };
-
-      await advance(7000);
-      expect(output).toHaveTextContent("Deploy complete");
-      expect(lineCount()).toBeGreaterThan(0);
-
-      // Janela em que o ciclo antigo apagava tudo antes de redigitar o comando.
-      for (let elapsed = 0; elapsed < 5000; elapsed += 50) {
-        await act(async () => {
-          await vi.advanceTimersByTimeAsync(50);
-        });
-        expect(lineCount()).toBeGreaterThan(0);
-      }
-      expect(output).toHaveTextContent("Deploy complete");
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  // Regressão: o ciclo antigo zerava as linhas e parava, deixando uma caixa
-  // vazia no hero para quem chegasse depois da primeira execução.
-  it("reinicia o ciclo sozinho em vez de terminar em branco", async () => {
-    vi.useFakeTimers();
-
-    try {
-      renderWithLanguage(<LiveDeployTerminal />);
-      const output = screen.getByTestId("terminal-output");
-
-      const advance = async (ms: number) => {
-        for (let elapsed = 0; elapsed < ms; elapsed += 50) {
-          await act(async () => {
-            await vi.advanceTimersByTimeAsync(50);
-          });
-        }
-      };
-
-      // Primeiro ciclo completo.
-      await advance(7000);
-      expect(output).toHaveTextContent("Deploy complete");
-
-      // Muito depois do ponto em que a versão antiga apagava tudo.
-      await advance(10000);
-      expect(output).toHaveTextContent("Resolving dependencies");
-
-      await advance(23000);
-      expect(output).toHaveTextContent("Resolving dependencies");
-
-      // Na janela em que o resultado fica parado na tela, dá para repetir na mão.
-      await advance(3000);
-      const replay = screen.getByRole("button", { name: /run deploy/i });
-      await act(async () => {
-        fireEvent.click(replay);
-      });
-      expect(screen.getByRole("button", { name: /running/i })).toBeDisabled();
-    } finally {
-      vi.useRealTimers();
-    }
   });
 });

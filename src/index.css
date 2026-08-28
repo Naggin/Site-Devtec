@@ -220,8 +220,12 @@ body {
 .dust-overlay {
   position: fixed; inset: 0; z-index: 500;
   pointer-events: all; touch-action: none;
+  opacity: 0;
+  transition: opacity 0.05s linear;
 }
+.dust-overlay.is-active { opacity: 1; }
 .app-shell.is-transitioning { pointer-events: none; }
+body[data-lang-phase="out"] .app-shell.is-captured,
 body[data-lang-phase="clean"] .app-shell {
   visibility: hidden;
 }
@@ -450,13 +454,39 @@ body.language-transitioning #cursor-canvas { opacity: 0; }
   display: flex; align-items: center; gap: 5px;
   font-family: var(--mono); font-size: 10px; color: var(--ink-3);
   text-transform: uppercase; letter-spacing: 0.06em;
+  transition: color 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
 }
+.stack-pipeline-step.is-active {
+  color: var(--red-ink);
+}
+.stack-pipeline-step.is-active .stack-pipeline-label { color: var(--ink); }
+.stack-pipeline-step.is-done {
+  color: rgba(57, 255, 20, 0.75);
+}
+.stack-pipeline-step.is-done .stack-pipeline-label { color: #39ff14; }
 .stack-pipeline-index {
   font-family: var(--mono); font-size: 10px; line-height: 1;
   color: var(--red-ink); opacity: 0.8;
 }
 .stack-pipeline-label { color: var(--ink-2); }
 .stack-pipeline-arrow { color: var(--red-ink); opacity: 0.6; margin: 0 2px; }
+.stack-deploy-strip {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.22);
+  font-family: var(--mono); font-size: 10.5px; line-height: 1.4;
+}
+.stack-deploy-prompt { color: var(--red-ink); user-select: none; }
+.stack-deploy-cmd { color: #f4f4f4; }
+.stack-deploy-sep { color: var(--ink-3); opacity: 0.7; }
+.stack-deploy-status {
+  color: var(--ink-2);
+  min-width: 0;
+  flex: 1 1 180px;
+  transition: color 0.25s var(--ease-out);
+}
+.stack-deploy-status.is-complete { color: #39ff14; }
 .stack-marquee {
   overflow: hidden;
   border-top: 1px solid var(--line);
@@ -554,66 +584,6 @@ body.language-transitioning #cursor-canvas { opacity: 0; }
 }
 .about-copy p { color: var(--ink-2); font-size: 16px; margin-bottom: 14px; max-width: 46ch; }
 .about-copy p strong { color: var(--ink); font-weight: 600; }
-
-/* ─── live deploy terminal ───────────────────────────────────────── */
-.live-terminal {
-  margin-top: 36px;
-  background: var(--bg-2);
-  border: 1px solid var(--line);
-  border-top: 2px solid var(--red);
-  border-radius: 12px;
-  overflow: hidden;
-  max-width: 500px;
-  opacity: 0;
-  animation: fade-up 0.85s var(--ease-out) 0.84s forwards;
-}
-.live-terminal-chrome {
-  display: flex; align-items: center; gap: 7px;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border-bottom: 1px solid var(--line);
-}
-.live-terminal-title {
-  margin-left: 8px;
-  font-family: var(--mono); font-size: 10px; color: var(--ink-3);
-}
-.live-terminal-body {
-  padding: 14px 16px;
-  font-family: var(--mono); font-size: 12px;
-  min-height: 120px;
-}
-.live-terminal-input { display: flex; gap: 10px; margin-bottom: 8px; }
-.live-terminal-cmd { color: #f4f4f4; }
-.live-terminal-line { margin-bottom: 4px; line-height: 1.5; }
-.live-pipeline {
-  display: flex; flex-wrap: wrap; gap: 6px;
-  margin-top: 14px; padding-top: 12px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.08);
-}
-.live-pipeline-step {
-  font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
-  padding: 3px 8px; border-radius: 4px;
-  border: 1px solid var(--line); color: var(--ink-3);
-  transition: all 0.3s var(--ease-out);
-}
-.live-pipeline-step.is-active {
-  border-color: var(--red-ink); color: var(--red-ink);
-  box-shadow: 0 0 12px rgba(224, 32, 32, 0.25);
-}
-.live-pipeline-step.is-done {
-  border-color: rgba(57, 255, 20, 0.35);
-  color: #39ff14; background: rgba(57, 255, 20, 0.06);
-}
-.live-terminal-run {
-  display: block; width: 100%;
-  padding: 10px; border: none; border-top: 1px solid var(--line);
-  background: rgba(224, 32, 32, 0.08);
-  font-family: var(--mono); font-size: 11px; font-weight: 600;
-  color: var(--red-ink); cursor: pointer;
-  transition: background 0.2s;
-}
-.live-terminal-run:hover:not(:disabled) { background: rgba(224, 32, 32, 0.15); }
-.live-terminal-run:disabled { opacity: 0.6; cursor: default; }
 
 /* ─── sobre / showcase ───────────────────────────────────────────── */
 .about-showcase {
@@ -1228,7 +1198,7 @@ body.language-transitioning #cursor-canvas { opacity: 0; }
 }
 @media (max-width: 500px) {
   .scroll-hint { display: none; }
-  .live-terminal { font-size: 11px; }
+  .stack-deploy-strip { font-size: 10px; }
   .stack-pipeline { flex-wrap: wrap; justify-content: center; }
   .service-row {
     grid-template-columns: 28px 1fr;
@@ -1271,6 +1241,6 @@ body.language-transitioning #cursor-canvas { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   .reveal, .reveal-left, .reveal-right { opacity: 1 !important; transform: none !important; }
-  .hero-badge, .hero h1, .hero-sub, .hero-actions, .live-terminal, .scroll-hint, .stack-panel { opacity: 1; animation: none; }
+  .hero-badge, .hero h1, .hero-sub, .hero-actions, .scroll-hint, .stack-panel { opacity: 1; animation: none; }
   .stack-marquee-track { animation: none; }
 }

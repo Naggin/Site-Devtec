@@ -1,15 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useInView } from "../hooks/useInView";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { useLanguage } from "../i18n/useLanguage";
 
 type StackKey = "fullstack" | "mobile" | "ai" | "infra";
 
+const PIPELINE_MS = 1200;
+const DEPLOY_MS = 900;
+
 export default function StackPanel() {
   const { t } = useLanguage();
+  const { ref: panelRef, inView } = useInView<HTMLElement>();
+  const reducedMotion = usePrefersReducedMotion();
   const [active, setActive] = useState<StackKey>("fullstack");
+  const [pipelineIndex, setPipelineIndex] = useState(0);
+  const [deployIndex, setDeployIndex] = useState(-1);
   const current = t.stacks.find((s) => s.id === active) ?? t.stacks[0];
+  const deploySteps = t.deploySteps;
+  const deployStatus =
+    deployIndex >= 0 ? deploySteps[deployIndex]?.text : deploySteps[deploySteps.length - 1].text;
+
+  useEffect(() => {
+    if (!inView || reducedMotion) {
+      setPipelineIndex(t.stackPipeline.length - 1);
+      setDeployIndex(deploySteps.length - 1);
+      return;
+    }
+
+    setPipelineIndex(0);
+    setDeployIndex(0);
+
+    const pipelineTimer = setInterval(() => {
+      setPipelineIndex((i) => (i >= t.stackPipeline.length - 1 ? 0 : i + 1));
+    }, PIPELINE_MS);
+
+    const deployTimer = setInterval(() => {
+      setDeployIndex((i) => (i >= deploySteps.length - 1 ? 0 : i + 1));
+    }, DEPLOY_MS);
+
+    return () => {
+      clearInterval(pipelineTimer);
+      clearInterval(deployTimer);
+    };
+  }, [inView, reducedMotion, deploySteps.length, t.stackPipeline.length]);
 
   return (
-    <aside className="stack-panel" aria-label={t.a11y.stackPanel}>
+    <aside className="stack-panel" ref={panelRef} aria-label={t.a11y.stackPanel}>
       <div className="stack-panel-chrome">
         <span className="stack-dot stack-dot-red" aria-hidden />
         <span className="stack-dot stack-dot-yellow" aria-hidden />
@@ -68,7 +104,14 @@ export default function StackPanel() {
 
       <div className="stack-pipeline" aria-label={t.a11y.stackPipeline}>
         {t.stackPipeline.map((step, i) => (
-          <div className="stack-pipeline-step" key={step.label}>
+          <div
+            className={`stack-pipeline-step${
+              pipelineIndex > i || (reducedMotion && i < t.stackPipeline.length)
+                ? " is-done"
+                : ""
+            }${pipelineIndex === i && !reducedMotion ? " is-active" : ""}`}
+            key={step.label}
+          >
             <span className="stack-pipeline-index" aria-hidden>
               {String(i + 1).padStart(2, "0")}
             </span>
@@ -80,6 +123,21 @@ export default function StackPanel() {
             )}
           </div>
         ))}
+      </div>
+
+      <div className="stack-deploy-strip" aria-live="polite">
+        <span className="stack-deploy-prompt">~</span>
+        <span className="stack-deploy-cmd">npm run deploy</span>
+        <span className="stack-deploy-sep" aria-hidden>
+          →
+        </span>
+        <span
+          className={`stack-deploy-status${
+            deployStatus.includes("✓") ? " is-complete" : ""
+          }`}
+        >
+          {deployStatus}
+        </span>
       </div>
 
       <div className="stack-marquee" aria-hidden>
