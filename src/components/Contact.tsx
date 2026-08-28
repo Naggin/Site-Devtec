@@ -105,7 +105,9 @@ export default function Contact() {
                       value={inquiry.projectType}
                       aria-invalid={errors.projectType ? true : undefined}
                       aria-describedby={errors.projectType ? "projectType-error" : undefined}
-                      onChange={(e) => update("projectType", e.target.value)}
+                      onChange={(e) =>
+                        update("projectType", e.target.value as Inquiry["projectType"])
+                      }
                     >
                       <option value="">{c.selectPlaceholder}</option>
                       {t.projectTypes.map((type) => (
