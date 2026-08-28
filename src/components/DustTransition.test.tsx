@@ -31,7 +31,7 @@ function makeSample(): DustSample {
     kind: "dust",
   }));
 
-  return { particles, pieces: [], range: { min: 0, max: 1 }, W: 400, H: 300 };
+  return { particles, pieces: [], range: { min: 0, max: 1 }, axis: "down", W: 400, H: 300 };
 }
 
 describe("DustTransition", () => {
@@ -180,12 +180,51 @@ describe("marcação das peças", () => {
     document.body.innerHTML = "";
   });
 
+  function at(top: number, left = 0): HTMLElement {
+    const el = document.createElement("div");
+    el.getBoundingClientRect = () =>
+      ({ top, left, width: 200, height: 40, bottom: top + 40, right: left + 200 }) as DOMRect;
+    document.body.append(el);
+    return el;
+  }
+
+  const delayOf = (el: HTMLElement) =>
+    Number.parseInt(el.style.getPropertyValue("--dust-d"), 10);
+
+  it("na saída a diagonal desce do topo", () => {
+    const topoEsq = at(40, 20);
+    const baixoDir = at(820, 1200);
+
+    markPieces([topoEsq, baixoDir], 600, 1440, 900, { min: 0, max: 1 }, "down");
+
+    expect(delayOf(topoEsq)).toBeLessThan(delayOf(baixoDir));
+  });
+
+  it("na volta é a mesma diagonal pela ponta oposta, de baixo para cima", () => {
+    const topoEsq = at(40, 20);
+    const baixoDir = at(820, 1200);
+
+    markPieces([topoEsq, baixoDir], 600, 1440, 900, { min: 0, max: 1 }, "up");
+
+    expect(delayOf(baixoDir)).toBeLessThan(delayOf(topoEsq));
+  });
+
+  it("a volta é diagonal, não uma faixa horizontal subindo", () => {
+    const mesmaAlturaEsq = at(500, 40);
+    const mesmaAlturaDir = at(500, 1300);
+
+    markPieces([mesmaAlturaEsq, mesmaAlturaDir], 600, 1440, 900, { min: 0, max: 1 }, "up");
+
+    // Mesma altura, x diferente: se fosse varrimento horizontal os dois seriam iguais.
+    expect(delayOf(mesmaAlturaDir)).toBeLessThan(delayOf(mesmaAlturaEsq));
+  });
+
   it("marca e desmarca sem deixar resíduo no DOM", () => {
     const a = document.createElement("div");
     const b = document.createElement("div");
     document.body.append(a, b);
 
-    markPieces([a, b], 300, 1440, 900, { min: 0, max: 1 });
+    markPieces([a, b], 300, 1440, 900, { min: 0, max: 1 }, "down");
 
     expect(a).toHaveClass("dust-piece");
     expect(a.style.getPropertyValue("--dust-d")).toMatch(/^\d+ms$/);

@@ -122,14 +122,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
 
     // Síncrono: a poeira começa no mesmo frame do clique, sem espera.
-    const shot = sampleViewport();
+    const shot = sampleViewport("down");
     if (shot.particles.length < MIN_PARTICLES) {
       applyLocale(next);
       return;
     }
 
     pendingRef.current = next;
-    markPieces(shot.pieces, SWEEP_OUT_MS, shot.W, shot.H, shot.range);
+    markPieces(shot.pieces, SWEEP_OUT_MS, shot.W, shot.H, shot.range, "down");
     markedRef.current = shot.pieces;
     setSample(shot);
     setPhase("out");
@@ -151,8 +151,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     window.scrollTo(0, scrollYRef.current);
 
     clearPieces(markedRef.current);
-    const shot = sampleViewport();
-    markPieces(shot.pieces, SWEEP_IN_MS, shot.W, shot.H, shot.range);
+    // Mesma diagonal, ponta oposta: a volta sobe trazendo a tradução.
+    const shot = sampleViewport("up");
+    markPieces(shot.pieces, SWEEP_IN_MS, shot.W, shot.H, shot.range, "up");
     markedRef.current = shot.pieces;
     return shot;
   }, [applyLocale]);

@@ -64,6 +64,7 @@ export type DustSample = {
   particles: DustParticle[];
   pieces: HTMLElement[];
   range: SweepRange;
+  axis: SweepAxis;
   W: number;
   H: number;
 };
@@ -143,9 +144,16 @@ function emberTone(src: Rgb): number {
   return Math.round(t * (EMBER_STEPS - 1));
 }
 
-/** Posição no varrimento diagonal (canto superior esquerdo primeiro). */
-function sweepAt(x: number, y: number, W: number, H: number) {
-  return clamp01(0.55 * (x / W) + 0.45 * (y / H));
+/**
+ * Sentido do varrimento. É sempre a mesma diagonal; o que muda é de que ponta
+ * ela parte. A saída desce do topo, a volta sobe de baixo trazendo a tradução.
+ */
+export type SweepAxis = "down" | "up";
+
+/** Posição de um ponto ao longo do eixo, 0 = onde começa, 1 = onde termina. */
+function sweepAt(x: number, y: number, W: number, H: number, axis: SweepAxis) {
+  const along = 0.55 * (x / W) + 0.45 * (y / H);
+  return clamp01(axis === "up" ? 1 - along : along);
 }
 
 function isDecorative(el: Element) {
@@ -192,6 +200,9 @@ function collectPieces(
     if (!(el instanceof HTMLElement) || isDecorative(el)) return;
     const r = el.getBoundingClientRect();
     if (!inViewport(r, W, H)) return;
+    // Não vira poeira o que ainda não apareceu (um `.reveal` por revelar, por
+    // exemplo). Também é o que permite a volta mirar opacidade 1 com segurança.
+    if (Number.parseFloat(styleOf(el).opacity) < 0.5) return;
     if (el.children.length === 0 || r.height <= PIECE_MAX_H) {
       out.push(el);
       return;
@@ -276,7 +287,14 @@ function collectInk(
   return ink;
 }
 
-function makeParticle(x: number, y: number, src: Rgb, W: number, H: number): DustParticle {
+function makeParticle(
+  x: number,
+  y: number,
+  src: Rgb,
+  W: number,
+  H: number,
+  axis: SweepAxis,
+): DustParticle {
   const isChar = Math.random() > 0.76;
   const token = Math.floor(Math.random() * TOKENS.length);
   const char = TOKENS[token]!;
@@ -297,12 +315,12 @@ function makeParticle(x: number, y: number, src: Rgb, W: number, H: number): Dus
     token,
     opacity: 0.75 + Math.random() * 0.25,
     // Bruto por enquanto; normalizeDelays remapeia para a faixa de conteúdo.
-    delay: sweepAt(x, y, W, H),
+    delay: sweepAt(x, y, W, H, axis),
     kind: isChar ? "char" : "dust",
   };
 }
 
-function distribute(ink: Ink[], W: number, H: number): DustParticle[] {
+function distribute(ink: Ink[], W: number, H: number, axis: SweepAxis): DustParticle[] {
   const budget = W < 768 ? BUDGET_MOBILE : BUDGET_DESKTOP;
   const total = ink.reduce((sum, i) => sum + i.weight, 0);
   if (total <= 0) return [];
@@ -314,7 +332,7 @@ function distribute(ink: Ink[], W: number, H: number): DustParticle[] {
     const n = Math.max(src.weight > 300 ? 1 : 0, share);
     for (let i = 0; i < n && particles.length < budget; i++) {
       particles.push(
-        makeParticle(src.x + Math.random() * src.w, src.y + Math.random() * src.h, src.color, W, H),
+        makeParticle(src.x + Math.random() * src.w, src.y + Math.random() * src.h, src.color, W, H, axis),
       );
     }
   }
@@ -345,11 +363,11 @@ function normalizeDelays(particles: DustParticle[]): SweepRange {
 }
 
 /** Lê o layout atual e monta partículas + peças. Síncrono e sem rasterizar. */
-export function sampleViewport(): DustSample {
+export function sampleViewport(axis: SweepAxis): DustSample {
   const W = window.innerWidth;
   const H = window.innerHeight;
   const shell = document.querySelector<HTMLElement>(".app-shell");
-  if (!shell) return { particles: [], pieces: [], range: { min: 0, max: 1 }, W, H };
+  if (!shell) return { particles: [], pieces: [], range: { min: 0, max: 1 }, axis, W, H };
 
   // Um único cache de estilo para toda a amostragem: getComputedStyle é caro
   // e os mesmos elementos são consultados na seleção de peças e na de tinta.
@@ -365,12 +383,37 @@ export function sampleViewport(): DustSample {
 
   const roots = Array.from(shell.children).filter((el) => !isDecorative(el));
   const pieces = collectPieces(roots, W, H, styleOf);
-  const particles = distribute(collectInk(pieces, W, H, styleOf), W, H);
+  const particles = distribute(collectInk(pieces, W, H, styleOf), W, H, axis);
   // Agrupadas por tom para a guarda de fillStyle no desenho quase nunca errar.
   // A ordem não importa para nada além disso: as partículas não se sobrepõem
   // de forma significativa e cada uma tem seu próprio atraso.
   particles.sort((a, b) => a.tone - b.tone);
-  return { particles, pieces, range: normalizeDelays(particles), W, H };
+  return { particles, pieces, range: normalizeDelays(particles), axis, W, H };
+}
+
+/**
+ * Congela as animações de entrada já terminadas, escrevendo o resultado delas
+ * como estilo inline.
+ *
+ * O hero entra com `animation: fade-up ... forwards`, e uma animação preenchendo
+ * a opacidade impede o browser de transicionar essa mesma opacidade — nem com
+ * `!important`, que vence na cascata mas não faz a transição disparar. O efeito
+ * era a peça reaparecer de estalo no fim da transição.
+ *
+ * `commitStyles` + `cancel` grava o estado final e tira a animação do caminho.
+ * Só mexe no que já terminou: pulso, marquee e cursor piscando seguem rodando.
+ */
+function bakeFinishedEntryAnimations(el: HTMLElement) {
+  if (typeof el.getAnimations !== "function") return;
+  for (const anim of el.getAnimations()) {
+    if (anim.playState !== "finished" || !("animationName" in anim)) continue;
+    try {
+      anim.commitStyles();
+      anim.cancel();
+    } catch {
+      /* commitStyles lança se o elemento não estiver renderizado */
+    }
+  }
 }
 
 /**
@@ -383,16 +426,18 @@ export function markPieces(
   W: number,
   H: number,
   range: SweepRange,
+  axis: SweepAxis,
 ) {
   const span = Math.max(0.08, range.max - range.min);
   const delays = pieces.map((el) => {
     const r = el.getBoundingClientRect();
     // 35% dentro da caixa: a peça começa a sumir quando a frente do varrimento a alcança.
-    const raw = sweepAt(r.left + r.width * 0.35, r.top + r.height * 0.35, W, H);
+    const raw = sweepAt(r.left + r.width * 0.35, r.top + r.height * 0.35, W, H, axis);
     return clamp01((raw - range.min) / span);
   });
 
   pieces.forEach((el, i) => {
+    bakeFinishedEntryAnimations(el);
     el.style.setProperty("--dust-d", `${Math.round(delays[i]! * sweepMs)}ms`);
     el.classList.add("dust-piece");
   });

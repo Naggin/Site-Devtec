@@ -142,6 +142,7 @@ export default function DustTransition({
     let H = sample.H || window.innerHeight;
     const outgoing = sample.particles;
     let range = sample.range;
+    let axis = sample.axis;
     let incoming: DustParticle[] = [];
     let swapped = false;
     let raf = 0;
@@ -197,10 +198,13 @@ export default function DustTransition({
       ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
     };
 
-    /** Deslocamento da partícula em relação ao repouso, para `e` de 0 a 1. */
-    const displace = (p: DustParticle, e: number, t: number) => {
+    /**
+     * Deslocamento em relação ao repouso, para `e` de 0 a 1. `rise` é -1 quando
+     * a partícula sobe embora (saída) e +1 quando ela vem de baixo (volta).
+     */
+    const displace = (p: DustParticle, e: number, t: number, rise: number) => {
       p.x = p.homeX + p.vx * e * 150 + Math.sin(t * 0.0032 + p.wobble) * 26 * e;
-      p.y = p.homeY - p.lift * e * (140 + H * 0.18);
+      p.y = p.homeY + rise * p.lift * e * (140 + H * 0.18);
     };
 
     /**
@@ -212,7 +216,12 @@ export default function DustTransition({
       // Volta do espaço normalizado para o geométrico, senão a faixa desenhada
       // corre num eixo e a dissolução real acontece em outro.
       const front = range.min + progress * (range.max - range.min);
-      const g = ctx.createLinearGradient(0, 0, W, H);
+      // O gradiente segue o mesmo eixo do varrimento, senão a faixa desenhada
+      // corre numa direção e a dissolução real acontece em outra.
+      const g =
+        axis === "up"
+          ? ctx.createLinearGradient(W, H, 0, 0)
+          : ctx.createLinearGradient(0, 0, W, H);
       const stops: [number, string][] = [
         [front - 0.18, "rgba(224, 32, 32, 0)"],
         [front - 0.05, `rgba(224, 32, 32, ${(0.05 * strength).toFixed(3)})`],
@@ -255,7 +264,7 @@ export default function DustTransition({
           const local = clamp01((elapsed - p.delay * SWEEP_OUT_MS) / FLIGHT_OUT_MS);
           if (local <= 0) continue; // a peça ainda está inteira no DOM
           const e = easeOutQuad(local);
-          displace(p, e, elapsed);
+          displace(p, e, elapsed, -1);
           // Entra junto com o fade da peça, depois se dissolve devagar.
           const appear = Math.min(1, local / 0.22);
           drawParticle(p, p.opacity * appear * (1 - local ** 1.6), e);
@@ -267,6 +276,7 @@ export default function DustTransition({
           if (next) {
             incoming = next.particles;
             range = next.range;
+            axis = next.axis;
             W = next.W;
             H = next.H;
           }
@@ -285,10 +295,11 @@ export default function DustTransition({
         for (const p of incoming) {
           const local = clamp01((elapsed - p.delay * SWEEP_IN_MS) / FLIGHT_IN_MS);
           const e = easeOutQuad(local);
-          // Espelha o "out": a partícula chega ao repouso vinda de onde teria ido.
-          displace(p, 1 - e, elapsed);
-          // Some ao pousar, no exato momento em que o texto real reaparece.
-          drawParticle(p, p.opacity * (1 - local ** 2.2), 1 - e);
+          // Vem de baixo e sobe até o repouso, acompanhando o varrimento.
+          displace(p, 1 - e, elapsed, 1);
+          // Acende ao entrar e some ao pousar, no instante em que o texto reaparece.
+          const appear = Math.min(1, local / 0.12);
+          drawParticle(p, p.opacity * appear * (1 - local ** 2.2), 1 - e);
         }
 
         if (elapsed >= IN_MS) {
