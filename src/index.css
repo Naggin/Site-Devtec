@@ -228,13 +228,20 @@ body {
 /* Cada peça some e volta no seu tempo, escalonada na diagonal por --dust-d.
    O !important é necessário: o hero chega aqui com `animation: fade-up forwards`
    segurando a opacidade, e animação vence estilo normal na cascata. */
+/* O atraso vai DENTRO do shorthand: declarar `transition-delay` à parte e depois
+   um `transition:` mata o atraso, e sem atraso não há varrimento — a tela toda
+   se desfaz junto. Curva simétrica e sem pressa, no mesmo ritmo da poeira. */
 .app-shell.is-dusting .dust-piece,
 .app-shell.is-reforming .dust-piece {
-  transition: opacity 300ms linear;
-  transition-delay: var(--dust-d, 0ms);
   will-change: opacity;
 }
-.app-shell.is-dusting .dust-piece { opacity: 0 !important; }
+.app-shell.is-dusting .dust-piece {
+  transition: opacity 520ms cubic-bezier(0.4, 0, 0.6, 1) var(--dust-d, 0ms);
+  opacity: 0 !important;
+}
+.app-shell.is-reforming .dust-piece {
+  transition: opacity 460ms cubic-bezier(0.4, 0, 0.6, 1) var(--dust-d, 0ms);
+}
 .app-shell.is-instant .dust-piece { transition: none !important; }
 
 /* menu mobile */

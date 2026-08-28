@@ -17,7 +17,7 @@ const startMs = Date.now();
 const ptToggle = page.getByRole("button", { name: /Mudar para inglês/i }).first();
 await ptToggle.click();
 
-for (let i = 0; i < 40; i++) {
+for (let i = 0; i < 90; i++) {
   await page.waitForTimeout(50);
   const state = await page.evaluate(() => {
     const canvas = document.querySelector(".dust-overlay");
@@ -52,8 +52,8 @@ const results = {
     particlesDuringOut > 0 &&
     finalLang === "en" &&
     transitionDoneMs !== null &&
-    transitionDoneMs >= 700 &&
-    transitionDoneMs <= 1800,
+    transitionDoneMs >= 2300 &&
+    transitionDoneMs <= 3800,
 };
 
 console.log(JSON.stringify(results, null, 2));

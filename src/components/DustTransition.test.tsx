@@ -5,8 +5,10 @@ import DustTransition, {
   IN_MS,
   OUT_MS,
   PIECE_FADE_MS,
+  PIECE_REFORM_MS,
   SWAP_MS,
-  SWEEP_MS,
+  SWEEP_IN_MS,
+  SWEEP_OUT_MS,
   TOTAL_MS,
   type Phase,
 } from "./DustTransition";
@@ -21,14 +23,15 @@ function makeSample(): DustSample {
     vx: 0.5,
     lift: 1,
     wobble: 0,
-    color: "rgb(224, 32, 32)",
+    spin: 0,
+    tone: i % 10,
+    token: 0,
     opacity: 1,
     delay: i / 120,
     kind: "dust",
-    char: "0",
   }));
 
-  return { particles, pieces: [], W: 400, H: 300 };
+  return { particles, pieces: [], range: { min: 0, max: 1 }, W: 400, H: 300 };
 }
 
 describe("DustTransition", () => {
@@ -48,7 +51,16 @@ describe("DustTransition", () => {
         fillRect: vi.fn(),
         fillText: vi.fn(),
         setTransform: vi.fn(),
+        save: vi.fn(),
+        restore: vi.fn(),
+        translate: vi.fn(),
+        rotate: vi.fn(),
+        createLinearGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
+        drawImage: vi.fn(),
+        measureText: vi.fn(() => ({ width: 10 })),
+        textBaseline: "alphabetic",
         globalAlpha: 1,
+        globalCompositeOperation: "source-over",
         fillStyle: "",
         font: "",
       } as unknown as CanvasRenderingContext2D;
@@ -72,15 +84,21 @@ describe("DustTransition", () => {
     });
   };
 
-  it("mantém a transição curta e sem blackout", () => {
+  it("é lenta de propósito, mas sem blackout", () => {
     expect(TOTAL_MS).toBe(OUT_MS + SWAP_MS + IN_MS);
-    expect(TOTAL_MS).toBeGreaterThanOrEqual(900);
-    expect(TOTAL_MS).toBeLessThanOrEqual(1300);
+    // Cadência de varrimento, não de toggle: rápido demais perde o efeito,
+    // lento demais transforma trocar de idioma em espera.
+    expect(TOTAL_MS).toBeGreaterThanOrEqual(2200);
+    expect(TOTAL_MS).toBeLessThanOrEqual(3200);
     // A tela só fica realmente vazia durante o swap.
-    expect(SWAP_MS).toBeLessThanOrEqual(120);
-    // A última peça entra no varrimento em SWEEP_MS e leva PIECE_FADE_MS para sumir.
-    // Se isso estourar o "out", o idioma troca com peça ainda visível — a piscada de volta.
-    expect(SWEEP_MS + PIECE_FADE_MS).toBeLessThanOrEqual(OUT_MS);
+    expect(SWAP_MS).toBeLessThanOrEqual(160);
+    // A última peça entra no varrimento em SWEEP_* e leva PIECE_* para sumir. Se
+    // isso estourar a fase, o idioma troca com peça ainda visível — a piscada de volta.
+    expect(SWEEP_OUT_MS + PIECE_FADE_MS).toBeLessThanOrEqual(OUT_MS);
+    expect(SWEEP_IN_MS + PIECE_REFORM_MS).toBeLessThanOrEqual(IN_MS);
+    // A folga entre frente e voo é o que se lê como "varrido": sem ela, a tela
+    // inteira se desfaz de uma vez.
+    expect(SWEEP_OUT_MS).toBeGreaterThan(OUT_MS * 0.4);
   });
 
   it("desenha as partículas do primeiro frame", async () => {
@@ -167,7 +185,7 @@ describe("marcação das peças", () => {
     const b = document.createElement("div");
     document.body.append(a, b);
 
-    markPieces([a, b], 300, 1440, 900);
+    markPieces([a, b], 300, 1440, 900, { min: 0, max: 1 });
 
     expect(a).toHaveClass("dust-piece");
     expect(a.style.getPropertyValue("--dust-d")).toMatch(/^\d+ms$/);

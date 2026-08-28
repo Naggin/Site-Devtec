@@ -8,7 +8,7 @@ import {
 } from "react";
 import { flushSync } from "react-dom";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
-import DustTransition, { SWEEP_MS, type Phase } from "../components/DustTransition";
+import DustTransition, { SWEEP_IN_MS, SWEEP_OUT_MS, type Phase } from "../components/DustTransition";
 import { clearPieces, markPieces, sampleViewport, type DustSample } from "../lib/dustSample";
 import {
   getTranslation,
@@ -129,7 +129,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
 
     pendingRef.current = next;
-    markPieces(shot.pieces, SWEEP_MS, shot.W, shot.H);
+    markPieces(shot.pieces, SWEEP_OUT_MS, shot.W, shot.H, shot.range);
     markedRef.current = shot.pieces;
     setSample(shot);
     setPhase("out");
@@ -152,7 +152,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     clearPieces(markedRef.current);
     const shot = sampleViewport();
-    markPieces(shot.pieces, SWEEP_MS, shot.W, shot.H);
+    markPieces(shot.pieces, SWEEP_IN_MS, shot.W, shot.H, shot.range);
     markedRef.current = shot.pieces;
     return shot;
   }, [applyLocale]);
