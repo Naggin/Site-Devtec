@@ -1,12 +1,13 @@
-import { render, screen, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Header from "./components/Header";
 import { navItems } from "./data";
+import { renderWithLanguage } from "./test/renderWithLanguage";
 
 describe("navegação", () => {
   it("abre e fecha o menu mobile pelo botão", async () => {
     const user = userEvent.setup();
-    render(<Header />);
+    renderWithLanguage(<Header />);
 
     const toggle = screen.getByRole("button", { name: "Abrir menu" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
@@ -35,7 +36,7 @@ describe("navegação", () => {
 
   it("fecha o menu com Escape", async () => {
     const user = userEvent.setup();
-    render(<Header />);
+    renderWithLanguage(<Header />);
 
     await user.click(screen.getByRole("button", { name: "Abrir menu" }));
     await user.keyboard("{Escape}");

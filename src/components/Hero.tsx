@@ -1,7 +1,10 @@
 import StackPanel from "./StackPanel";
 import LiveDeployTerminal from "./LiveDeployTerminal";
+import { useLanguage } from "../i18n/useLanguage";
 
 export default function Hero() {
+  const { t } = useLanguage();
+
   return (
     <section className="hero" id="topo">
       <div className="wrap">
@@ -9,27 +12,26 @@ export default function Hero() {
           <div className="hero-copy">
             <div className="hero-badge">
               <span className="hero-badge-dot" aria-hidden />
-              Disponível para novos projetos
+              {t.hero.badge}
             </div>
 
             <h1>
-              <span className="line-white">Transformo</span>
-              <span className="line-red">ideias</span>
-              <span className="line-white">em produto.</span>
+              <span className="line-white">{t.hero.lineWhite1}</span>
+              <span className="line-red">{t.hero.lineRed}</span>
+              <span className="line-white">{t.hero.lineWhite2}</span>
             </h1>
 
             <p className="hero-sub">
-              <strong>Antonio Junior</strong>, desenvolvedor full-stack. Pego o
-              problema do seu dia a dia e devolvo software rodando em produção —
-              com o código no seu nome.
+              <strong>{t.hero.subStrong}</strong>
+              {t.hero.subRest}
             </p>
 
             <div className="hero-actions">
               <a className="btn btn-primary" href="#contato">
-                Falar sobre meu projeto
+                {t.hero.ctaPrimary}
               </a>
               <a className="btn btn-ghost" href="#projetos">
-                Ver trabalhos no ar
+                {t.hero.ctaSecondary}
               </a>
             </div>
 
@@ -40,7 +42,7 @@ export default function Hero() {
         </div>
 
         <div className="scroll-hint" aria-hidden>
-          <span>scroll</span>
+          <span>{t.hero.scrollHint}</span>
         </div>
       </div>
     </section>

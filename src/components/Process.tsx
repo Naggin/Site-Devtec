@@ -1,20 +1,21 @@
-import { deliverables, faq, processSteps } from "../data";
+import { useLanguage } from "../i18n/useLanguage";
 
 export default function Process() {
+  const { t } = useLanguage();
+
   return (
     <section className="section section-border" id="processo">
       <div className="wrap">
-        <p className="kicker reveal">04 / Processo</p>
+        <p className="kicker reveal">{t.sections.process.kicker}</p>
         <h2 className="section-title reveal" data-delay="1">
-          Como isso funciona na prática.
+          {t.sections.process.title}
         </h2>
         <p className="section-sub reveal" data-delay="2">
-          Contratar dev costuma ser um salto no escuro. Aqui está exatamente o que
-          acontece depois que você me manda a primeira mensagem.
+          {t.sections.process.sub}
         </p>
 
         <ol className="process-steps">
-          {processSteps.map((step, i) => (
+          {t.processSteps.map((step, i) => (
             <li className="process-step reveal" data-delay={String((i % 2) + 1)} key={step.num}>
               <span className="process-num" aria-hidden>
                 {step.num}
@@ -26,9 +27,9 @@ export default function Process() {
         </ol>
 
         <div className="deliverables reveal" data-delay="1">
-          <h3 className="deliverables-title">O que fica com você no final</h3>
+          <h3 className="deliverables-title">{t.sections.process.deliverablesTitle}</h3>
           <ul>
-            {deliverables.map((item) => (
+            {t.deliverables.map((item) => (
               <li key={item.title}>
                 <span className="deliverable-check" aria-hidden>
                   ✓
@@ -43,8 +44,8 @@ export default function Process() {
         </div>
 
         <div className="faq reveal" data-delay="1">
-          <h3 className="faq-title">Perguntas que sempre aparecem</h3>
-          {faq.map((item) => (
+          <h3 className="faq-title">{t.sections.process.faqTitle}</h3>
+          {t.faq.map((item) => (
             <details className="faq-item" key={item.question}>
               <summary>
                 {item.question}

@@ -1,11 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Services from "./components/Services";
+import { renderWithLanguage } from "./test/renderWithLanguage";
 
 describe("Services", () => {
   it("destaca o serviço selecionado e atualiza o detalhe", async () => {
     const user = userEvent.setup();
-    render(<Services />);
+    renderWithLanguage(<Services />);
 
     expect(screen.getByText(/Sites, dashboards e apps/)).toBeInTheDocument();
     expect(screen.getByText("React")).toBeInTheDocument();

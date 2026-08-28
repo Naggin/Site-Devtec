@@ -1,11 +1,13 @@
-import { proofPoints } from "../data";
+import { useLanguage } from "../i18n/useLanguage";
 
 export default function ProofStrip() {
+  const { t } = useLanguage();
+
   return (
-    <section className="proof-strip" aria-label="Provas verificáveis">
+    <section className="proof-strip" aria-label={t.a11y.proofStrip}>
       <div className="wrap">
         <ul className="proof-list">
-          {proofPoints.map((point) => {
+          {t.proofPoints.map((point) => {
             const external = point.href.startsWith("http");
             return (
               <li className="proof-item reveal" key={point.label}>

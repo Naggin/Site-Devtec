@@ -1,11 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import StackPanel from "./components/StackPanel";
+import { renderWithLanguage } from "./test/renderWithLanguage";
 
 describe("StackPanel", () => {
   it("alterna a categoria ativa ao clicar nas abas", async () => {
     const user = userEvent.setup();
-    render(<StackPanel />);
+    renderWithLanguage(<StackPanel />);
 
     expect(screen.getByRole("tab", { name: "Full-stack" })).toHaveAttribute(
       "aria-selected",

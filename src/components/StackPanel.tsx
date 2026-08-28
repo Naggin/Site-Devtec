@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { stacks, stackPipeline } from "../data";
+import { useLanguage } from "../i18n/useLanguage";
 
-type StackKey = (typeof stacks)[number]["id"];
+type StackKey = "fullstack" | "mobile" | "ai" | "infra";
 
 export default function StackPanel() {
+  const { t } = useLanguage();
   const [active, setActive] = useState<StackKey>("fullstack");
-  const current = stacks.find((s) => s.id === active) ?? stacks[0];
+  const current = t.stacks.find((s) => s.id === active) ?? t.stacks[0];
 
   return (
-    <aside className="stack-panel" aria-label="Stack e capacidades técnicas">
+    <aside className="stack-panel" aria-label={t.a11y.stackPanel}>
       <div className="stack-panel-chrome">
         <span className="stack-dot stack-dot-red" aria-hidden />
         <span className="stack-dot stack-dot-yellow" aria-hidden />
@@ -17,8 +18,8 @@ export default function StackPanel() {
         <span className="stack-status">build ok</span>
       </div>
 
-      <div className="stack-tabs" role="tablist" aria-label="Categorias de stack">
-        {stacks.map((item) => (
+      <div className="stack-tabs" role="tablist" aria-label={t.a11y.stackCategories}>
+        {t.stacks.map((item) => (
           <button
             key={item.id}
             type="button"
@@ -37,22 +38,21 @@ export default function StackPanel() {
           <code>
             <span className="ck-kw">export const</span> capabilities = {"{"}
             {"\n"}
-            {stacks.map((item) => (
+            {t.stacks.map((item) => (
               <span
                 key={item.id}
                 className={`stack-line${active === item.id ? " is-active" : ""}`}
               >
                 {"  "}
                 <span className="ck-prop">{item.id}</span>: [
-                {item.tech.map((t, i) => (
-                  <span key={t}>
+                {item.tech.map((tech, i) => (
+                  <span key={tech}>
                     <span className={`ck-str${active === item.id ? " is-lit" : ""}`}>
-                      &apos;{t}&apos;
+                      &apos;{tech}&apos;
                     </span>
                     {i < item.tech.length - 1 ? ", " : ""}
                   </span>
-                ))}
-                ],
+                ))},
                 {"\n"}
               </span>
             ))}
@@ -66,14 +66,14 @@ export default function StackPanel() {
         </div>
       </div>
 
-      <div className="stack-pipeline" aria-label="Do zero ao deploy">
-        {stackPipeline.map((step, i) => (
+      <div className="stack-pipeline" aria-label={t.a11y.stackPipeline}>
+        {t.stackPipeline.map((step, i) => (
           <div className="stack-pipeline-step" key={step.label}>
             <span className="stack-pipeline-index" aria-hidden>
               {String(i + 1).padStart(2, "0")}
             </span>
             <span className="stack-pipeline-label">{step.label}</span>
-            {i < stackPipeline.length - 1 && (
+            {i < t.stackPipeline.length - 1 && (
               <span className="stack-pipeline-arrow" aria-hidden>
                 →
               </span>
@@ -84,7 +84,7 @@ export default function StackPanel() {
 
       <div className="stack-marquee" aria-hidden>
         <div className="stack-marquee-track">
-          {[...stacks.flatMap((s) => s.tech), ...stacks.flatMap((s) => s.tech)].map(
+          {[...t.stacks.flatMap((s) => s.tech), ...t.stacks.flatMap((s) => s.tech)].map(
             (tag, i) => (
               <span className="stack-chip" key={`${tag}-${i}`}>
                 {tag}

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
+import { useLanguage } from "../i18n/useLanguage";
 
 const SNIPPETS = [
   "const build = () =>",
@@ -62,9 +63,10 @@ type Rect = { top: number; right: number; bottom: number; left: number };
 export default function CursorCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const { isTransitioning } = useLanguage();
 
   useEffect(() => {
-    if (reducedMotion) return;
+    if (reducedMotion || isTransitioning) return;
 
     const canvas = ref.current;
     if (!canvas) return;
@@ -233,9 +235,9 @@ export default function CursorCanvas() {
       window.removeEventListener("scroll",    onScroll);
       window.removeEventListener("resize",    resize);
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, isTransitioning]);
 
-  if (reducedMotion) return null;
+  if (reducedMotion || isTransitioning) return null;
 
   return <canvas ref={ref} id="cursor-canvas" aria-hidden />;
 }

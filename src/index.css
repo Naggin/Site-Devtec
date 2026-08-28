@@ -194,6 +194,40 @@ body {
 }
 .nav-cta:hover { background: var(--red-hover) !important; }
 
+/* language toggle */
+.lang-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 40px; height: 32px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink-2); font-family: var(--mono);
+  font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+  cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.lang-toggle:hover:not(:disabled) {
+  color: var(--ink); border-color: var(--red-line); background: rgba(224, 32, 32, 0.08);
+}
+.lang-toggle:disabled { opacity: 0.5; cursor: not-allowed; }
+.lang-toggle-code { line-height: 1; }
+.lang-toggle-mobile { display: none; }
+.header-actions { display: none; align-items: center; gap: 8px; }
+.lang-toggle-menu {
+  width: 100%; margin-top: 8px; height: 44px;
+  font-family: var(--sans); font-size: 14px; letter-spacing: 0;
+}
+
+/* TV static language transition */
+.tv-static-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  pointer-events: all; touch-action: none;
+  background: #080808;
+}
+.app-shell.is-transitioning { pointer-events: none; }
+body[data-lang-phase="clean"] .app-shell {
+  visibility: hidden;
+}
+body.language-transitioning #cursor-canvas { opacity: 0; }
+
 /* menu mobile */
 .nav-toggle {
   display: none;
@@ -1177,6 +1211,9 @@ body {
 
   /* Os links viram menu de hambúrguer em vez de simplesmente sumirem. */
   .nav a:not(.nav-cta) { display: none; }
+  .nav .lang-toggle:not(.lang-toggle-menu) { display: none; }
+  .header-actions { display: flex; }
+  .lang-toggle-mobile { display: inline-flex; }
   .nav-toggle { display: flex; }
   .nav-mobile { display: block; }
 

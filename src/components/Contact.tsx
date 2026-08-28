@@ -1,5 +1,5 @@
 import { useRef, useState, type FormEvent } from "react";
-import { profile, projectTypes } from "../data";
+import { profile } from "../data";
 import {
   buildMailto,
   emptyInquiry,
@@ -7,10 +7,12 @@ import {
   type Inquiry,
   type InquiryField,
 } from "../contact";
+import { useLanguage } from "../i18n/useLanguage";
 
 const fieldOrder: InquiryField[] = ["name", "email", "projectType", "message"];
 
 export default function Contact() {
+  const { t } = useLanguage();
   const [inquiry, setInquiry] = useState<Inquiry>(emptyInquiry);
   const [errors, setErrors] = useState<Partial<Record<InquiryField, string>>>({});
   const [submitted, setSubmitted] = useState<Inquiry | null>(null);
@@ -22,7 +24,7 @@ export default function Contact() {
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const errs = validateInquiry(inquiry);
+    const errs = validateInquiry(inquiry, t.contactErrors);
     setErrors(errs);
 
     const firstInvalid = fieldOrder.find((field) => errs[field]);
@@ -35,17 +37,17 @@ export default function Contact() {
   }
 
   const errorCount = Object.keys(errors).length;
+  const c = t.sections.contact;
 
   return (
     <section className="section section-border" id="contato">
       <div className="wrap">
-        <p className="kicker reveal">05 / Contato</p>
+        <p className="kicker reveal">{c.kicker}</p>
         <h2 className="section-title reveal" data-delay="1">
-          Bora construir.
+          {c.title}
         </h2>
         <p className="section-sub reveal" data-delay="2">
-          Descreva o problema em duas linhas. Eu respondo com um plano — escopo,
-          prazo e preço — antes de você assumir qualquer compromisso.
+          {c.sub}
         </p>
 
         <div className="contact-layout">
@@ -58,10 +60,7 @@ export default function Contact() {
                 {profile.githubLabel}
               </a>
             </p>
-            <p className="contact-note">
-              Prefere ver antes de conversar? O código dos projetos está aberto no
-              GitHub e três deles estão no ar agora.
-            </p>
+            <p className="contact-note">{c.note}</p>
           </div>
 
           <div className="reveal" data-delay="3">
@@ -76,17 +75,13 @@ export default function Contact() {
                 aria-describedby="form-status"
               >
                 <p id="form-status" className="form-status" role="alert">
-                  {errorCount > 0
-                    ? `Faltou preencher ${errorCount} ${
-                        errorCount === 1 ? "campo" : "campos"
-                      }.`
-                    : ""}
+                  {errorCount > 0 ? c.missingFields(errorCount) : ""}
                 </p>
 
                 <div className="form-row">
                   <Field
                     id="name"
-                    label="Nome"
+                    label={c.nameLabel}
                     error={errors.name}
                     autoComplete="name"
                     value={inquiry.name}
@@ -94,7 +89,7 @@ export default function Contact() {
                   />
                   <Field
                     id="email"
-                    label="E-mail"
+                    label={c.emailLabel}
                     type="email"
                     error={errors.email}
                     autoComplete="email"
@@ -103,7 +98,7 @@ export default function Contact() {
                   />
 
                   <div className="field full">
-                    <label htmlFor="projectType">Tipo de projeto</label>
+                    <label htmlFor="projectType">{c.projectTypeLabel}</label>
                     <select
                       id="projectType"
                       name="projectType"
@@ -114,10 +109,10 @@ export default function Contact() {
                         update("projectType", e.target.value as Inquiry["projectType"])
                       }
                     >
-                      <option value="">Selecione</option>
-                      {projectTypes.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
+                      <option value="">{c.selectPlaceholder}</option>
+                      {t.projectTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
                         </option>
                       ))}
                     </select>
@@ -129,7 +124,7 @@ export default function Contact() {
                   </div>
 
                   <div className="field full">
-                    <label htmlFor="message">O que você precisa?</label>
+                    <label htmlFor="message">{c.messageLabel}</label>
                     <textarea
                       id="message"
                       name="message"
@@ -137,7 +132,7 @@ export default function Contact() {
                       aria-invalid={errors.message ? true : undefined}
                       aria-describedby={errors.message ? "message-error" : undefined}
                       onChange={(e) => update("message", e.target.value)}
-                      placeholder="Ex.: tenho uma clínica e controlo os agendamentos no caderno."
+                      placeholder={c.messagePlaceholder}
                     />
                     {errors.message ? (
                       <span className="error" id="message-error">
@@ -149,11 +144,9 @@ export default function Contact() {
 
                 <div className="form-foot">
                   <button className="btn btn-primary" type="submit">
-                    Enviar briefing
+                    {c.submit}
                   </button>
-                  <span className="form-foot-note">
-                    Sem cadastro e sem lista de e-mail. Vai direto para mim.
-                  </span>
+                  <span className="form-foot-note">{c.footNote}</span>
                 </div>
               </form>
             )}
@@ -198,26 +191,26 @@ function Field({ id, label, value, error, type, autoComplete, onChange }: FieldP
 }
 
 function SuccessCard({ submitted }: { submitted: Inquiry }) {
+  const { t } = useLanguage();
+  const c = t.sections.contact;
+
   return (
     <div className="success-card" role="status" data-testid="inquiry-success">
-      <p className="kicker">Briefing pronto</p>
-      <h3>Valeu, {submitted.name.split(" ")[0]}.</h3>
-      <p>
-        Falta um passo: abra o e-mail já preenchido e envie. Ele chega direto na
-        minha caixa de entrada.
-      </p>
+      <p className="kicker">{c.successKicker}</p>
+      <h3>{c.successTitle(submitted.name.split(" ")[0] ?? submitted.name)}</h3>
+      <p>{c.successBody}</p>
       <dl>
         <div>
-          <dt>Tipo</dt>
+          <dt>{c.successType}</dt>
           <dd>{submitted.projectType}</dd>
         </div>
         <div>
-          <dt>E-mail</dt>
+          <dt>{c.successEmail}</dt>
           <dd>{submitted.email}</dd>
         </div>
       </dl>
-      <a className="btn btn-primary" href={buildMailto(submitted)}>
-        Abrir no e-mail
+      <a className="btn btn-primary" href={buildMailto(submitted, t)}>
+        {c.openEmail}
       </a>
     </div>
   );
