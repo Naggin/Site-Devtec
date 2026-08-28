@@ -37,10 +37,11 @@ describe("DustTransition", () => {
     vi.restoreAllMocks();
   });
 
-  it("exporta durações dentro da janela cinematográfica", () => {
-    expect(TOTAL_MS).toBeGreaterThanOrEqual(1500);
-    expect(TOTAL_MS).toBeLessThanOrEqual(2500);
+  it("exporta durações rápidas e fluidas (snappy, não blackout)", () => {
+    expect(TOTAL_MS).toBeGreaterThanOrEqual(900);
+    expect(TOTAL_MS).toBeLessThanOrEqual(1300);
     expect(TOTAL_MS).toBe(OUT_MS + CLEAN_MS + IN_MS);
+    expect(CLEAN_MS).toBeLessThanOrEqual(200);
   });
 
   it("renderiza canvas overlay após captura da snapshot", async () => {

@@ -2,9 +2,10 @@ import html2canvas from "html2canvas";
 import { useEffect, useRef, useState } from "react";
 
 const CHARS = "01{}[]<>/\\|&*#@$%constletfn=>;".split("");
-const OUT_MS = 750;
-const CLEAN_MS = 350;
-const IN_MS = 900;
+/** Snappy PT/EN swap — total ~1.1s so it feels alive, not broken. */
+const OUT_MS = 450;
+const CLEAN_MS = 150;
+const IN_MS = 550;
 const TOTAL_MS = OUT_MS + CLEAN_MS + IN_MS;
 
 type Phase = "out" | "clean" | "in";
@@ -34,6 +35,10 @@ type Props = {
 
 function easeOutCubic(t: number) {
   return 1 - (1 - t) ** 3;
+}
+
+function easeOutQuart(t: number) {
+  return 1 - (1 - t) ** 4;
 }
 
 function easeInOutCubic(t: number) {
@@ -149,7 +154,7 @@ function makeParticle(
     wobble: Math.random() * Math.PI * 2,
     color: tintColor(r, g, b, redMix),
     opacity: 0.8 + Math.random() * 0.2,
-    delay: Math.random() * 0.5,
+    delay: Math.random() * 0.28,
     kind: isChar ? "char" : "dust",
     char: CHARS[Math.floor(Math.random() * CHARS.length)]!,
   };
@@ -330,29 +335,29 @@ export default function DustTransition({
         const p = Math.min(1, elapsed / OUT_MS);
 
         if (snapshot) {
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = Math.max(0.15, 1 - easeOutQuart(p) * 0.55);
           ctx.drawImage(snapshot, 0, 0, W, H);
         }
 
         for (const s of particlesRef.current) {
           const local = Math.min(
             1,
-            Math.max(0, (p - s.delay * 0.4) / Math.max(0.05, 1 - s.delay * 0.4)),
+            Math.max(0, (p - s.delay * 0.22) / Math.max(0.04, 1 - s.delay * 0.22)),
           );
-          const eased = easeOutCubic(local);
+          const eased = easeOutQuart(local);
           if (eased <= 0) continue;
 
           punchHole(s.homeX, s.homeY, s.size * (s.kind === "char" ? 2.8 : 2.2));
 
-          const drift = Math.sin(elapsed * 0.005 + s.wobble) * 14 * eased;
-          s.x = s.homeX + s.vx * eased * 55 + drift;
-          s.y = s.homeY - s.lift * eased * (100 + H * 0.1);
-          s.opacity = (1 - eased * 0.55) * 0.98;
+          const drift = Math.sin(elapsed * 0.007 + s.wobble) * 16 * eased;
+          s.x = s.homeX + s.vx * eased * 72 + drift;
+          s.y = s.homeY - s.lift * eased * (120 + H * 0.12);
+          s.opacity = (1 - eased * 0.45) * 0.98;
 
           drawParticle(s, s.opacity);
         }
 
-        const dark = easeOutCubic(Math.max(0, (p - 0.78) / 0.22)) * 0.42;
+        const dark = easeOutCubic(Math.max(0, (p - 0.88) / 0.12)) * 0.22;
         ctx.globalAlpha = 1;
         ctx.fillStyle = `rgba(6, 6, 6, ${dark})`;
         ctx.fillRect(0, 0, W, H);
@@ -362,15 +367,17 @@ export default function DustTransition({
           onPhaseChange("clean");
         }
       } else if (currentPhase === "clean") {
-        ctx.fillStyle = "#060606";
+        const linger = Math.min(1, elapsed / CLEAN_MS);
+        const veil = 0.38 * (1 - easeOutCubic(linger));
+
+        ctx.fillStyle = `rgba(6, 6, 6, ${veil})`;
         ctx.fillRect(0, 0, W, H);
 
-        const linger = Math.min(1, elapsed / CLEAN_MS);
         for (const s of particlesRef.current) {
           if (Math.random() > 0.985) continue;
-          s.x += s.vx * 0.8;
-          s.y -= s.lift * 1.1;
-          s.opacity = 0.15 * (1 - linger);
+          s.x += s.vx * 1.2;
+          s.y -= s.lift * 1.6;
+          s.opacity = 0.22 * (1 - linger);
           drawParticle(s, s.opacity);
         }
 
@@ -381,7 +388,7 @@ export default function DustTransition({
       } else if (currentPhase === "in") {
         const p = Math.min(1, elapsed / IN_MS);
         const eased = easeInOutCubic(p);
-        const dark = (1 - eased) * 0.85;
+        const dark = (1 - eased) * 0.48;
 
         ctx.fillStyle = `rgba(6, 6, 6, ${dark})`;
         ctx.fillRect(0, 0, W, H);
@@ -389,15 +396,15 @@ export default function DustTransition({
         for (const s of particlesRef.current) {
           const local = Math.min(
             1,
-            Math.max(0, (p - s.delay * 0.15) / Math.max(0.05, 1 - s.delay * 0.12)),
+            Math.max(0, (p - s.delay * 0.1) / Math.max(0.04, 1 - s.delay * 0.08)),
           );
-          const t = easeInOutCubic(local);
-          const scatterX = s.vx * 80 + Math.sin(s.wobble) * 45;
-          const scatterY = -90 - s.lift * 130;
+          const t = easeOutCubic(local);
+          const scatterX = s.vx * 90 + Math.sin(s.wobble) * 50;
+          const scatterY = -100 - s.lift * 140;
 
           s.x = s.homeX + scatterX * (1 - t);
           s.y = s.homeY + scatterY * (1 - t);
-          s.opacity = Math.min(1, t * 1.15) * (p > 0.85 ? (1 - p) / 0.15 : 0.9);
+          s.opacity = Math.min(1, t * 1.2) * (p > 0.82 ? (1 - p) / 0.18 : 0.92);
 
           drawParticle(s, s.opacity);
         }

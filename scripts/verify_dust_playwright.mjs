@@ -8,15 +8,17 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await page.goto(URL, { waitUntil: "networkidle" });
 await page.waitForTimeout(500);
 
-const ptToggle = page.getByRole("button", { name: /Mudar para inglês/i }).first();
-await ptToggle.click();
-
 let overlaySeen = false;
 let particlesDuringOut = 0;
 let phaseDuringOut = "";
+let transitionDoneMs = null;
+const startMs = Date.now();
 
-for (let i = 0; i < 30; i++) {
-  await page.waitForTimeout(80);
+const ptToggle = page.getByRole("button", { name: /Mudar para inglês/i }).first();
+await ptToggle.click();
+
+for (let i = 0; i < 40; i++) {
+  await page.waitForTimeout(50);
   const state = await page.evaluate(() => {
     const canvas = document.querySelector(".dust-overlay");
     const phase = document.body.dataset.langPhase ?? "";
@@ -30,6 +32,9 @@ for (let i = 0; i < 30; i++) {
     particlesDuringOut = Math.max(particlesDuringOut, state.count);
     phaseDuringOut = "out";
   }
+  if (state.phase === "idle" && transitionDoneMs === null) {
+    transitionDoneMs = Date.now() - startMs;
+  }
 }
 
 const finalLang = await page.evaluate(() => document.documentElement.lang);
@@ -41,7 +46,14 @@ const results = {
   particlesDuringOut,
   phaseDuringOut,
   finalLang,
-  pass: overlaySeen && particlesDuringOut > 0 && finalLang === "en",
+  transitionDoneMs,
+  pass:
+    overlaySeen &&
+    particlesDuringOut > 0 &&
+    finalLang === "en" &&
+    transitionDoneMs !== null &&
+    transitionDoneMs >= 700 &&
+    transitionDoneMs <= 1800,
 };
 
 console.log(JSON.stringify(results, null, 2));
