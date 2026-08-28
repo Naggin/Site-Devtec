@@ -5,7 +5,7 @@ export default function GitTimeline() {
   const { ref, inView } = useInView<HTMLDivElement>();
 
   return (
-    <div ref={ref} className={`git-timeline reveal${inView ? " is-visible" : ""}`} data-delay="2">
+    <div ref={ref} className={`git-timeline${inView ? " is-visible" : ""}`}>
       <div className="git-timeline-header">
         <span className="git-timeline-repo">Naggin/moneyzin</span>
         <span className="git-timeline-branch">main</span>

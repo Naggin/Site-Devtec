@@ -546,7 +546,8 @@ body {
 }
 
 /* dependency graph */
-.dep-graph { margin-top: 48px; }
+.dep-graph { margin-top: 48px; opacity: 0; transform: translateY(24px); transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out); }
+.dep-graph.is-animated { opacity: 1; transform: translateY(0); }
 .dep-graph-track {
   display: flex; align-items: center; justify-content: center;
   flex-wrap: wrap; gap: 0;
@@ -645,7 +646,10 @@ body {
   background: var(--bg-2); border: 1px solid var(--line);
   border-radius: 14px; overflow: hidden;
   height: fit-content;
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
 }
+.status-board.is-live { opacity: 1; transform: translateY(0); }
 .status-board-chrome {
   display: flex; align-items: center; gap: 7px;
   padding: 12px 14px;
@@ -717,7 +721,10 @@ body {
 .git-timeline {
   background: var(--bg-2); border: 1px solid var(--line);
   border-radius: 14px; overflow: hidden;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
 }
+.git-timeline.is-visible { opacity: 1; transform: translateY(0); }
 .git-timeline-header {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 18px;

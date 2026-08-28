@@ -7,8 +7,7 @@ export default function DependencyGraph() {
   return (
     <div
       ref={ref}
-      className={`dep-graph reveal${inView ? " is-animated" : ""}`}
-      data-delay="1"
+      className={`dep-graph${inView ? " is-animated" : ""}`}
       aria-label="Fluxo de arquitetura: React, API, banco de dados e deploy"
     >
       <div className="dep-graph-track">

@@ -5,7 +5,7 @@ export default function StatusBoard() {
   const { ref, inView } = useInView<HTMLDivElement>();
 
   return (
-    <div ref={ref} className={`status-board reveal${inView ? " is-live" : ""}`} data-delay="3">
+    <div ref={ref} className={`status-board${inView ? " is-live" : ""}`}>
       <div className="status-board-chrome">
         <span className="stack-dot stack-dot-red" aria-hidden />
         <span className="stack-dot stack-dot-yellow" aria-hidden />
