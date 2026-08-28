@@ -30,8 +30,21 @@ const SNIPPETS = [
   "npm run build",
 ];
 
-/** Texto que o fundo não pode atrapalhar. */
-const QUIET_SELECTOR = ".hero h1, .hero-sub, .hero-badge, .section-title, .section-sub";
+/**
+ * Texto que o fundo não pode atrapalhar. Blocos com fundo próprio já escondem
+ * os snippets; aqui entram só os que ficam direto sobre a página.
+ */
+const QUIET_SELECTOR = [
+  ".hero h1",
+  ".hero-sub",
+  ".hero-badge",
+  ".section-title",
+  ".section-sub",
+  ".proof-item",
+  ".faq-item",
+  ".contact-info",
+  ".projects-showcase-label",
+].join(", ");
 const QUIET_PADDING = 24;
 const QUIET_REFRESH_FRAMES = 20;
 
