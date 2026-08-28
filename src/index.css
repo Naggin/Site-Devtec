@@ -288,6 +288,8 @@ body {
 
 /* stack panel — IDE manifest */
 .stack-panel {
+  position: relative;
+  z-index: 2;
   background: var(--bg-2);
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -322,11 +324,14 @@ body {
   background: rgba(0, 0, 0, 0.2);
 }
 .stack-tab {
+  position: relative;
+  z-index: 1;
   font-family: var(--mono); font-size: 10.5px;
   padding: 5px 10px; border-radius: 6px;
   border: 1px solid transparent;
   background: transparent; color: var(--ink-3);
   cursor: pointer;
+  pointer-events: auto;
   transition: color 0.2s, border-color 0.2s, background 0.2s;
 }
 .stack-tab:hover { color: var(--ink); background: rgba(255, 255, 255, 0.04); }
