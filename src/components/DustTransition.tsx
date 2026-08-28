@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { EMBER_PALETTE, TOKENS, type DustParticle, type DustSample } from "../lib/dustSample";
+import type { DustParticle, DustSample } from "../lib/dustSample";
+import { createDrawState, drawParticle, fitCanvas, getAtlas } from "../lib/dustRender";
 
 /**
  * A frente do varrimento cruza a tela na diagonal em SWEEP_*, e cada partícula
@@ -24,67 +25,6 @@ const TOTAL_MS = OUT_MS + SWAP_MS + IN_MS;
 /** Fades de cada peça do DOM. Casados com o CSS de `.dust-piece`. */
 const PIECE_FADE_MS = 520;
 const PIECE_REFORM_MS = 460;
-
-/**
- * Atlas de fragmentos: cada token pré-renderizado uma vez por tom de brasa.
- *
- * `fillText` era o custo inteiro da animação — desenhar ~800 fragmentos por
- * frame derrubava de 58 para 45fps sozinho, enquanto a poeira e as transições
- * de DOM saíam de graça. Com o atlas o desenho vira `drawImage`, que a GPU
- * resolve, e o visual é idêntico.
- */
-type Atlas = {
-  canvas: HTMLCanvasElement;
-  /** Posição e largura de cada token dentro de uma linha. */
-  cols: { x: number; w: number }[];
-  rowH: number;
-  font: number;
-};
-
-/** Renderizado grande e reduzido no desenho: nunca amplia, então não borra. */
-const ATLAS_FONT = 32;
-
-let atlasCache: Atlas | null = null;
-
-function buildAtlas(): Atlas | null {
-  if (atlasCache) return atlasCache;
-
-  const measure = document.createElement("canvas").getContext("2d");
-  // jsdom e canvas indisponível: sem atlas, os fragmentos simplesmente não desenham.
-  if (!measure || typeof measure.measureText !== "function") return null;
-
-  const font = `500 ${ATLAS_FONT}px "GeistMono", ui-monospace, monospace`;
-  measure.font = font;
-
-  const pad = 4;
-  const cols: { x: number; w: number }[] = [];
-  let x = 0;
-  for (const token of TOKENS) {
-    const w = Math.ceil(measure.measureText(token).width) + pad * 2;
-    cols.push({ x, w });
-    x += w;
-  }
-
-  const rowH = Math.ceil(ATLAS_FONT * 1.4);
-  const canvas = document.createElement("canvas");
-  canvas.width = x;
-  canvas.height = rowH * EMBER_PALETTE.length;
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-
-  ctx.font = font;
-  ctx.textBaseline = "middle";
-  EMBER_PALETTE.forEach((color, row) => {
-    ctx.fillStyle = color;
-    TOKENS.forEach((token, i) => {
-      ctx.fillText(token, cols[i]!.x + pad, row * rowH + rowH / 2);
-    });
-  });
-
-  atlasCache = { canvas, cols, rowH, font: ATLAS_FONT };
-  return atlasCache;
-}
 
 export type Phase = "out" | "swap" | "in";
 
@@ -148,56 +88,13 @@ export default function DustTransition({
     let phaseStart: number | null = null;
 
     const resize = () => {
-      W = window.innerWidth;
-      H = window.innerHeight;
-      // Teto de DPR mais baixo no celular: o custo de desenhar cresce com o
-      // número de pixels do canvas, e telas de telefone chegam a 3x. Poeira e
-      // fragmentos borrados não ganham nada com resolução extra.
-      const dpr = Math.min(window.devicePixelRatio || 1, W < 768 ? 1.5 : 2);
-      canvas.width = Math.round(W * dpr);
-      canvas.height = Math.round(H * dpr);
-      canvas.style.width = `${W}px`;
-      canvas.style.height = `${H}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ({ W, H } = fitCanvas(canvas, ctx));
     };
 
-    const atlas = buildAtlas();
-    // As partículas vêm ordenadas por tom, então esta guarda acerta quase sempre
-    // e evita reparsear a cor a cada uma das milhares de chamadas.
-    let lastTone = -1;
-
-    const drawParticle = (p: DustParticle, alpha: number, e: number) => {
-      if (alpha <= 0.012) return;
-      ctx.globalAlpha = alpha;
-
-      if (p.kind === "char") {
-        if (!atlas) return;
-        const col = atlas.cols[p.token]!;
-        const k = (p.size * (1 - 0.25 * e)) / atlas.font;
-        const w = col.w * k;
-        const h = atlas.rowH * k;
-        const sy = p.tone * atlas.rowH;
-        const angle = p.spin * e;
-
-        if (Math.abs(angle) < 0.02) {
-          ctx.drawImage(atlas.canvas, col.x, sy, col.w, atlas.rowH, p.x - w / 2, p.y - h / 2, w, h);
-          return;
-        }
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(angle);
-        ctx.drawImage(atlas.canvas, col.x, sy, col.w, atlas.rowH, -w / 2, -h / 2, w, h);
-        ctx.restore();
-        return;
-      }
-
-      if (p.tone !== lastTone) {
-        ctx.fillStyle = EMBER_PALETTE[p.tone]!;
-        lastTone = p.tone;
-      }
-      const s = Math.max(0.7, p.size * (1 - 0.25 * e));
-      ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
-    };
+    const atlas = getAtlas();
+    const drawState = createDrawState();
+    const paint = (p: DustParticle, alpha: number, e: number) =>
+      drawParticle(ctx, atlas, drawState, p, alpha, e);
 
     /**
      * Deslocamento em relação ao repouso, para `e` de 0 a 1. `rise` é -1 quando
@@ -223,7 +120,7 @@ export default function DustTransition({
           displace(p, e, elapsed, -1);
           // Entra junto com o fade da peça, depois se dissolve devagar.
           const appear = Math.min(1, local / 0.22);
-          drawParticle(p, p.opacity * appear * (1 - local ** 2.6), e);
+          paint(p, p.opacity * appear * (1 - local ** 2.6), e);
         }
 
         if (elapsed >= OUT_MS && !swapped) {
@@ -250,7 +147,7 @@ export default function DustTransition({
           displace(p, 1 - e, elapsed, 1);
           // Acende ao entrar e some ao pousar, no instante em que o texto reaparece.
           const appear = Math.min(1, local / 0.12);
-          drawParticle(p, p.opacity * appear * (1 - local ** 2.2), 1 - e);
+          paint(p, p.opacity * appear * (1 - local ** 2.2), 1 - e);
         }
 
         if (elapsed >= IN_MS) {

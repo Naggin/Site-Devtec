@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { burstReveal, stopRevealDust } from "../lib/revealDust";
 
 export function useScrollReveal() {
   useEffect(() => {
@@ -13,6 +14,10 @@ export function useScrollReveal() {
             // Small stagger driven by data-delay already set on CSS
             entry.target.classList.add("visible");
             observer.unobserve(entry.target);
+            // Os fragmentos são amostrados do bloco já revelado: a classe
+            // `visible` precisa estar aplicada para a tinta ser lida com a
+            // opacidade final, e não com o zero do estado inicial.
+            burstReveal(entry.target as HTMLElement);
           }
         }
       },
@@ -23,6 +28,9 @@ export function useScrollReveal() {
 
     for (const el of allEls) observer.observe(el);
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      stopRevealDust();
+    };
   }, []); // [] = run once on mount only
 }

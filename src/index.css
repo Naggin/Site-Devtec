@@ -115,29 +115,35 @@ body {
 .wrap { width: min(var(--max), calc(100% - 40px)); margin-inline: auto; }
 
 /* ─── scroll-reveal ─────────────────────────────────────────────── */
-.reveal {
-  opacity: 0;
-  transform: translateY(36px);
-  transition: opacity 0.75s var(--ease-out), transform 0.75s var(--ease-out);
-  will-change: opacity, transform;
-}
-.reveal.visible { opacity: 1; transform: translateY(0); }
-
-.reveal-left {
-  opacity: 0;
-  transform: translateX(-44px);
-  transition: opacity 0.75s var(--ease-out), transform 0.75s var(--ease-out);
-  will-change: opacity, transform;
-}
-.reveal-left.visible { opacity: 1; transform: translateX(0); }
-
+/* Entrada na mesma diagonal da poeira, e em 0.7s para o bloco ficar sólido no
+   momento em que os fragmentos pousam. O sopro de fragmentos vem do JS
+   (`revealDust`); estas regras são a metade barata da animação, e sozinhas já
+   dão a revelação completa se o canvas não puder ser criado. */
+.reveal,
+.reveal-left,
 .reveal-right {
   opacity: 0;
-  transform: translateX(44px);
-  transition: opacity 0.75s var(--ease-out), transform 0.75s var(--ease-out);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
   will-change: opacity, transform;
 }
-.reveal-right.visible { opacity: 1; transform: translateX(0); }
+.reveal.visible,
+.reveal-left.visible,
+.reveal-right.visible {
+  opacity: 1;
+  transform: none;
+}
+
+.reveal { transform: translate(10px, 30px); }
+.reveal-left { transform: translate(-38px, 18px); }
+.reveal-right { transform: translate(38px, 18px); }
+
+/* Canvas dos fragmentos de revelação: acima do conteúdo, abaixo do header fixo. */
+.reveal-dust {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+}
 
 [data-delay="1"] { transition-delay: 0.10s; }
 [data-delay="2"] { transition-delay: 0.20s; }

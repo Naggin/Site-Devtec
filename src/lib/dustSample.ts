@@ -37,6 +37,10 @@ const BUDGET_DESKTOP = 3400;
  */
 const BUDGET_MOBILE = 1000;
 
+/** Tinta necessária por fragmento na revelação de um bloco. */
+const INK_PER_FRAGMENT = 95;
+const MIN_FRAGMENTS = 18;
+
 export type DustParticle = {
   homeX: number;
   homeY: number;
@@ -170,9 +174,18 @@ function isDecorative(el: Element) {
   );
 }
 
-function inViewport(r: BoxLike, W: number, H: number) {
-  return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < H && r.right > 0 && r.left < W;
+/** Retângulo dentro do qual a tinta interessa. */
+type Bounds = { left: number; top: number; right: number; bottom: number };
+
+function intersects(r: BoxLike, b: Bounds) {
+  return (
+    r.width > 0 && r.height > 0 &&
+    r.bottom > b.top && r.top < b.bottom &&
+    r.right > b.left && r.left < b.right
+  );
 }
+
+const viewportBounds = (W: number, H: number): Bounds => ({ left: 0, top: 0, right: W, bottom: H });
 
 /** Tem pintura própria — fundo ou borda visível — e não só filhos. */
 function hasSurface(style: CSSStyleDeclaration) {
@@ -194,8 +207,7 @@ function hasSurface(style: CSSStyleDeclaration) {
  */
 function collectPieces(
   roots: Element[],
-  W: number,
-  H: number,
+  bounds: Bounds,
   styleOf: (el: Element) => CSSStyleDeclaration,
 ): HTMLElement[] {
   const out: HTMLElement[] = [];
@@ -203,7 +215,7 @@ function collectPieces(
   const visit = (el: Element) => {
     if (!(el instanceof HTMLElement) || isDecorative(el)) return;
     const r = el.getBoundingClientRect();
-    if (!inViewport(r, W, H)) return;
+    if (!intersects(r, bounds)) return;
     // Não vira poeira o que ainda não apareceu (um `.reveal` por revelar, por
     // exemplo). Também é o que permite a volta mirar opacidade 1 com segurança.
     if (Number.parseFloat(styleOf(el).opacity) < 0.5) return;
@@ -223,8 +235,7 @@ function collectPieces(
 
 function collectInk(
   pieces: HTMLElement[],
-  W: number,
-  H: number,
+  bounds: Bounds,
   styleOf: (el: Element) => CSSStyleDeclaration,
 ): Ink[] {
   const ink: Ink[] = [];
@@ -271,7 +282,7 @@ function collectInk(
           const color = col;
           range.selectNodeContents(node);
           for (const line of range.getClientRects()) {
-            if (line.width < 2 || line.height < 2 || !inViewport(line, W, H)) continue;
+            if (line.width < 2 || line.height < 2 || !intersects(line, bounds)) continue;
             // Texto é a tinta que mais importa: peso alto por área.
             ink.push({
               x: line.left,
@@ -291,14 +302,7 @@ function collectInk(
   return ink;
 }
 
-function makeParticle(
-  x: number,
-  y: number,
-  src: Rgb,
-  W: number,
-  H: number,
-  axis: SweepAxis,
-): DustParticle {
+function makeParticle(x: number, y: number, src: Rgb, delay: number): DustParticle {
   const isChar = Math.random() > 0.66;
   const token = Math.floor(Math.random() * TOKENS.length);
   const char = TOKENS[token]!;
@@ -318,8 +322,7 @@ function makeParticle(
     tone: emberTone(src),
     token,
     opacity: 0.85 + Math.random() * 0.15,
-    // Bruto por enquanto; normalizeDelays remapeia para a faixa de conteúdo.
-    delay: sweepAt(x, y, W, H, axis),
+    delay,
     kind: isChar ? "char" : "dust",
   };
 }
@@ -331,8 +334,11 @@ function makeParticle(
  * fonte, o que perdia ~30% das partículas entre o arredondamento e o teto —
  * pedia 4600 e entregava 3100. Sorteando, o orçamento sai exato.
  */
-function distribute(ink: Ink[], W: number, H: number, axis: SweepAxis): DustParticle[] {
-  const budget = W < 768 ? BUDGET_MOBILE : BUDGET_DESKTOP;
+function distribute(
+  ink: Ink[],
+  budget: number,
+  delayAt: (x: number, y: number) => number,
+): DustParticle[] {
   if (!ink.length) return [];
 
   const raw = ink.reduce((sum, i) => sum + i.weight, 0);
@@ -358,9 +364,9 @@ function distribute(ink: Ink[], W: number, H: number, axis: SweepAxis): DustPart
       else hi = mid;
     }
     const src = ink[lo]!;
-    particles.push(
-      makeParticle(src.x + Math.random() * src.w, src.y + Math.random() * src.h, src.color, W, H, axis),
-    );
+    const x = src.x + Math.random() * src.w;
+    const y = src.y + Math.random() * src.h;
+    particles.push(makeParticle(x, y, src.color, delayAt(x, y)));
   }
   return particles;
 }
@@ -408,14 +414,93 @@ export function sampleViewport(axis: SweepAxis): DustSample {
     return s;
   };
 
+  const bounds = viewportBounds(W, H);
   const roots = Array.from(shell.children).filter((el) => !isDecorative(el));
-  const pieces = collectPieces(roots, W, H, styleOf);
-  const particles = distribute(collectInk(pieces, W, H, styleOf), W, H, axis);
+  const pieces = collectPieces(roots, bounds, styleOf);
+  const budget = W < 768 ? BUDGET_MOBILE : BUDGET_DESKTOP;
+  const particles = distribute(collectInk(pieces, bounds, styleOf), budget, (x, y) =>
+    sweepAt(x, y, W, H, axis),
+  );
   // Agrupadas por tom para a guarda de fillStyle no desenho quase nunca errar.
   // A ordem não importa para nada além disso: as partículas não se sobrepõem
   // de forma significativa e cada uma tem seu próprio atraso.
   particles.sort((a, b) => a.tone - b.tone);
   return { particles, pieces, range: normalizeDelays(particles), W, H };
+}
+
+/**
+ * Fragmentos de um bloco só, para a revelação por scroll.
+ *
+ * Mesma tinta e mesma paleta da transição de idioma — é o que faz as duas
+ * animações parecerem a mesma linguagem. O atraso corre na diagonal dentro da
+ * caixa do próprio bloco, então cada seção tem seu pequeno varrimento em vez de
+ * herdar o eixo da viewport.
+ */
+export function sampleFragments(el: HTMLElement, maxBudget: number): DustParticle[] {
+  const r = el.getBoundingClientRect();
+  if (r.width <= 0 || r.height <= 0) return [];
+
+  const styles = new Map<Element, CSSStyleDeclaration>();
+  const styleOf = (node: Element) => {
+    let st = styles.get(node);
+    if (!st) {
+      st = getComputedStyle(node);
+      styles.set(node, st);
+    }
+    return st;
+  };
+
+  // A caixa do bloco, não a viewport: ele costuma estar entrando pela borda de
+  // baixo, e recortar pela tela descartaria justo a parte que ainda vai surgir.
+  const bounds = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+  const ink = collectInk([el], bounds, styleOf);
+
+  // Orçamento proporcional à tinta, não fixo: os blocos vão de um rótulo de
+  // 107x18 a um showcase de 1100x439 — quase 50x de diferença. Número fixo
+  // empilhava o mesmo tanto de partículas num rótulo minúsculo e num painel.
+  const weight = ink.reduce((sum, i) => sum + i.weight, 0);
+  const scaled = Math.min(maxBudget, Math.max(MIN_FRAGMENTS, Math.round(weight / INK_PER_FRAGMENT)));
+
+  const particles = distribute(ink, scaled, (x, y) =>
+    clamp01(0.55 * ((x - r.left) / r.width) + 0.45 * ((y - r.top) / r.height)),
+  );
+
+  // O bloco é amostrado no instante em que ganha `visible`, ainda deslocado
+  // pelo `translate` do estado inicial. Sem descontar esse deslocamento os
+  // fragmentos convergiriam para onde o bloco estava, não para onde ele vai
+  // parar — e ficariam 36px fora do lugar.
+  const [tx, ty] = translationOf(styleOf(el));
+  if (tx || ty) {
+    for (const p of particles) {
+      p.homeX -= tx;
+      p.homeY -= ty;
+      p.x = p.homeX;
+      p.y = p.homeY;
+    }
+  }
+
+  particles.sort((a, b) => a.tone - b.tone);
+  return particles;
+}
+
+/** Translação atual de um elemento, em px. Zero quando não há transform. */
+function translationOf(style: CSSStyleDeclaration): [number, number] {
+  const t = style.transform;
+  if (!t || t === "none" || typeof DOMMatrixReadOnly !== "function") return [0, 0];
+  try {
+    const m = new DOMMatrixReadOnly(t);
+    return [m.m41, m.m42];
+  } catch {
+    return [0, 0];
+  }
+}
+
+/** Atraso da transição CSS do elemento, em ms. */
+export function transitionDelayOf(el: HTMLElement): number {
+  const raw = getComputedStyle(el).transitionDelay.split(",")[0]?.trim() ?? "0s";
+  const n = Number.parseFloat(raw);
+  if (!Number.isFinite(n)) return 0;
+  return raw.endsWith("ms") ? n : n * 1000;
 }
 
 /**
