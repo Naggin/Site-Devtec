@@ -74,15 +74,14 @@ export default function LiveDeployTerminal() {
     return () => clearTimeout(t);
   }, [phase, stepIndex]);
 
-  // Segura o resultado por alguns segundos e reinicia — o estado final nunca
-  // é uma tela em branco.
+  // Segura o resultado, reinicia e mantém a saída anterior na tela enquanto o
+  // comando é redigitado — assim o terminal nunca pisca vazio entre os ciclos.
   useEffect(() => {
     if (phase !== "done" || reducedMotion) return;
 
     const t = setTimeout(() => {
       setTyped("");
       setStepIndex(-1);
-      setLines([]);
       setPhase("idle");
     }, HOLD_MS);
     return () => clearTimeout(t);
@@ -91,12 +90,12 @@ export default function LiveDeployTerminal() {
   const staticResult = reducedMotion;
   const shownLines = staticResult ? allLines() : lines;
   const shownTyped = staticResult ? COMMAND : typed;
+  const holdingResult = !staticResult && lines.length > 0 && phase !== "running";
   const doneCount = staticResult ? deploySteps.length : stepIndex;
 
   const replay = () => {
     setTyped("");
     setStepIndex(-1);
-    setLines([]);
     setPhase("typing");
   };
 
@@ -128,9 +127,9 @@ export default function LiveDeployTerminal() {
           {deploySteps.map((step, i) => (
             <span
               key={step.label}
-              className={`live-pipeline-step${doneCount > i || phase === "done" ? " is-done" : ""}${
-                doneCount === i && phase === "running" ? " is-active" : ""
-              }`}
+              className={`live-pipeline-step${
+                doneCount > i || phase === "done" || holdingResult ? " is-done" : ""
+              }${doneCount === i && phase === "running" ? " is-active" : ""}`}
             >
               {step.label}
             </span>
