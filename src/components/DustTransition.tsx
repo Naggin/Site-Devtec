@@ -141,8 +141,6 @@ export default function DustTransition({
     let W = sample.W || window.innerWidth;
     let H = sample.H || window.innerHeight;
     const outgoing = sample.particles;
-    let range = sample.range;
-    let axis = sample.axis;
     let incoming: DustParticle[] = [];
     let swapped = false;
     let raf = 0;
@@ -194,7 +192,7 @@ export default function DustTransition({
         ctx.fillStyle = EMBER_PALETTE[p.tone]!;
         lastTone = p.tone;
       }
-      const s = Math.max(0.6, p.size * (1 - 0.4 * e));
+      const s = Math.max(0.7, p.size * (1 - 0.25 * e));
       ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
     };
 
@@ -207,48 +205,6 @@ export default function DustTransition({
       p.y = p.homeY + rise * p.lift * e * (140 + H * 0.18);
     };
 
-    /**
-     * A borda de dissolução. `sweepAt` cresce linearmente de 0 a 1 ao longo da
-     * diagonal (0,0)→(W,H), então um gradiente nesse eixo já é a faixa certa.
-     */
-    const drawSweepFront = (progress: number, strength: number) => {
-      if (strength <= 0.02) return;
-      // Volta do espaço normalizado para o geométrico, senão a faixa desenhada
-      // corre num eixo e a dissolução real acontece em outro.
-      const front = range.min + progress * (range.max - range.min);
-      // O gradiente segue o mesmo eixo do varrimento, senão a faixa desenhada
-      // corre numa direção e a dissolução real acontece em outra.
-      const g =
-        axis === "up"
-          ? ctx.createLinearGradient(W, H, 0, 0)
-          : ctx.createLinearGradient(0, 0, W, H);
-      const stops: [number, string][] = [
-        [front - 0.18, "rgba(224, 32, 32, 0)"],
-        [front - 0.05, `rgba(224, 32, 32, ${(0.05 * strength).toFixed(3)})`],
-        [front, `rgba(255, 96, 96, ${(0.14 * strength).toFixed(3)})`],
-        [front + 0.03, "rgba(224, 32, 32, 0)"],
-      ];
-
-      // addColorStop exige offsets em 0–1; o clamp pode empatar stops, o que é
-      // aceito, mas nunca podem sair fora de ordem.
-      let last = 0;
-      for (const [offset, color] of stops) {
-        last = Math.max(last, clamp01(offset));
-        g.addColorStop(last, color);
-      }
-
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "lighter";
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, W, H);
-      ctx.globalCompositeOperation = "source-over";
-      lastTone = -1; // o gradiente sobrescreveu fillStyle; invalida a guarda
-    };
-
-    /** Sobe e desce nas pontas, para a faixa não aparecer nem sumir de estalo. */
-    const frontStrength = (progress: number) =>
-      Math.min(1, progress / 0.12) * Math.min(1, (1 - progress) / 0.14);
-
     const draw = (ts: number) => {
       if (phaseStart === null) phaseStart = ts;
       const elapsed = ts - phaseStart;
@@ -257,9 +213,6 @@ export default function DustTransition({
       ctx.clearRect(0, 0, W, H);
 
       if (current === "out") {
-        const progress = clamp01(elapsed / SWEEP_OUT_MS);
-        drawSweepFront(progress, frontStrength(progress));
-
         for (const p of outgoing) {
           const local = clamp01((elapsed - p.delay * SWEEP_OUT_MS) / FLIGHT_OUT_MS);
           if (local <= 0) continue; // a peça ainda está inteira no DOM
@@ -267,7 +220,7 @@ export default function DustTransition({
           displace(p, e, elapsed, -1);
           // Entra junto com o fade da peça, depois se dissolve devagar.
           const appear = Math.min(1, local / 0.22);
-          drawParticle(p, p.opacity * appear * (1 - local ** 1.6), e);
+          drawParticle(p, p.opacity * appear * (1 - local ** 2.6), e);
         }
 
         if (elapsed >= OUT_MS && !swapped) {
@@ -275,8 +228,6 @@ export default function DustTransition({
           const next = onSwapRef.current();
           if (next) {
             incoming = next.particles;
-            range = next.range;
-            axis = next.axis;
             W = next.W;
             H = next.H;
           }
@@ -289,9 +240,6 @@ export default function DustTransition({
           onPhaseChangeRef.current("in");
         }
       } else {
-        const progress = clamp01(elapsed / SWEEP_IN_MS);
-        drawSweepFront(progress, frontStrength(progress) * 0.7);
-
         for (const p of incoming) {
           const local = clamp01((elapsed - p.delay * SWEEP_IN_MS) / FLIGHT_IN_MS);
           const e = easeOutQuad(local);

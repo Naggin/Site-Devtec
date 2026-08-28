@@ -27,10 +27,10 @@ const PIECE_MAX_H = 220;
 const SURFACE_MAX_H = 700;
 /** Landmarks nunca somem como unidade: são só o esqueleto do layout. */
 const LAYOUT_TAGS = new Set(["MAIN", "SECTION", "HEADER", "FOOTER", "NAV"]);
-/** Teto de partículas por fonte, para um card grande não engolir o orçamento. */
-const PER_SOURCE_CAP = 200;
-const BUDGET_DESKTOP = 3200;
-const BUDGET_MOBILE = 1300;
+/** Fatia máxima do orçamento que uma única fonte de tinta pode puxar. */
+const MAX_SOURCE_SHARE = 0.05;
+const BUDGET_DESKTOP = 3400;
+const BUDGET_MOBILE = 1500;
 
 export type DustParticle = {
   homeX: number;
@@ -54,8 +54,8 @@ export type DustParticle = {
 };
 
 /**
- * Extensão da diagonal realmente ocupada por conteúdo. A frente do varrimento é
- * remapeada para esse intervalo: sem isso ela gasta o fim do percurso cruzando
+ * Extensão da diagonal realmente ocupada por conteúdo. Os atrasos são remapeados
+ * para esse intervalo: sem isso o varrimento gasta o fim do percurso cruzando
  * canto vazio, e a tela fica parada esperando uma poeira que já acabou.
  */
 export type SweepRange = { min: number; max: number };
@@ -64,7 +64,6 @@ export type DustSample = {
   particles: DustParticle[];
   pieces: HTMLElement[];
   range: SweepRange;
-  axis: SweepAxis;
   W: number;
   H: number;
 };
@@ -239,7 +238,7 @@ function collectInk(
         w: r.width,
         h: r.height,
         color: bg,
-        weight: r.width * r.height * 0.05,
+        weight: r.width * r.height * 0.09,
       });
     }
 
@@ -295,7 +294,7 @@ function makeParticle(
   H: number,
   axis: SweepAxis,
 ): DustParticle {
-  const isChar = Math.random() > 0.76;
+  const isChar = Math.random() > 0.66;
   const token = Math.floor(Math.random() * TOKENS.length);
   const char = TOKENS[token]!;
 
@@ -305,7 +304,7 @@ function makeParticle(
     x,
     y,
     // Token longo encolhe: senão um `return` solto pesa mais que o resto da poeira.
-    size: isChar ? (char.length > 2 ? 8 + Math.random() * 2 : 10 + Math.random() * 3) : 1.4 + Math.random() * 2.4,
+    size: isChar ? (char.length > 2 ? 9 + Math.random() * 2.5 : 11 + Math.random() * 3.5) : 2 + Math.random() * 3.2,
     vx: (Math.random() - 0.5) * 2.2,
     lift: 0.7 + Math.random() * 2,
     wobble: Math.random() * Math.PI * 2,
@@ -313,35 +312,57 @@ function makeParticle(
     spin: isChar ? (Math.random() - 0.5) * 1.1 : 0,
     tone: emberTone(src),
     token,
-    opacity: 0.75 + Math.random() * 0.25,
+    opacity: 0.85 + Math.random() * 0.15,
     // Bruto por enquanto; normalizeDelays remapeia para a faixa de conteúdo.
     delay: sweepAt(x, y, W, H, axis),
     kind: isChar ? "char" : "dust",
   };
 }
 
+/**
+ * Sorteia partículas nas fontes de tinta, proporcional ao peso de cada uma.
+ *
+ * A versão anterior repartia o orçamento por regra de três e arredondava por
+ * fonte, o que perdia ~30% das partículas entre o arredondamento e o teto —
+ * pedia 4600 e entregava 3100. Sorteando, o orçamento sai exato.
+ */
 function distribute(ink: Ink[], W: number, H: number, axis: SweepAxis): DustParticle[] {
   const budget = W < 768 ? BUDGET_MOBILE : BUDGET_DESKTOP;
-  const total = ink.reduce((sum, i) => sum + i.weight, 0);
-  if (total <= 0) return [];
+  if (!ink.length) return [];
+
+  const raw = ink.reduce((sum, i) => sum + i.weight, 0);
+  if (raw <= 0) return [];
+  // Teto por fonte: sem ele o fundo de um card grande engole o orçamento inteiro.
+  const cap = raw * MAX_SOURCE_SHARE;
+
+  const cumulative: number[] = [];
+  let total = 0;
+  for (const src of ink) {
+    total += Math.min(src.weight, cap);
+    cumulative.push(total);
+  }
 
   const particles: DustParticle[] = [];
-  for (const src of ink) {
-    if (particles.length >= budget) break;
-    const share = Math.min(PER_SOURCE_CAP, Math.round((budget * src.weight) / total));
-    const n = Math.max(src.weight > 300 ? 1 : 0, share);
-    for (let i = 0; i < n && particles.length < budget; i++) {
-      particles.push(
-        makeParticle(src.x + Math.random() * src.w, src.y + Math.random() * src.h, src.color, W, H, axis),
-      );
+  for (let i = 0; i < budget; i++) {
+    const target = Math.random() * total;
+    let lo = 0;
+    let hi = cumulative.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (cumulative[mid]! < target) lo = mid + 1;
+      else hi = mid;
     }
+    const src = ink[lo]!;
+    particles.push(
+      makeParticle(src.x + Math.random() * src.w, src.y + Math.random() * src.h, src.color, W, H, axis),
+    );
   }
   return particles;
 }
 
 /**
  * Remapeia os atrasos brutos para 0–1 sobre a faixa que tem conteúdo e devolve
- * a faixa usada, para as peças e a frente desenhada seguirem o mesmo eixo.
+ * a faixa usada, para as peças seguirem exatamente o mesmo eixo.
  */
 function normalizeDelays(particles: DustParticle[]): SweepRange {
   if (!particles.length) return { min: 0, max: 1 };
@@ -356,7 +377,8 @@ function normalizeDelays(particles: DustParticle[]): SweepRange {
   // Piso na extensão: conteúdo concentrado num ponto não vira varrimento instantâneo.
   const span = Math.max(0.08, max - min);
   for (const p of particles) {
-    // Jitter estreito, para a frente continuar legível como uma linha.
+    // Jitter estreito: é a borda de dissolução que desenha o varrimento,
+    // e com dispersão demais ela deixa de se ler como uma frente.
     p.delay = clamp01((p.delay - min) / span + (Math.random() - 0.5) * 0.07);
   }
   return { min, max: min + span };
@@ -367,7 +389,7 @@ export function sampleViewport(axis: SweepAxis): DustSample {
   const W = window.innerWidth;
   const H = window.innerHeight;
   const shell = document.querySelector<HTMLElement>(".app-shell");
-  if (!shell) return { particles: [], pieces: [], range: { min: 0, max: 1 }, axis, W, H };
+  if (!shell) return { particles: [], pieces: [], range: { min: 0, max: 1 }, W, H };
 
   // Um único cache de estilo para toda a amostragem: getComputedStyle é caro
   // e os mesmos elementos são consultados na seleção de peças e na de tinta.
@@ -388,7 +410,7 @@ export function sampleViewport(axis: SweepAxis): DustSample {
   // A ordem não importa para nada além disso: as partículas não se sobrepõem
   // de forma significativa e cada uma tem seu próprio atraso.
   particles.sort((a, b) => a.tone - b.tone);
-  return { particles, pieces, range: normalizeDelays(particles), axis, W, H };
+  return { particles, pieces, range: normalizeDelays(particles), W, H };
 }
 
 /**

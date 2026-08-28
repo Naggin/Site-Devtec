@@ -31,7 +31,7 @@ function makeSample(): DustSample {
     kind: "dust",
   }));
 
-  return { particles, pieces: [], range: { min: 0, max: 1 }, axis: "down", W: 400, H: 300 };
+  return { particles, pieces: [], range: { min: 0, max: 1 }, W: 400, H: 300 };
 }
 
 describe("DustTransition", () => {
