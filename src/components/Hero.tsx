@@ -15,13 +15,12 @@ export default function Hero() {
           </h1>
 
           <p className="hero-sub">
-            Antonio Junior — desenvolvedor full-stack. Pego o problema,
-            projeto, escrevo o código e entrego rodando.
+            Antonio Junior · full-stack. Do problema ao deploy.
           </p>
 
           <div className="hero-actions">
-            <a className="btn btn-primary" href="#contato">Falar sobre o projeto</a>
-            <a className="btn btn-ghost"   href="#projetos">Ver trabalhos</a>
+            <a className="btn btn-primary" href="#contato">Contato</a>
+            <a className="btn btn-ghost"   href="#projetos">Projetos</a>
           </div>
 
           <div className="hero-terminal" aria-hidden>

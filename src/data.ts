@@ -20,32 +20,32 @@ export const services = [
   {
     code: "01",
     title: "Web & produtos digitais",
-    text: "Sites, dashboards e aplicações com React, Next.js e TypeScript — da landing ao sistema em produção.",
+    text: "Sites, dashboards e apps com React e Next.js.",
   },
   {
     code: "02",
     title: "Apps mobile",
-    text: "Aplicativos iOS e Android com React Native e Expo, autenticação, tempo real e uma UX que as pessoas usam de verdade.",
+    text: "iOS e Android com React Native e Expo.",
   },
   {
     code: "03",
     title: "Full-stack & dados",
-    text: "APIs, bancos PostgreSQL, autenticação e integrações. Do backend ao painel que o cliente abre todo dia.",
+    text: "APIs, banco e painel em produção.",
   },
   {
     code: "04",
     title: "IA aplicada",
-    text: "Fluxos com modelos de linguagem no produto — WhatsApp, extração de texto, copilots — sem enrolação.",
+    text: "WhatsApp, NLP e copilots no produto.",
   },
   {
     code: "05",
     title: "Suporte e consultoria",
-    text: "Infra, manutenção e orientação técnica para quem precisa de alguém que realmente entende o problema.",
+    text: "Infra, manutenção e orientação técnica.",
   },
   {
     code: "06",
     title: "Desktop & tooling",
-    text: "Ferramentas nativas e instaladores (Tauri e afins) para times que precisam de um app de verdade na máquina.",
+    text: "Apps nativos e instaladores com Tauri.",
   },
 ] as const;
 
@@ -66,8 +66,7 @@ export const projects: Project[] = [
     title: "Little Learners Planner",
     kind: "Produto entregue",
     stack: ["Web app", "Vercel", "EdTech"],
-    summary:
-      "Plataforma para professoras de inglês na educação infantil: plano da semana, pareceres dos alunos e flashcards para imprimir em minutos, com exportação em PDF e envio no WhatsApp.",
+    summary: "Planos de aula, pareceres e flashcards em minutos. PDF e WhatsApp.",
     href: "https://www.littlelearnersplanner.com.br/home",
     live: true,
   },
@@ -76,8 +75,7 @@ export const projects: Project[] = [
     title: "Moneyzin",
     kind: "Finanças pessoais",
     stack: ["Next.js", "Prisma", "Supabase", "Claude AI"],
-    summary:
-      "Controle financeiro com dashboard, metas e lançamento de gastos pelo WhatsApp com IA. O usuário manda “50 mercado” e a transação entra sozinha.",
+    summary: "Dashboard financeiro e gastos via WhatsApp com IA.",
     href: "https://moneyzin.vercel.app",
     repo: "https://github.com/Naggin/moneyzin",
     live: true,
@@ -87,8 +85,7 @@ export const projects: Project[] = [
     title: "JantaJá",
     kind: "App mobile",
     stack: ["React Native", "Expo", "Firebase"],
-    summary:
-      "App para casais planejarem o jantar da semana e a lista de compras em tempo real — convite, aprovação e lista compartilhada.",
+    summary: "Jantar da semana e lista de compras em tempo real.",
     href: "https://github.com/Naggin/Jantaja",
     repo: "https://github.com/Naggin/Jantaja",
     live: false,
@@ -98,8 +95,7 @@ export const projects: Project[] = [
     title: "Debt Manager",
     kind: "Gestão financeira",
     stack: ["JavaScript", "Full-stack"],
-    summary:
-      "Aplicação full-stack para organizar dívidas, acompanhar vencimentos e ter clareza do que precisa ser pago.",
+    summary: "Organize dívidas e acompanhe vencimentos.",
     href: "https://github.com/Naggin/debt-manager",
     repo: "https://github.com/Naggin/debt-manager",
     live: false,
@@ -109,8 +105,7 @@ export const projects: Project[] = [
     title: "SuporteTI",
     kind: "Site institucional",
     stack: ["React", "TypeScript", "Vite"],
-    summary:
-      "Presença digital para suporte técnico: remoto, consultoria, segurança e manutenção preventiva, com fluxo claro de contato.",
+    summary: "Site de suporte técnico com fluxo de contato.",
     href: "https://siteparasuportetcnico.vercel.app",
     repo: "https://github.com/Naggin/Siteparasuportetcnico",
     live: true,
@@ -120,8 +115,7 @@ export const projects: Project[] = [
     title: "AI Cockpit",
     kind: "App desktop",
     stack: ["Tauri", "Updater"],
-    summary:
-      "Aplicativo desktop com atualização automática. Os instaladores públicos ficam em repositório próprio para o updater baixar com segurança.",
+    summary: "App desktop com atualização automática.",
     href: "https://github.com/Naggin/IAcockpit-releases",
     repo: "https://github.com/Naggin/IAcockpit-releases",
     live: false,

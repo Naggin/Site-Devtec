@@ -36,10 +36,6 @@ export default function Contact() {
         <div className="contact-layout">
           <div className="contact-info reveal-left" data-delay="2">
             <p>
-              Conta o que você precisa. Eu leio todo briefing e respondo
-              direto — sem rodeio.
-            </p>
-            <p>
               <a href={`mailto:${profile.email}`}>{profile.email}</a>
             </p>
             <p>
@@ -108,16 +104,15 @@ export default function Contact() {
                       name="message"
                       value={inquiry.message}
                       onChange={(e) => update("message", e.target.value)}
-                      placeholder="Conta o problema, não a solução. Fica mais fácil de ajudar."
+                      placeholder="Descreva o projeto."
                     />
                     {errors.message ? <span className="error">{errors.message}</span> : null}
                   </div>
                 </div>
                 <div className="form-foot">
                   <button className="btn btn-primary" type="submit">
-                    Enviar briefing
+                    Enviar
                   </button>
-                  <p>Sem spam. Só uma conversa.</p>
                 </div>
               </form>
             )}
@@ -133,7 +128,7 @@ function SuccessCard({ submitted }: { submitted: Inquiry }) {
     <div className="success-card" role="status" data-testid="inquiry-success">
       <p className="kicker">Briefing recebido</p>
       <h3>Valeu, {submitted.name.split(" ")[0]}.</h3>
-      <p>Te respondo direto no e-mail com o próximo passo.</p>
+      <p>Respondo no e-mail em breve.</p>
       <dl>
         <div>
           <dt>Tipo</dt>

@@ -30,7 +30,7 @@ describe("site Devtec", () => {
       screen.getByLabelText("O que você precisa?"),
       "Quero um site para divulgar meu trabalho.",
     );
-    await user.click(screen.getByRole("button", { name: "Enviar briefing" }));
+    await user.click(screen.getByRole("button", { name: "Enviar" }));
 
     expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Carla");
     expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Site institucional");

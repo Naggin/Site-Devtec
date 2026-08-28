@@ -11,21 +11,13 @@ export default function About() {
           <div>
             <div className="about-copy reveal-left" data-delay="2">
               <p>
-                Sou <strong>Antonio Junior</strong>. Desenvolvo de ponta a ponta:
-                banco, API, interface e tudo no meio.
-              </p>
-              <p>
-                Já entreguei plataformas EdTech, apps mobile com Firebase,
-                sistemas financeiros com IA e ferramentas desktop com
-                atualização automática.
+                <strong>Antonio Junior</strong> — web, mobile, IA e produto no ar.
               </p>
             </div>
 
             <div className="code-chip reveal-left" data-delay="3" aria-hidden>
-              <div><span className="ck-kw">const</span> dev = <span className="ck-kw">await</span> <span className="ck-fn">hire</span>(<span className="ck-str">'Antonio'</span>);</div>
-              <div><span className="ck-cm">// entrega: web · mobile · IA</span></div>
-              <div><span className="ck-fn">console</span>.<span className="ck-fn">log</span>(dev.stack);</div>
-              <div><span className="ck-cm">// ['React','Next.js','RN','Node','TS']</span></div>
+              <div><span className="ck-kw">const</span> dev = <span className="ck-fn">hire</span>(<span className="ck-str">'Antonio'</span>);</div>
+              <div><span className="ck-cm">// web · mobile · IA</span></div>
             </div>
           </div>
 

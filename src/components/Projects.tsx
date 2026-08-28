@@ -8,9 +8,6 @@ export default function Projects() {
         <h2 className="section-title reveal" data-delay="1">
           Trabalhos no ar.
         </h2>
-        <p className="section-sub reveal" data-delay="2">
-          Produtos entregues e projetos recentes — abra o site ou veja o código.
-        </p>
 
         <div className="project-grid">
           {projects.map((project, i) => (

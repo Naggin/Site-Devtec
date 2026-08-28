@@ -8,9 +8,6 @@ export default function Services() {
         <h2 className="section-title reveal" data-delay="1">
           O que eu construo.
         </h2>
-        <p className="section-sub reveal" data-delay="2">
-          Do site de lançamento ao sistema que o time abre todo dia.
-        </p>
 
         <div className="service-grid">
           {services.map((service, i) => (
