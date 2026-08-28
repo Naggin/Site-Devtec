@@ -8,7 +8,7 @@ import {
 } from "react";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import DustTransition from "../components/DustTransition";
-import { captureViewport } from "../lib/dustCapture";
+import { captureViewport, type DustCapture } from "../lib/dustCapture";
 import {
   getTranslation,
   isLocale,
@@ -66,9 +66,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Locale>(readStoredLocale);
   const [pendingLocale, setPendingLocale] = useState<Locale | null>(null);
   const [phase, setPhase] = useState<"idle" | "out" | "clean" | "in">("idle");
+  const [capture, setCapture] = useState<DustCapture | null>(null);
   const [snapshotReady, setSnapshotReady] = useState(false);
   const scrollYRef = useRef(0);
-  const captureRef = useRef<ReturnType<typeof captureViewport> | null>(null);
   const announceRef = useRef<HTMLDivElement>(null);
 
   const t = useMemo(() => getTranslation(locale), [locale]);
@@ -90,8 +90,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const finishTransition = useCallback(() => {
     setPhase("idle");
     setPendingLocale(null);
+    setCapture(null);
     setSnapshotReady(false);
-    captureRef.current = null;
     window.scrollTo(0, scrollYRef.current);
   }, []);
 
@@ -115,7 +115,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (announceRef.current) announceRef.current.textContent = msg;
   }, []);
 
-  const toggleLanguage = useCallback(() => {
+  const toggleLanguage = useCallback(async () => {
     if (phase !== "idle") return;
 
     const next = otherLocale(locale);
@@ -128,7 +128,15 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     setSnapshotReady(false);
     setPendingLocale(next);
-    captureRef.current = captureViewport();
+
+    const captured = await captureViewport();
+    if (captured.particles.length < 80) {
+      applyLocale(next);
+      setPendingLocale(null);
+      return;
+    }
+
+    setCapture(captured);
     setPhase("out");
   }, [applyLocale, locale, phase, reducedMotion]);
 
@@ -147,6 +155,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     [locale, t, toggleLanguage, isTransitioning],
   );
 
+  const hideShell =
+    snapshotReady && (phase === "out" || phase === "clean");
+
   return (
     <LanguageContext.Provider value={value}>
       <div
@@ -157,14 +168,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         aria-atomic="true"
       />
       <div
-        className={`app-shell${isTransitioning ? " is-transitioning" : ""}${snapshotReady ? " is-captured" : ""}`}
+        className={`app-shell${isTransitioning ? " is-transitioning" : ""}${hideShell ? " is-captured" : ""}`}
       >
         {children}
       </div>
-      {!reducedMotion && phase !== "idle" && captureRef.current ? (
+      {capture && phase !== "idle" ? (
         <DustTransition
           phase={phase}
-          capturePromise={captureRef.current}
+          capture={capture}
           onPhaseChange={handlePhaseChange}
           onComplete={finishTransition}
           onSnapshotReady={handleSnapshotReady}

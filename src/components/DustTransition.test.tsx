@@ -66,7 +66,7 @@ describe("DustTransition", () => {
     expect(CLEAN_MS).toBeLessThanOrEqual(200);
   });
 
-  it("renderiza canvas imediatamente e sinaliza snapshot após 1º frame", async () => {
+  it("renderiza canvas e sinaliza snapshot no 1º frame", async () => {
     const callbacks: FrameRequestCallback[] = [];
     vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
       callbacks.push(cb);
@@ -78,7 +78,7 @@ describe("DustTransition", () => {
     render(
       <DustTransition
         phase="out"
-        capturePromise={Promise.resolve(makeCapture())}
+        capture={makeCapture()}
         onPhaseChange={vi.fn()}
         onComplete={vi.fn()}
         onSnapshotReady={onSnapshotReady}
@@ -86,10 +86,6 @@ describe("DustTransition", () => {
     );
 
     expect(document.querySelector(".dust-overlay")).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(callbacks.length).toBeGreaterThan(0);
-    });
 
     await act(async () => {
       callbacks.at(-1)?.(OUT_MS / 2);
@@ -100,7 +96,6 @@ describe("DustTransition", () => {
     });
 
     const canvas = document.querySelector(".dust-overlay")!;
-    expect(canvas.classList.contains("is-active")).toBe(true);
     expect(Number(canvas.getAttribute("data-particle-count"))).toBeGreaterThan(0);
   });
 });

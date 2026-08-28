@@ -1,17 +1,16 @@
 import { useEffect, useRef } from "react";
 import type { DustCapture, DustParticle } from "../lib/dustCapture";
 
-/** Snappy PT/EN swap — total ~1.1s so it feels alive, not broken. */
-const OUT_MS = 450;
-const CLEAN_MS = 150;
-const IN_MS = 550;
+const OUT_MS = 520;
+const CLEAN_MS = 120;
+const IN_MS = 480;
 const TOTAL_MS = OUT_MS + CLEAN_MS + IN_MS;
 
 type Phase = "out" | "clean" | "in";
 
 type Props = {
   phase: Phase | "idle";
-  capturePromise: Promise<DustCapture>;
+  capture: DustCapture;
   onPhaseChange: (phase: Phase | "idle") => void;
   onComplete: () => void;
   onSnapshotReady?: () => void;
@@ -25,55 +24,24 @@ function easeOutQuart(t: number) {
   return 1 - (1 - t) ** 4;
 }
 
-function easeInOutCubic(t: number) {
-  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
-}
-
 export default function DustTransition({
   phase,
-  capturePromise,
+  capture,
   onPhaseChange,
   onComplete,
   onSnapshotReady,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<DustParticle[]>([]);
-  const snapshotRef = useRef<HTMLCanvasElement | null>(null);
+  const particlesRef = useRef<DustParticle[]>(capture.particles);
+  const snapshotRef = useRef(capture.snapshot);
   const rafRef = useRef(0);
   const startRef = useRef(0);
   const phaseRef = useRef(phase);
-  const readyRef = useRef(false);
   const firstFrameRef = useRef(false);
-  const particleCountRef = useRef(0);
 
   useEffect(() => {
     phaseRef.current = phase;
   }, [phase]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const run = async () => {
-      const captured = await capturePromise;
-      if (cancelled) return;
-
-      snapshotRef.current = captured.snapshot;
-      particlesRef.current = captured.particles;
-      particleCountRef.current = captured.particles.length;
-      readyRef.current = true;
-
-      const canvas = canvasRef.current;
-      if (canvas) {
-        canvas.dataset.particleCount = String(captured.particles.length);
-      }
-    };
-
-    void run();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [capturePromise]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -82,8 +50,8 @@ export default function DustTransition({
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    let W = window.innerWidth;
-    let H = window.innerHeight;
+    let W = capture.W;
+    let H = capture.H;
 
     const resize = () => {
       W = window.innerWidth;
@@ -98,7 +66,6 @@ export default function DustTransition({
 
     const drawParticle = (p: DustParticle, alpha: number) => {
       if (alpha <= 0.01) return;
-
       ctx.globalAlpha = alpha;
       if (p.kind === "char") {
         ctx.font = '600 11px "GeistMono", ui-monospace, monospace';
@@ -106,7 +73,6 @@ export default function DustTransition({
         ctx.fillText(p.char, p.x - 5, p.y + 4);
         return;
       }
-
       ctx.fillStyle = p.color;
       const s = p.size;
       ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
@@ -123,16 +89,10 @@ export default function DustTransition({
     const notifyFirstFrame = () => {
       if (firstFrameRef.current) return;
       firstFrameRef.current = true;
-      canvas.classList.add("is-active");
       onSnapshotReady?.();
     };
 
     const draw = (ts: number) => {
-      if (!readyRef.current) {
-        rafRef.current = requestAnimationFrame(draw);
-        return;
-      }
-
       if (!startRef.current) startRef.current = ts;
       const elapsed = ts - startRef.current;
       const currentPhase = phaseRef.current;
@@ -144,7 +104,7 @@ export default function DustTransition({
         const p = Math.min(1, elapsed / OUT_MS);
 
         if (snapshot) {
-          ctx.globalAlpha = Math.max(0.35, 1 - easeOutQuart(Math.max(0, (p - 0.72) / 0.28)) * 0.65);
+          ctx.globalAlpha = 1;
           ctx.drawImage(snapshot, 0, 0, W, H);
           notifyFirstFrame();
         }
@@ -152,48 +112,30 @@ export default function DustTransition({
         for (const s of particlesRef.current) {
           const local = Math.min(
             1,
-            Math.max(0, (p - s.delay * 0.4) / Math.max(0.1, 1 - s.delay * 0.4)),
+            Math.max(0, (p - s.delay * 0.45) / Math.max(0.12, 1 - s.delay * 0.45)),
           );
           const eased = easeOutQuart(local);
           if (eased <= 0) continue;
 
-          punchHole(
-            s.homeX,
-            s.homeY,
-            s.size * (0.6 + eased * (s.kind === "char" ? 2.4 : 1.8)),
-          );
+          punchHole(s.homeX, s.homeY, s.size * (0.5 + eased * (s.kind === "char" ? 2.6 : 2)));
 
-          const drift = Math.sin(elapsed * 0.008 + s.wobble) * 22 * eased;
-          s.x = s.homeX + s.vx * eased * 88 + drift;
-          s.y = s.homeY - s.lift * eased * (140 + H * 0.14);
-          s.opacity = (0.55 + (1 - eased) * 0.45) * 0.98;
+          const drift = Math.sin(elapsed * 0.009 + s.wobble) * 24 * eased;
+          s.x = s.homeX + s.vx * eased * 96 + drift;
+          s.y = s.homeY - s.lift * eased * (150 + H * 0.15);
+          s.opacity = 0.65 + (1 - eased) * 0.35;
 
           drawParticle(s, s.opacity);
         }
-
-        const dark = easeOutCubic(Math.max(0, (p - 0.92) / 0.08)) * 0.12;
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = `rgba(6, 6, 6, ${dark})`;
-        ctx.fillRect(0, 0, W, H);
 
         if (p >= 1) {
           startRef.current = 0;
           onPhaseChange("clean");
         }
       } else if (currentPhase === "clean") {
-        notifyFirstFrame();
-
-        const linger = Math.min(1, elapsed / CLEAN_MS);
-        const veil = 0.14 * (1 - easeOutCubic(linger));
-
-        ctx.fillStyle = `rgba(6, 6, 6, ${veil})`;
-        ctx.fillRect(0, 0, W, H);
-
         for (const s of particlesRef.current) {
-          if (Math.random() > 0.985) continue;
-          s.x += s.vx * 1.2;
-          s.y -= s.lift * 1.6;
-          s.opacity = 0.22 * (1 - linger);
+          s.x += s.vx * 1.4;
+          s.y -= s.lift * 2;
+          s.opacity = Math.max(0, s.opacity - 0.04);
           drawParticle(s, s.opacity);
         }
 
@@ -203,26 +145,12 @@ export default function DustTransition({
         }
       } else if (currentPhase === "in") {
         const p = Math.min(1, elapsed / IN_MS);
-        const eased = easeInOutCubic(p);
-        const dark = (1 - eased) * 0.16;
-
-        ctx.fillStyle = `rgba(6, 6, 6, ${dark})`;
-        ctx.fillRect(0, 0, W, H);
+        const fade = 1 - easeOutCubic(p);
+        canvas.style.opacity = String(fade);
 
         for (const s of particlesRef.current) {
-          const local = Math.min(
-            1,
-            Math.max(0, (p - s.delay * 0.1) / Math.max(0.04, 1 - s.delay * 0.08)),
-          );
-          const t = easeOutCubic(local);
-          const scatterX = s.vx * 90 + Math.sin(s.wobble) * 50;
-          const scatterY = -100 - s.lift * 140;
-
-          s.x = s.homeX + scatterX * (1 - t);
-          s.y = s.homeY + scatterY * (1 - t);
-          s.opacity = Math.min(1, t * 1.2) * (p > 0.82 ? (1 - p) / 0.18 : 0.92);
-
-          drawParticle(s, s.opacity);
+          s.opacity *= 0.92;
+          drawParticle(s, s.opacity * fade);
         }
 
         if (p >= 1) {
@@ -235,7 +163,6 @@ export default function DustTransition({
     };
 
     resize();
-    startRef.current = 0;
     rafRef.current = requestAnimationFrame(draw);
 
     window.addEventListener("resize", resize);
@@ -243,13 +170,13 @@ export default function DustTransition({
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener("resize", resize);
     };
-  }, [onComplete, onPhaseChange, onSnapshotReady]);
+  }, [capture, onComplete, onPhaseChange, onSnapshotReady]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="dust-overlay"
-      data-particle-count={particleCountRef.current || undefined}
+      className="dust-overlay is-active"
+      data-particle-count={capture.particles.length}
       aria-hidden
       role="presentation"
     />
