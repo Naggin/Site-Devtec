@@ -76,33 +76,45 @@ export const processSteps = [
 export const services = [
   {
     code: "01",
+    command: "devtec build --web",
     title: "Web & produtos digitais",
     text: "Sites, dashboards e apps com React e Next.js.",
+    tags: ["React", "Next.js", "TypeScript"],
   },
   {
     code: "02",
+    command: "devtec build --mobile",
     title: "Apps mobile",
     text: "iOS e Android com React Native e Expo.",
+    tags: ["React Native", "Expo", "Firebase"],
   },
   {
     code: "03",
+    command: "devtec build --api",
     title: "Full-stack & dados",
     text: "APIs, banco e painel em produção.",
+    tags: ["Node", "Prisma", "PostgreSQL"],
   },
   {
     code: "04",
+    command: "devtec build --ai",
     title: "IA aplicada",
     text: "WhatsApp, NLP e copilots no produto.",
+    tags: ["Claude AI", "WhatsApp", "NLP"],
   },
   {
     code: "05",
+    command: "devtec ops --support",
     title: "Suporte e consultoria",
     text: "Infra, manutenção e orientação técnica.",
+    tags: ["Docker", "Vercel", "DevOps"],
   },
   {
     code: "06",
+    command: "devtec build --desktop",
     title: "Desktop & tooling",
     text: "Apps nativos e instaladores com Tauri.",
+    tags: ["Tauri", "Rust", "Updater"],
   },
 ] as const;
 
