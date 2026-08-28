@@ -1,4 +1,4 @@
-import { gitCommits } from "../data";
+import { gitCommits, gitTimeline } from "../data";
 import { useInView } from "../hooks/useInView";
 
 export default function GitTimeline() {
@@ -7,8 +7,15 @@ export default function GitTimeline() {
   return (
     <div ref={ref} className={`git-timeline${inView ? " is-visible" : ""}`}>
       <div className="git-timeline-header">
-        <span className="git-timeline-repo">Naggin/moneyzin</span>
-        <span className="git-timeline-branch">main</span>
+        <a
+          className="git-timeline-repo"
+          href={gitTimeline.href}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {gitTimeline.repo}
+        </a>
+        <span className="git-timeline-branch">{gitTimeline.branch}</span>
       </div>
 
       <ol className="git-commits">
@@ -21,7 +28,15 @@ export default function GitTimeline() {
             <span className="git-commit-line" aria-hidden />
             <div className="git-commit-body">
               <div className="git-commit-meta">
-                <code className="git-commit-hash">{commit.hash}</code>
+                <a
+                  className="git-commit-hash"
+                  href={`${gitTimeline.commitBase}${commit.hash}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <code>{commit.hash}</code>
+                  <span className="sr-only"> — abrir commit no GitHub</span>
+                </a>
                 <time>{commit.date}</time>
               </div>
               <p className="git-commit-msg">{commit.message}</p>

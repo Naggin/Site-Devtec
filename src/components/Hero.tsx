@@ -19,16 +19,17 @@ export default function Hero() {
             </h1>
 
             <p className="hero-sub">
-              <strong>Antonio Junior</strong> — web, mobile, IA e produto no ar.
-              Do zero ao deploy.
+              <strong>Antonio Junior</strong>, desenvolvedor full-stack. Pego o
+              problema do seu dia a dia e devolvo software rodando em produção —
+              com o código no seu nome.
             </p>
 
             <div className="hero-actions">
               <a className="btn btn-primary" href="#contato">
-                Contato
+                Falar sobre meu projeto
               </a>
               <a className="btn btn-ghost" href="#projetos">
-                Projetos
+                Ver trabalhos no ar
               </a>
             </div>
 

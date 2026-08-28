@@ -1,29 +1,34 @@
 import { useEffect, useRef, useState } from "react";
 import { deploySteps } from "../data";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
 const COMMAND = "npm run deploy";
+const TYPE_MS = 65;
+const STEP_MS = 900;
+const HOLD_MS = 4000;
 
 type Phase = "idle" | "typing" | "running" | "done";
 
+const allLines = () => [
+  `> ${COMMAND}`,
+  ...deploySteps.map((step) => `  ${step.label}… ${step.text}`),
+];
+
 export default function LiveDeployTerminal() {
+  const reducedMotion = usePrefersReducedMotion();
+  const [inView, setInView] = useState(false);
   const [phase, setPhase] = useState<Phase>("idle");
   const [typed, setTyped] = useState("");
   const [stepIndex, setStepIndex] = useState(-1);
   const [lines, setLines] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
-  const started = useRef(false);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started.current) {
-          started.current = true;
-          setPhase("typing");
-        }
-      },
+      ([entry]) => setInView(Boolean(entry?.isIntersecting)),
       { threshold: 0.3 },
     );
 
@@ -31,11 +36,18 @@ export default function LiveDeployTerminal() {
     return () => observer.disconnect();
   }, []);
 
+  // O ciclo recomeça sozinho enquanto o terminal estiver visível, então quem
+  // chega depois da primeira execução ainda vê a animação em vez de uma caixa vazia.
+  useEffect(() => {
+    if (reducedMotion || !inView || phase !== "idle") return;
+    setPhase("typing");
+  }, [reducedMotion, inView, phase]);
+
   useEffect(() => {
     if (phase !== "typing") return;
 
     if (typed.length < COMMAND.length) {
-      const t = setTimeout(() => setTyped(COMMAND.slice(0, typed.length + 1)), 65);
+      const t = setTimeout(() => setTyped(COMMAND.slice(0, typed.length + 1)), TYPE_MS);
       return () => clearTimeout(t);
     }
 
@@ -58,26 +70,33 @@ export default function LiveDeployTerminal() {
     const step = deploySteps[stepIndex];
     setLines((prev) => [...prev, `  ${step.label}… ${step.text}`]);
 
-    const t = setTimeout(() => setStepIndex((i) => i + 1), 900);
+    const t = setTimeout(() => setStepIndex((i) => i + 1), STEP_MS);
     return () => clearTimeout(t);
   }, [phase, stepIndex]);
 
+  // Segura o resultado por alguns segundos e reinicia — o estado final nunca
+  // é uma tela em branco.
   useEffect(() => {
-    if (phase !== "done") return;
+    if (phase !== "done" || reducedMotion) return;
 
     const t = setTimeout(() => {
-      setPhase("idle");
       setTyped("");
       setStepIndex(-1);
       setLines([]);
-      started.current = false;
-    }, 5000);
+      setPhase("idle");
+    }, HOLD_MS);
     return () => clearTimeout(t);
-  }, [phase]);
+  }, [phase, reducedMotion]);
 
-  const handleRun = () => {
-    if (phase !== "idle") return;
-    started.current = true;
+  const staticResult = reducedMotion;
+  const shownLines = staticResult ? allLines() : lines;
+  const shownTyped = staticResult ? COMMAND : typed;
+  const doneCount = staticResult ? deploySteps.length : stepIndex;
+
+  const replay = () => {
+    setTyped("");
+    setStepIndex(-1);
+    setLines([]);
     setPhase("typing");
   };
 
@@ -90,36 +109,28 @@ export default function LiveDeployTerminal() {
         <span className="live-terminal-title">deploy — live</span>
       </div>
 
-      <div className="live-terminal-body">
+      <div className="live-terminal-body" data-testid="terminal-output">
         <div className="live-terminal-input">
           <span className="tprompt">~</span>
           <span className="live-terminal-cmd">
-            {typed}
-            {phase === "typing" && <span className="tcursor" />}
+            {shownTyped}
+            {phase === "typing" && !staticResult && <span className="tcursor" />}
           </span>
         </div>
 
-        {lines.map((line, i) => (
+        {shownLines.map((line, i) => (
           <div className="live-terminal-line" key={`${line}-${i}`}>
-            <span className={line.startsWith("  live") || line.includes("✓") ? "targ" : "tcomment"}>
-              {line}
-            </span>
+            <span className={line.includes("✓") ? "targ" : "tcomment"}>{line}</span>
           </div>
         ))}
-
-        {phase === "running" && stepIndex < deploySteps.length && (
-          <div className="live-terminal-line">
-            <span className="tcomment">  …</span>
-          </div>
-        )}
 
         <div className="live-pipeline">
           {deploySteps.map((step, i) => (
             <span
               key={step.label}
-              className={`live-pipeline-step${
-                stepIndex > i || phase === "done" ? " is-done" : ""
-              }${stepIndex === i && phase === "running" ? " is-active" : ""}`}
+              className={`live-pipeline-step${doneCount > i || phase === "done" ? " is-done" : ""}${
+                doneCount === i && phase === "running" ? " is-active" : ""
+              }`}
             >
               {step.label}
             </span>
@@ -130,10 +141,10 @@ export default function LiveDeployTerminal() {
       <button
         type="button"
         className="live-terminal-run"
-        onClick={handleRun}
-        disabled={phase !== "idle"}
+        onClick={replay}
+        disabled={phase === "typing" || phase === "running"}
       >
-        {phase === "idle" ? "▶ run deploy" : phase === "done" ? "✓ deployed" : "running…"}
+        {phase === "typing" || phase === "running" ? "running…" : "▶ run deploy"}
       </button>
     </div>
   );

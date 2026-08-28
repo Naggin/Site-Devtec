@@ -1,4 +1,4 @@
-import { ciChecks } from "../data";
+import { ciChecks, ciRepo } from "../data";
 import { useInView } from "../hooks/useInView";
 
 export default function StatusBoard() {
@@ -10,7 +10,7 @@ export default function StatusBoard() {
         <span className="stack-dot stack-dot-red" aria-hidden />
         <span className="stack-dot stack-dot-yellow" aria-hidden />
         <span className="stack-dot stack-dot-green" aria-hidden />
-        <span className="status-board-title">CI/CD — pipeline</span>
+        <span className="status-board-title">{ciRepo.label}</span>
         <span className={`status-board-badge${inView ? " is-on" : ""}`}>
           {inView ? "passing" : "idle"}
         </span>
@@ -27,16 +27,16 @@ export default function StatusBoard() {
               {inView ? "✓" : "○"}
             </span>
             <span className="status-check-name">{check.name}</span>
-            <span className="status-check-duration">{check.duration}</span>
+            <span className="status-check-duration">{check.detail}</span>
           </li>
         ))}
       </ul>
 
       <div className={`status-footer${inView ? " is-visible" : ""}`}>
         <span className="status-footer-dot" aria-hidden />
-        <span>production</span>
-        <a href="https://moneyzin.vercel.app" target="_blank" rel="noreferrer">
-          moneyzin.vercel.app
+        <span>o mesmo padrão que eu entrego</span>
+        <a href={ciRepo.href} target="_blank" rel="noreferrer">
+          {ciRepo.repo}
         </a>
       </div>
     </div>
