@@ -16,6 +16,63 @@ export const navItems = [
   { href: "#contato", label: "Contato" },
 ] as const;
 
+export const stacks = [
+  {
+    id: "fullstack",
+    label: "Full-stack",
+    tech: ["React", "Next.js", "TypeScript", "Node"],
+    output: "Sites, dashboards e APIs em produção.",
+  },
+  {
+    id: "mobile",
+    label: "Mobile",
+    tech: ["React Native", "Expo", "Firebase"],
+    output: "Apps iOS e Android com sync em tempo real.",
+  },
+  {
+    id: "ai",
+    label: "IA",
+    tech: ["Claude AI", "WhatsApp", "NLP"],
+    output: "Copilots, bots e fluxos inteligentes no produto.",
+  },
+  {
+    id: "infra",
+    label: "Infra",
+    tech: ["Docker", "Vercel", "consultoria"],
+    output: "Deploy, monitoramento e suporte técnico.",
+  },
+] as const;
+
+export const stackPipeline = [
+  { icon: "💡", label: "ideia" },
+  { icon: "⌨", label: "código" },
+  { icon: "🚀", label: "deploy" },
+  { icon: "✓", label: "produto" },
+] as const;
+
+export const processSteps = [
+  {
+    num: "01",
+    title: "Entender o problema",
+    text: "Briefing, escopo e prioridades claras antes de escrever código.",
+  },
+  {
+    num: "02",
+    title: "Prototipar rápido",
+    text: "MVP funcional para validar fluxo, UX e integrações.",
+  },
+  {
+    num: "03",
+    title: "Entregar no ar",
+    text: "Deploy, performance e documentação — produto pronto para uso.",
+  },
+  {
+    num: "04",
+    title: "Evoluir junto",
+    text: "Manutenção, melhorias e suporte conforme o produto cresce.",
+  },
+] as const;
+
 export const services = [
   {
     code: "01",
