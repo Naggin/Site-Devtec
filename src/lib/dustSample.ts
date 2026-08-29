@@ -32,6 +32,27 @@ const MAX_SOURCE_SHARE = 0.05;
 const BUDGET_DESKTOP = 3400;
 const BUDGET_MOBILE = 1500;
 
+/**
+ * Orçamento de um bloco isolado. A densidade acompanha a da tela cheia — é o que
+ * faz a entrada de uma seção parecer feita do mesmo material que a troca de
+ * idioma — mas com teto: várias entradas podem coincidir num scroll rápido.
+ */
+const BLOCK_PX_PER_PARTICLE_DESKTOP = 520;
+const BLOCK_PX_PER_PARTICLE_MOBILE = 400;
+const BLOCK_MIN = 90;
+const BLOCK_MAX_DESKTOP = 700;
+const BLOCK_MAX_MOBILE = 320;
+
+/** Folga abaixo da dobra ao amostrar um bloco que ainda está entrando. */
+const BLOCK_MARGIN = 240;
+
+function blockBudget(w: number, h: number, W: number) {
+  const mobile = W < 768;
+  const per = mobile ? BLOCK_PX_PER_PARTICLE_MOBILE : BLOCK_PX_PER_PARTICLE_DESKTOP;
+  const max = mobile ? BLOCK_MAX_MOBILE : BLOCK_MAX_DESKTOP;
+  return Math.min(max, Math.max(BLOCK_MIN, Math.round((w * h) / per)));
+}
+
 export type DustParticle = {
   homeX: number;
   homeY: number;
@@ -165,8 +186,15 @@ function isDecorative(el: Element) {
   );
 }
 
-function inViewport(r: BoxLike, W: number, H: number) {
-  return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < H && r.right > 0 && r.left < W;
+function inViewport(r: BoxLike, W: number, H: number, margin = 0) {
+  return (
+    r.width > 0 &&
+    r.height > 0 &&
+    r.bottom > -margin &&
+    r.top < H + margin &&
+    r.right > 0 &&
+    r.left < W
+  );
 }
 
 /** Tem pintura própria — fundo ou borda visível — e não só filhos. */
@@ -192,13 +220,14 @@ function collectPieces(
   W: number,
   H: number,
   styleOf: (el: Element) => CSSStyleDeclaration,
+  margin = 0,
 ): HTMLElement[] {
   const out: HTMLElement[] = [];
 
   const visit = (el: Element) => {
     if (!(el instanceof HTMLElement) || isDecorative(el)) return;
     const r = el.getBoundingClientRect();
-    if (!inViewport(r, W, H)) return;
+    if (!inViewport(r, W, H, margin)) return;
     // Não vira poeira o que ainda não apareceu (um `.reveal` por revelar, por
     // exemplo). Também é o que permite a volta mirar opacidade 1 com segurança.
     if (Number.parseFloat(styleOf(el).opacity) < 0.5) return;
@@ -221,6 +250,7 @@ function collectInk(
   W: number,
   H: number,
   styleOf: (el: Element) => CSSStyleDeclaration,
+  margin = 0,
 ): Ink[] {
   const ink: Ink[] = [];
   const range = typeof document.createRange === "function" ? document.createRange() : null;
@@ -266,7 +296,7 @@ function collectInk(
           const color = col;
           range.selectNodeContents(node);
           for (const line of range.getClientRects()) {
-            if (line.width < 2 || line.height < 2 || !inViewport(line, W, H)) continue;
+            if (line.width < 2 || line.height < 2 || !inViewport(line, W, H, margin)) continue;
             // Texto é a tinta que mais importa: peso alto por área.
             ink.push({
               x: line.left,
@@ -326,8 +356,13 @@ function makeParticle(
  * fonte, o que perdia ~30% das partículas entre o arredondamento e o teto —
  * pedia 4600 e entregava 3100. Sorteando, o orçamento sai exato.
  */
-function distribute(ink: Ink[], W: number, H: number, axis: SweepAxis): DustParticle[] {
-  const budget = W < 768 ? BUDGET_MOBILE : BUDGET_DESKTOP;
+function distribute(
+  ink: Ink[],
+  W: number,
+  H: number,
+  axis: SweepAxis,
+  budget: number,
+): DustParticle[] {
   if (!ink.length) return [];
 
   const raw = ink.reduce((sum, i) => sum + i.weight, 0);
@@ -384,17 +419,13 @@ function normalizeDelays(particles: DustParticle[]): SweepRange {
   return { min, max: min + span };
 }
 
-/** Lê o layout atual e monta partículas + peças. Síncrono e sem rasterizar. */
-export function sampleViewport(axis: SweepAxis): DustSample {
-  const W = window.innerWidth;
-  const H = window.innerHeight;
-  const shell = document.querySelector<HTMLElement>(".app-shell");
-  if (!shell) return { particles: [], pieces: [], range: { min: 0, max: 1 }, W, H };
-
-  // Um único cache de estilo para toda a amostragem: getComputedStyle é caro
-  // e os mesmos elementos são consultados na seleção de peças e na de tinta.
+/**
+ * Um único cache de estilo por amostragem: getComputedStyle é caro e os mesmos
+ * elementos são consultados na seleção de peças e na de tinta.
+ */
+function createStyleCache() {
   const styles = new Map<Element, CSSStyleDeclaration>();
-  const styleOf = (el: Element) => {
+  return (el: Element) => {
     let s = styles.get(el);
     if (!s) {
       s = getComputedStyle(el);
@@ -402,10 +433,21 @@ export function sampleViewport(axis: SweepAxis): DustSample {
     }
     return s;
   };
+}
+
+/** Lê o layout atual e monta partículas + peças. Síncrono e sem rasterizar. */
+export function sampleViewport(axis: SweepAxis): DustSample {
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+  const shell = document.querySelector<HTMLElement>(".app-shell");
+  if (!shell) return { particles: [], pieces: [], range: { min: 0, max: 1 }, W, H };
+
+  const styleOf = createStyleCache();
 
   const roots = Array.from(shell.children).filter((el) => !isDecorative(el));
   const pieces = collectPieces(roots, W, H, styleOf);
-  const particles = distribute(collectInk(pieces, W, H, styleOf), W, H, axis);
+  const budget = W < 768 ? BUDGET_MOBILE : BUDGET_DESKTOP;
+  const particles = distribute(collectInk(pieces, W, H, styleOf), W, H, axis, budget);
   // Agrupadas por tom para a guarda de fillStyle no desenho quase nunca errar.
   // A ordem não importa para nada além disso: as partículas não se sobrepõem
   // de forma significativa e cada uma tem seu próprio atraso.
@@ -470,4 +512,37 @@ export function clearPieces(pieces: HTMLElement[]) {
     el.classList.remove("dust-piece");
     el.style.removeProperty("--dust-d");
   }
+}
+
+/**
+ * Amostra um bloco só, para ele entrar em cena remontando da mesma poeira.
+ *
+ * A diagonal continua sendo a da tela inteira — é o que faz a entrada de uma
+ * seção parecer o mesmo gesto da troca de idioma, e não um efeito próprio. O que
+ * muda é a extensão: `normalizeDelays` reescala os atrasos para a caixa do
+ * bloco, então o varrimento atravessa o bloco em vez de esperar a tela.
+ *
+ * O bloco precisa estar no estado de repouso (opacidade e transform finais)
+ * quando esta função roda; quem chama garante isso antes de amostrar.
+ */
+export function sampleElement(root: HTMLElement, axis: SweepAxis): DustSample {
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+  const styleOf = createStyleCache();
+
+  // Margem: um bloco que entra pela borda de baixo tem parte fora da vista, e
+  // sem folga essa parte apareceria inteira de estalo assim que o scroll chegasse.
+  const pieces = collectPieces([root], W, H, styleOf, BLOCK_MARGIN);
+  if (!pieces.length) return { particles: [], pieces, range: { min: 0, max: 1 }, W, H };
+
+  const r = root.getBoundingClientRect();
+  const particles = distribute(
+    collectInk(pieces, W, H, styleOf, BLOCK_MARGIN),
+    W,
+    H,
+    axis,
+    blockBudget(r.width, r.height, W),
+  );
+  particles.sort((a, b) => a.tone - b.tone);
+  return { particles, pieces, range: normalizeDelays(particles), W, H };
 }

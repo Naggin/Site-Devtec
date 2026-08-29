@@ -139,6 +139,70 @@ body {
 }
 .reveal-right.visible { opacity: 1; transform: translateX(0); }
 
+/* ─── entrada em poeira: as seções chegam como o idioma volta ────── */
+/* Mesma poeira do `DustTransition`, com as durações apertadas. Em modo poeira o
+   bloco não desliza: fica parado e invisível até a frente do varrimento chegar,
+   porque quem se move são as partículas do canvas — um translate por baixo
+   delas briga com o pouso. */
+.dust-hold {
+  opacity: 0;
+  transform: none;
+  transition: none;
+}
+
+/* O bloco em si aparece de estalo; são as peças dentro dele que remontam. Sem
+   isto o fade de 0.75s do `.reveal` correria por cima da poeira. */
+.dust-in { transition: none; }
+
+.dust-reveal-overlay {
+  position: fixed; inset: 0; z-index: 90;
+  pointer-events: none;
+}
+
+/* Animação, e não transição como na troca de idioma: `both` segura a peça em
+   opacidade 0 durante o atraso, sem precisar de um estado inicial escrito antes
+   e de um reflow forçado para ele valer. */
+.dust-in.dust-piece,
+.dust-in .dust-piece {
+  animation: dust-reform 420ms cubic-bezier(0.4, 0, 0.6, 1) both;
+  animation-delay: calc(var(--dust-lead, 0ms) + var(--dust-d, 0ms));
+  will-change: opacity;
+}
+
+@keyframes dust-reform {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* A brasa corre a borda quando a seção de baixo chega. É o que faz a passagem
+   entre seções ser um evento, e não só blocos aparecendo. */
+.section-border::before {
+  content: "";
+  position: absolute; top: -1px; left: 0; right: 0; height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 40%,
+    var(--red) 47%,
+    #ffb0b0 50%,
+    var(--red) 53%,
+    transparent 60%
+  );
+  background-repeat: no-repeat;
+  background-position: -100% 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.section-border.edge-lit::before {
+  animation: edge-sweep 1150ms var(--ease-out) 90ms both;
+}
+
+@keyframes edge-sweep {
+  0%   { background-position: -100% 0; opacity: 0; }
+  18%  { opacity: 1; }
+  78%  { opacity: 1; }
+  100% { background-position: 100% 0; opacity: 0; }
+}
+
 [data-delay="1"] { transition-delay: 0.10s; }
 [data-delay="2"] { transition-delay: 0.20s; }
 [data-delay="3"] { transition-delay: 0.30s; }
@@ -1294,6 +1358,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   .reveal, .reveal-left, .reveal-right { opacity: 1 !important; transform: none !important; }
+  .dust-hold { opacity: 1 !important; }
+  .dust-in.dust-piece, .dust-in .dust-piece, .section-border.edge-lit::before { animation: none !important; }
   .hero-badge, .hero h1, .hero-sub, .hero-actions, .live-terminal, .scroll-hint, .stack-panel { opacity: 1; animation: none; }
   .stack-marquee-track { animation: none; }
 }

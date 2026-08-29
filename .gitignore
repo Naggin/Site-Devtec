@@ -25,3 +25,6 @@ coverage/
 .env
 .env.*
 !.env.example
+
+# capturas dos scripts de verificação da poeira
+.dust-shots/

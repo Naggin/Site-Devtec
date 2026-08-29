@@ -9,6 +9,7 @@ import {
 import { flushSync } from "react-dom";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import DustTransition, { SWEEP_IN_MS, SWEEP_OUT_MS, type Phase } from "../components/DustTransition";
+import { cancelReveals } from "../lib/dustReveal";
 import { clearPieces, markPieces, sampleViewport, type DustSample } from "../lib/dustSample";
 import {
   getTranslation,
@@ -115,6 +116,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     const next = otherLocale(locale);
     scrollYRef.current = window.scrollY;
+    // Uma seção entrando agora tem peças marcadas e poeira no ar. A troca de
+    // idioma reamostra a tela inteira e marcaria as mesmas peças por cima.
+    cancelReveals();
 
     if (reducedMotion) {
       applyLocale(next);
