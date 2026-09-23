@@ -199,7 +199,7 @@ export const en: Translation = {
       successTitle: (firstName) => `Thanks, ${firstName}.`,
       successBody:
         "One step left: open the pre-filled email and send it. It lands directly in my inbox.",
-      successType: "Type",
+      successType: "Subject",
       successEmail: "Email",
       openEmail: "Open in email",
     },
@@ -213,6 +213,6 @@ export const en: Translation = {
   },
   mailto: {
     subject: (projectType, name) => `[Devtec] ${projectType || "Contact"} — ${name}`,
-    bodyLabels: { name: "Name", email: "Email", type: "Type" },
+    bodyLabels: { name: "Name", email: "Email", type: "Subject" },
   },
 };

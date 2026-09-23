@@ -199,7 +199,7 @@ export const pt: Translation = {
       successTitle: (firstName) => `Valeu, ${firstName}.`,
       successBody:
         "Falta um passo: abra o e-mail já preenchido e envie. Ele chega direto na minha caixa de entrada.",
-      successType: "Tipo",
+      successType: "Assunto",
       successEmail: "E-mail",
       openEmail: "Abrir no e-mail",
     },
@@ -213,6 +213,6 @@ export const pt: Translation = {
   },
   mailto: {
     subject: (projectType, name) => `[Devtec] ${projectType || "Contato"} — ${name}`,
-    bodyLabels: { name: "Nome", email: "E-mail", type: "Tipo" },
+    bodyLabels: { name: "Nome", email: "E-mail", type: "Assunto" },
   },
 };
