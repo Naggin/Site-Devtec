@@ -154,6 +154,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     });
     window.scrollTo(0, scrollYRef.current);
 
+    // Transições cortadas já agora, e não só quando o React aplicar a fase
+    // "swap": um `.reveal` que perde a marca faria o próprio fade de 0.75s,
+    // seria amostrado ainda perto de 0, ficaria fora da volta e reapareceria
+    // sozinho antes da poeira — a piscada. E uma peça remarcada agora faria o
+    // fade de saída com o texto novo à mostra.
+    document.querySelector(".app-shell")?.classList.add("is-instant");
     clearPieces(markedRef.current);
     // Mesma diagonal, ponta oposta: a volta sobe trazendo a tradução.
     const shot = sampleViewport("up");

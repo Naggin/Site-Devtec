@@ -19,8 +19,8 @@ export default function About() {
 
         <div className="about-layout">
           <div className="about-copy reveal" data-delay="2">
-            {about.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
+            {about.paragraphs.map((paragraph, i) => (
+              <p key={i}>{paragraph}</p>
             ))}
 
             <div className="about-founder">
@@ -37,7 +37,9 @@ export default function About() {
 
           <ul className="about-facts">
             {facts.map((fact, i) => (
-              <li className="about-fact reveal" data-delay={String(i + 1)} key={fact.label}>
+              // Chave pelo índice: o texto muda com o idioma, e remontar o `.reveal`
+              // o faria perder o `.visible` e sumir depois da troca.
+              <li className="about-fact reveal" data-delay={String(i + 1)} key={i}>
                 <span className="about-fact-value">{fact.value}</span>
                 <span className="about-fact-label">{fact.label}</span>
               </li>
