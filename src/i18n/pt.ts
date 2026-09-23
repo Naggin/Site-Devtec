@@ -189,9 +189,9 @@ export const pt: Translation = {
   ],
   hero: {
     badge: "Aceitando novos projetos",
-    lineWhite1: "Do problema",
-    lineRed: "ao produto",
-    lineWhite2: "no ar.",
+    lineWhite1: "Sites,",
+    lineRed: "sistemas",
+    lineWhite2: "e apps.",
     subStrong: "Devtec",
     subRest:
       " desenvolve sites, sistemas e apps sob medida — da primeira conversa ao software rodando em produção.",

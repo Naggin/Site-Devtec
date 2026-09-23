@@ -9,7 +9,8 @@ describe("site Devtec", () => {
     renderWithLanguage(<App />);
 
     // Hero
-    expect(screen.getByRole("heading", { name: /Do problema/i })).toBeInTheDocument();
+    // As linhas do título são blocos separados; o texto precisa manter os espaços.
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Sites, sistemas e apps.");
 
     // Little Learners — primeiro projeto
     const llCard = screen.getByRole("heading", { name: "Little Learners Planner" }).closest("article");
