@@ -4,7 +4,7 @@ import App from "./App";
 import { renderWithLanguage } from "./test/renderWithLanguage";
 
 describe("site Devtec", () => {
-  it("mostra o site, os projetos e aceita um briefing de contato", async () => {
+  it("mostra o site, os projetos e aceita uma mensagem de contato", async () => {
     const user = userEvent.setup();
     renderWithLanguage(<App />);
 
@@ -20,38 +20,25 @@ describe("site Devtec", () => {
     );
 
     // Outros projetos
-    expect(screen.getByRole("heading", { name: "Moneyzin" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "JantaJá" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Juliana Queiroz" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "CasaOS" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "SuporteTI" })).toBeInTheDocument();
 
     // Formulário de contato
     await user.type(screen.getByLabelText("Nome"), "Carla Mendes");
     await user.type(screen.getByLabelText("E-mail"), "carla@cliente.com");
-    await user.selectOptions(screen.getByLabelText("Tipo de projeto"), "Site institucional");
+    await user.selectOptions(screen.getByLabelText("Assunto"), "Vaga / oportunidade");
     await user.type(
-      screen.getByLabelText("O que você precisa?"),
-      "Quero um site para divulgar meu trabalho.",
+      screen.getByLabelText("Mensagem"),
+      "Tenho uma vaga de dev full-stack.",
     );
-    await user.click(screen.getByRole("button", { name: "Enviar briefing" }));
+    await user.click(screen.getByRole("button", { name: "Enviar mensagem" }));
 
     expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Carla");
-    expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Site institucional");
+    expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Vaga / oportunidade");
     expect(screen.getByRole("link", { name: "Abrir no e-mail" })).toHaveAttribute(
       "href",
       expect.stringContaining("mailto:antoniocjr1998@gmail.com"),
     );
-  });
-
-  it("explica o processo, o que fica com o cliente e responde às dúvidas", () => {
-    renderWithLanguage(<App />);
-
-    expect(
-      screen.getByRole("heading", { name: /Como isso funciona na prática/ }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Entender o problema" })).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: /O que fica com você no final/ }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("O código no seu repositório")).toBeInTheDocument();
-    expect(screen.getByText(/O código é meu mesmo\?/)).toBeInTheDocument();
   });
 });

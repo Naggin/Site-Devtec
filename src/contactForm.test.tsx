@@ -8,7 +8,7 @@ describe("acessibilidade do formulário", () => {
     const user = userEvent.setup();
     renderWithLanguage(<Contact />);
 
-    await user.click(screen.getByRole("button", { name: "Enviar briefing" }));
+    await user.click(screen.getByRole("button", { name: "Enviar mensagem" }));
 
     const name = screen.getByLabelText("Nome");
     expect(name).toHaveAttribute("aria-invalid", "true");
@@ -24,10 +24,10 @@ describe("acessibilidade do formulário", () => {
 
     await user.type(screen.getByLabelText("Nome"), "Ana");
     await user.type(screen.getByLabelText("E-mail"), "ana@cliente.com");
-    await user.click(screen.getByRole("button", { name: "Enviar briefing" }));
+    await user.click(screen.getByRole("button", { name: "Enviar mensagem" }));
 
     expect(screen.getByRole("alert")).toHaveTextContent("Faltou preencher 2 campos.");
-    expect(screen.getByLabelText("Tipo de projeto")).toHaveFocus();
+    expect(screen.getByLabelText("Assunto")).toHaveFocus();
     expect(screen.getByLabelText("Nome")).not.toHaveAttribute("aria-invalid");
   });
 });

@@ -95,12 +95,12 @@ describe("strings em inglês", () => {
     localStorage.setItem(STORAGE_KEY, "en");
   });
 
-  it("traduz navegação, serviços e contato", () => {
+  it("traduz navegação, projetos e contato", () => {
     renderWithLanguage(<App />);
 
-    expect(screen.getByRole("link", { name: "About" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /What I build/ })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Projects" }).length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: /Live projects/ })).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Send briefing" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Send message" })).toBeInTheDocument();
   });
 });

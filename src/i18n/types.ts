@@ -2,13 +2,6 @@ export type Locale = "pt-BR" | "en";
 
 export type NavItem = { href: string; label: string };
 
-export type ProofPoint = {
-  value: string;
-  label: string;
-  detail: string;
-  href: string;
-};
-
 export type Stack = {
   id: "fullstack" | "mobile" | "ai" | "infra";
   label: string;
@@ -18,35 +11,7 @@ export type Stack = {
 
 export type PipelineStep = { label: string };
 
-export type DeployStep = { label: string; text: string };
-
-export type DependencyNode = { id: string; label: string; sub: string };
-
-export type BentoItem = {
-  id: string;
-  span: "wide" | "tall" | "normal";
-  title: string;
-  tech: readonly string[];
-  snippet: string;
-};
-
-export type CiCheck = { name: string; detail: string };
-
 export type GitCommit = { hash: string; message: string; date: string };
-
-export type ProcessStep = { num: string; title: string; text: string };
-
-export type Deliverable = { title: string; text: string };
-
-export type FaqItem = { question: string; answer: string };
-
-export type Service = {
-  code: string;
-  command: string;
-  title: string;
-  text: string;
-  tags: readonly string[];
-};
 
 export type Project = {
   title: string;
@@ -77,19 +42,15 @@ export type Translation = {
     closeMenu: string;
     navPrimary: string;
     navMobile: string;
-    proofStrip: string;
     stackPanel: string;
     stackCategories: string;
     stackPipeline: string;
-    dependencyGraph: string;
-    servicesList: string;
     openCommit: string;
     viewCode: string;
     switchToEn: string;
     switchToPt: string;
     languageChanged: string;
     languageChangedEn: string;
-    noSignal: string;
   };
   profile: {
     brand: string;
@@ -99,20 +60,10 @@ export type Translation = {
     location: string;
   };
   navItems: readonly NavItem[];
-  proofPoints: readonly ProofPoint[];
   stacks: readonly Stack[];
   stackPipeline: readonly PipelineStep[];
-  deploySteps: readonly DeployStep[];
-  dependencyNodes: readonly DependencyNode[];
-  bentoItems: readonly BentoItem[];
-  ciChecks: readonly CiCheck[];
-  ciRepo: { label: string; repo: string; href: string };
   gitTimeline: { repo: string; branch: string; href: string; commitBase: string };
   gitCommits: readonly GitCommit[];
-  processSteps: readonly ProcessStep[];
-  deliverables: readonly Deliverable[];
-  faq: readonly FaqItem[];
-  services: readonly Service[];
   projects: readonly Project[];
   projectTypes: readonly string[];
   hero: {
@@ -127,21 +78,12 @@ export type Translation = {
     scrollHint: string;
   };
   sections: {
-    about: { kicker: string; title: string; sub: string };
-    services: { kicker: string; title: string; modules: string };
     projects: {
       kicker: string;
       title: string;
       sub: string;
       showcaseLabel: string;
       liveBadge: string;
-    };
-    process: {
-      kicker: string;
-      title: string;
-      sub: string;
-      deliverablesTitle: string;
-      faqTitle: string;
     };
     contact: {
       kicker: string;
@@ -166,12 +108,6 @@ export type Translation = {
     };
   };
   footer: { email: string };
-  terminal: {
-    deployTitle: string;
-    runDeploy: string;
-    running: string;
-  };
-  statusBoard: { passing: string; idle: string; footer: string };
   contactErrors: {
     name: string;
     email: string;
