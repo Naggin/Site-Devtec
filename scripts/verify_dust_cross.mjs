@@ -11,7 +11,7 @@ await page.goto(URL, { waitUntil: "networkidle" });
 await page.waitForTimeout(600);
 
 await page.evaluate(() => {
-  const el = document.getElementById("projetos");
+  const el = document.getElementById("servicos");
   window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top - 120);
 });
 // No meio do voo das partículas da seção.

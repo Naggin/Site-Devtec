@@ -4,12 +4,12 @@ import App from "./App";
 import { renderWithLanguage } from "./test/renderWithLanguage";
 
 describe("site Devtec", () => {
-  it("mostra o site, os projetos e aceita uma mensagem de contato", async () => {
+  it("mostra o site, os projetos e aceita um pedido de orçamento", async () => {
     const user = userEvent.setup();
     renderWithLanguage(<App />);
 
     // Hero
-    expect(screen.getByRole("heading", { name: /Transformo/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Do problema/i })).toBeInTheDocument();
 
     // Little Learners — primeiro projeto
     const llCard = screen.getByRole("heading", { name: "Little Learners Planner" }).closest("article");
@@ -27,18 +27,29 @@ describe("site Devtec", () => {
     // Formulário de contato
     await user.type(screen.getByLabelText("Nome"), "Carla Mendes");
     await user.type(screen.getByLabelText("E-mail"), "carla@cliente.com");
-    await user.selectOptions(screen.getByLabelText("Assunto"), "Vaga / oportunidade");
+    await user.selectOptions(screen.getByLabelText("Tipo de projeto"), "Site institucional");
     await user.type(
-      screen.getByLabelText("Mensagem"),
-      "Tenho uma vaga de dev full-stack.",
+      screen.getByLabelText("O que você precisa?"),
+      "Quero um site para divulgar meu trabalho.",
     );
-    await user.click(screen.getByRole("button", { name: "Enviar mensagem" }));
+    await user.click(screen.getByRole("button", { name: "Pedir orçamento" }));
 
     expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Carla");
-    expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Vaga / oportunidade");
+    expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Site institucional");
     expect(screen.getByRole("link", { name: "Abrir no e-mail" })).toHaveAttribute(
       "href",
       expect.stringContaining("mailto:antoniocjr1998@gmail.com"),
     );
+  });
+
+  it("apresenta os serviços e a Devtec com o fundador", () => {
+    renderWithLanguage(<App />);
+
+    const services = screen.getByRole("heading", { name: "O que a Devtec faz." }).closest("section");
+    expect(within(services!).getAllByRole("heading", { level: 3 })).toHaveLength(4);
+
+    const about = screen.getByRole("heading", { name: "Sobre a Devtec." }).closest("section");
+    expect(within(about!).getByText("Antonio Junior")).toBeInTheDocument();
+    expect(within(about!).getByText("projetos em produção")).toBeInTheDocument();
   });
 });

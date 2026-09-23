@@ -13,6 +13,15 @@ export type PipelineStep = { label: string };
 
 export type GitCommit = { hash: string; message: string; date: string };
 
+export type Service = {
+  code: string;
+  title: string;
+  text: string;
+  tags: readonly string[];
+};
+
+export type AboutFact = { value: string; label: string };
+
 export type Project = {
   title: string;
   kind: string;
@@ -64,6 +73,7 @@ export type Translation = {
   stackPipeline: readonly PipelineStep[];
   gitTimeline: { repo: string; branch: string; href: string; commitBase: string };
   gitCommits: readonly GitCommit[];
+  services: readonly Service[];
   projects: readonly Project[];
   projectTypes: readonly string[];
   hero: {
@@ -78,6 +88,17 @@ export type Translation = {
     scrollHint: string;
   };
   sections: {
+    services: { kicker: string; title: string; sub: string };
+    about: {
+      kicker: string;
+      title: string;
+      paragraphs: readonly string[];
+      founderLabel: string;
+      founderRole: string;
+      /** Rótulo do número de projetos, que vem de `projects.length`. */
+      projectsFact: string;
+      facts: readonly AboutFact[];
+    };
     projects: {
       kicker: string;
       title: string;

@@ -38,7 +38,7 @@ describe("buildMailto", () => {
 
     expect(href.startsWith("mailto:antoniocjr1998@gmail.com?")).toBe(true);
     expect(decodeURIComponent(href)).toContain("Maria Silva");
-    expect(decodeURIComponent(href)).toContain("Assunto: Produto web / SaaS");
+    expect(decodeURIComponent(href)).toContain("Tipo: Produto web / SaaS");
     expect(decodeURIComponent(href)).toContain("painel para o time comercial");
   });
 });

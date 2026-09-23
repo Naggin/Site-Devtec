@@ -3,13 +3,13 @@ import type { Translation } from "./types";
 export const en: Translation = {
   meta: {
     lang: "en",
-    title: "Devtec — Antonio Junior | Full-stack Developer",
+    title: "Devtec — Custom websites, systems, and apps",
     description:
-      "Antonio Junior, full-stack developer. Web, mobile, and AI — real projects running in production.",
+      "Devtec builds custom websites, systems, and apps — from the problem to a product running in production.",
     ogLocale: "en_US",
     ogDescription:
-      "Portfolio of Antonio Junior, full-stack developer: real sites and apps, all running in production.",
-    ogImageAlt: "Devtec — Antonio Junior, full-stack developer",
+      "Custom websites, systems, and apps. See the live projects and request a quote.",
+    ogImageAlt: "Devtec — custom websites, systems, and apps",
     jobTitle: "Full-stack developer",
   },
   a11y: {
@@ -36,7 +36,9 @@ export const en: Translation = {
     location: "Brazil",
   },
   navItems: [
+    { href: "#servicos", label: "Services" },
     { href: "#projetos", label: "Projects" },
+    { href: "#sobre", label: "About" },
     { href: "#contato", label: "Contact" },
   ],
   stacks: [
@@ -104,6 +106,32 @@ export const en: Translation = {
       date: "Aug 28, 2026",
     },
   ],
+  services: [
+    {
+      code: "01",
+      title: "Business websites",
+      text: "Fast websites that are easy to find on Google, with a direct line to your customers.",
+      tags: ["Next.js", "SEO", "Vercel"],
+    },
+    {
+      code: "02",
+      title: "Systems and web apps",
+      text: "Dashboards, internal tools, and products with login, database, and real-time sync.",
+      tags: ["React", "Supabase", "PostgreSQL"],
+    },
+    {
+      code: "03",
+      title: "Apps and PWAs",
+      text: "Apps that install on the phone and keep up with your users' day.",
+      tags: ["PWA", "React Native", "Expo"],
+    },
+    {
+      code: "04",
+      title: "AI and integrations",
+      text: "WhatsApp, document generation, and AI inside your workflow.",
+      tags: ["Claude AI", "WhatsApp", "APIs"],
+    },
+  ],
   projects: [
     {
       title: "Little Learners Planner",
@@ -152,7 +180,6 @@ export const en: Translation = {
     },
   ],
   projectTypes: [
-    "Job / opportunity",
     "Corporate site",
     "Web product / SaaS",
     "Mobile app",
@@ -161,45 +188,66 @@ export const en: Translation = {
     "Other",
   ],
   hero: {
-    badge: "Open to jobs and projects",
-    lineWhite1: "I turn",
-    lineRed: "ideas",
-    lineWhite2: "into product.",
-    subStrong: "Antonio Junior",
+    badge: "Taking on new projects",
+    lineWhite1: "From problem",
+    lineRed: "to product",
+    lineWhite2: "in production.",
+    subStrong: "Devtec",
     subRest:
-      ", full-stack developer. Web, mobile, and AI — from the problem to an app running in production.",
-    ctaPrimary: "Get in touch",
+      " builds custom websites, systems, and apps — from the first conversation to software running in production.",
+    ctaPrimary: "Request a quote",
     ctaSecondary: "See projects",
     scrollHint: "scroll",
   },
   sections: {
+    services: {
+      kicker: "01 / Services",
+      title: "What Devtec does.",
+      sub: "Custom software for the day-to-day of your business.",
+    },
+    about: {
+      kicker: "03 / About",
+      title: "About Devtec.",
+      paragraphs: [
+        "Devtec builds websites, systems, and apps for companies and professionals who need software that solves their problem, not another generic tool.",
+        "Every project is run end to end by the person who writes the code: from the first conversation to deploy and the adjustments after delivery. No hand-offs, no broken telephone.",
+      ],
+      founderLabel: "Founder",
+      founderRole: "Full-stack developer",
+      projectsFact: "projects in production",
+      facts: [
+        { value: "1", label: "point of contact, from first call to support" },
+        { value: "0", label: "surprises: scope, timeline, and price agreed before we start" },
+      ],
+    },
     projects: {
-      kicker: "01 / Projects",
+      kicker: "02 / Projects",
       title: "Live projects.",
-      sub: "Real products in production. Open them in your browser and use them right now.",
+      sub: "Real deliveries, in production. Open them in your browser and use them right now.",
       showcaseLabel: "Real commits from this site, straight from GitHub",
       liveBadge: "Live",
     },
     contact: {
-      kicker: "02 / Contact",
-      title: "Let's talk.",
-      sub: "A job, a freelance project, or just an idea: tell me in two lines and I'll reply.",
-      note: "Prefer to look first? Every project is live and this site's code is open on GitHub.",
+      kicker: "04 / Contact",
+      title: "Let's talk about your project.",
+      sub:
+        "Describe what you need in two lines. You'll get scope, timeline, and price back before committing to anything.",
+      note: "Prefer to look first? The projects are live and this site's code is open on GitHub.",
       nameLabel: "Name",
       emailLabel: "Email",
-      projectTypeLabel: "Subject",
-      messageLabel: "Message",
+      projectTypeLabel: "Project type",
+      messageLabel: "What do you need?",
       selectPlaceholder: "Select",
-      messagePlaceholder: "E.g.: I have a full-stack developer opening, or: I need a booking system.",
-      submit: "Send message",
-      footNote: "No signup and no mailing list. Goes straight to me.",
+      messagePlaceholder: "E.g.: I run a clinic and track appointments in a notebook.",
+      submit: "Request a quote",
+      footNote: "No signup and no mailing list. Goes straight to Devtec.",
       missingFields: (count) =>
         `Missing ${count} ${count === 1 ? "field" : "fields"}.`,
-      successKicker: "Message ready",
+      successKicker: "Request ready",
       successTitle: (firstName) => `Thanks, ${firstName}.`,
       successBody:
-        "One step left: open the pre-filled email and send it. It lands directly in my inbox.",
-      successType: "Subject",
+        "One step left: open the pre-filled email and send it. It lands directly in Devtec's inbox.",
+      successType: "Type",
       successEmail: "Email",
       openEmail: "Open in email",
     },
@@ -208,11 +256,11 @@ export const en: Translation = {
   contactErrors: {
     name: "Enter your name.",
     email: "Enter a valid email.",
-    projectType: "Choose a subject.",
+    projectType: "Choose a project type.",
     message: "Tell me a bit more about what you need.",
   },
   mailto: {
-    subject: (projectType, name) => `[Devtec] ${projectType || "Contact"} — ${name}`,
-    bodyLabels: { name: "Name", email: "Email", type: "Subject" },
+    subject: (projectType, name) => `[Devtec] ${projectType || "New project"} — ${name}`,
+    bodyLabels: { name: "Name", email: "Email", type: "Type" },
   },
 };

@@ -11,7 +11,7 @@ describe("internacionalização", () => {
 
   it("renderiza em português por padrão", () => {
     renderWithLanguage(<App />);
-    expect(screen.getByRole("heading", { name: /Transformo/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Do problema/i })).toBeInTheDocument();
     expect(document.documentElement.lang).toBe("pt-BR");
   });
 
@@ -33,7 +33,7 @@ describe("internacionalização", () => {
     await user.click(screen.getAllByRole("button", { name: /Mudar para inglês/i })[0]!);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: /I turn/i })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /From problem/i })).toBeInTheDocument();
     });
     expect(document.documentElement.lang).toBe("en");
     expect(localStorage.getItem(STORAGE_KEY)).toBe("en");
@@ -59,12 +59,12 @@ describe("internacionalização", () => {
     }));
 
     renderWithLanguage(<App />);
-    expect(screen.getByRole("heading", { name: /I turn/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /From problem/i })).toBeInTheDocument();
 
     await user.click(screen.getAllByRole("button", { name: /Switch to Portuguese/i })[0]!);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: /Transformo/i })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /Do problema/i })).toBeInTheDocument();
     });
     expect(document.documentElement.lang).toBe("pt-BR");
     expect(screen.getAllByRole("status")[0]).toHaveTextContent("Idioma alterado para português");
@@ -73,7 +73,7 @@ describe("internacionalização", () => {
   it("restaura locale salvo do localStorage", () => {
     localStorage.setItem(STORAGE_KEY, "en");
     renderWithLanguage(<App />);
-    expect(screen.getByRole("heading", { name: /I turn/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /From problem/i })).toBeInTheDocument();
   });
 
   it("toggle de idioma é acessível pelo teclado no header desktop", async () => {
@@ -85,7 +85,7 @@ describe("internacionalização", () => {
     await user.keyboard("{Enter}");
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: /I turn/i })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /From problem/i })).toBeInTheDocument();
     });
   });
 });
@@ -95,12 +95,13 @@ describe("strings em inglês", () => {
     localStorage.setItem(STORAGE_KEY, "en");
   });
 
-  it("traduz navegação, projetos e contato", () => {
+  it("traduz navegação, seções e contato", () => {
     renderWithLanguage(<App />);
 
-    expect(screen.getAllByRole("link", { name: "Projects" }).length).toBeGreaterThan(0);
-    expect(screen.getByRole("heading", { name: /Live projects/ })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "About" }).length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: /What Devtec does/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /About Devtec/ })).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Send message" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Request a quote" })).toBeInTheDocument();
   });
 });

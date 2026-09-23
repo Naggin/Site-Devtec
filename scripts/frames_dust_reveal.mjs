@@ -3,7 +3,7 @@ import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
 
 const URL = process.env.DUST_URL ?? "http://localhost:5173";
-const ID = process.env.DUST_SECTION ?? "projetos";
+const ID = process.env.DUST_SECTION ?? "sobre";
 const OUT = process.env.DUST_SHOTS ?? "./.dust-shots";
 mkdirSync(OUT, { recursive: true });
 

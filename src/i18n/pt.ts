@@ -3,13 +3,13 @@ import type { Translation } from "./types";
 export const pt: Translation = {
   meta: {
     lang: "pt-BR",
-    title: "Devtec — Antonio Junior | Desenvolvedor full-stack",
+    title: "Devtec — Sites, sistemas e apps sob medida",
     description:
-      "Antonio Junior, desenvolvedor full-stack. Web, mobile e IA — projetos reais rodando em produção.",
+      "A Devtec desenvolve sites, sistemas e apps sob medida — do problema ao produto rodando em produção.",
     ogLocale: "pt_BR",
     ogDescription:
-      "Portfólio de Antonio Junior, desenvolvedor full-stack: sites e apps reais, todos rodando em produção.",
-    ogImageAlt: "Devtec — Antonio Junior, desenvolvedor full-stack",
+      "Sites, sistemas e apps sob medida. Veja os projetos no ar e peça um orçamento.",
+    ogImageAlt: "Devtec — sites, sistemas e apps sob medida",
     jobTitle: "Desenvolvedor full-stack",
   },
   a11y: {
@@ -36,7 +36,9 @@ export const pt: Translation = {
     location: "Brasil",
   },
   navItems: [
+    { href: "#servicos", label: "Serviços" },
     { href: "#projetos", label: "Projetos" },
+    { href: "#sobre", label: "Sobre" },
     { href: "#contato", label: "Contato" },
   ],
   stacks: [
@@ -104,6 +106,32 @@ export const pt: Translation = {
       date: "28 ago 2026",
     },
   ],
+  services: [
+    {
+      code: "01",
+      title: "Sites institucionais",
+      text: "Sites rápidos, fáceis de achar no Google e com contato direto para o seu cliente.",
+      tags: ["Next.js", "SEO", "Vercel"],
+    },
+    {
+      code: "02",
+      title: "Sistemas e web apps",
+      text: "Painéis, ferramentas internas e produtos com login, banco de dados e tempo real.",
+      tags: ["React", "Supabase", "PostgreSQL"],
+    },
+    {
+      code: "03",
+      title: "Apps e PWA",
+      text: "Aplicativos que instalam no celular e acompanham o dia a dia de quem usa.",
+      tags: ["PWA", "React Native", "Expo"],
+    },
+    {
+      code: "04",
+      title: "IA e integrações",
+      text: "WhatsApp, geração de documentos e IA dentro do seu fluxo de trabalho.",
+      tags: ["Claude AI", "WhatsApp", "APIs"],
+    },
+  ],
   projects: [
     {
       title: "Little Learners Planner",
@@ -152,7 +180,6 @@ export const pt: Translation = {
     },
   ],
   projectTypes: [
-    "Vaga / oportunidade",
     "Site institucional",
     "Produto web / SaaS",
     "App mobile",
@@ -161,45 +188,67 @@ export const pt: Translation = {
     "Outro",
   ],
   hero: {
-    badge: "Disponível para vagas e projetos",
-    lineWhite1: "Transformo",
-    lineRed: "ideias",
-    lineWhite2: "em produto.",
-    subStrong: "Antonio Junior",
+    badge: "Aceitando novos projetos",
+    lineWhite1: "Do problema",
+    lineRed: "ao produto",
+    lineWhite2: "no ar.",
+    subStrong: "Devtec",
     subRest:
-      ", desenvolvedor full-stack. Web, mobile e IA — do problema à aplicação rodando em produção.",
-    ctaPrimary: "Falar comigo",
+      " desenvolve sites, sistemas e apps sob medida — da primeira conversa ao software rodando em produção.",
+    ctaPrimary: "Pedir orçamento",
     ctaSecondary: "Ver projetos",
     scrollHint: "scroll",
   },
   sections: {
+    services: {
+      kicker: "01 / Serviços",
+      title: "O que a Devtec faz.",
+      sub: "Software sob medida para o dia a dia do seu negócio.",
+    },
+    about: {
+      kicker: "03 / Sobre",
+      title: "Sobre a Devtec.",
+      paragraphs: [
+        "A Devtec desenvolve sites, sistemas e apps para empresas e profissionais que precisam de software que resolva o problema deles, não de mais uma ferramenta genérica.",
+        "Cada projeto é conduzido de ponta a ponta por quem escreve o código: da primeira conversa ao deploy e aos ajustes depois da entrega. Sem repasse e sem telefone sem fio.",
+      ],
+      founderLabel: "Fundador",
+      founderRole: "Desenvolvedor full-stack",
+      projectsFact: "projetos em produção",
+      facts: [
+        { value: "1", label: "ponto de contato, da conversa ao suporte" },
+        { value: "0", label: "surpresas: escopo, prazo e preço fechados antes de começar" },
+      ],
+    },
     projects: {
-      kicker: "01 / Projetos",
+      kicker: "02 / Projetos",
       title: "Projetos no ar.",
-      sub: "Produtos reais, em produção. Dá para abrir no navegador e usar agora.",
+      sub: "Entregas reais, em produção. Dá para abrir no navegador e usar agora.",
       showcaseLabel: "Commits reais deste site, direto do GitHub",
       liveBadge: "Ao vivo",
     },
     contact: {
-      kicker: "02 / Contato",
-      title: "Vamos conversar.",
-      sub: "Vaga, projeto freela ou só uma ideia: me conta em duas linhas que eu respondo.",
-      note: "Prefere ver antes? Todos os projetos estão no ar e o código deste site está aberto no GitHub.",
+      kicker: "04 / Contato",
+      title: "Vamos falar do seu projeto.",
+      sub:
+        "Conte em duas linhas o que você precisa. A resposta vem com escopo, prazo e preço, antes de qualquer compromisso.",
+      note:
+        "Prefere ver antes? Os projetos estão no ar e o código deste site está aberto no GitHub.",
       nameLabel: "Nome",
       emailLabel: "E-mail",
-      projectTypeLabel: "Assunto",
-      messageLabel: "Mensagem",
+      projectTypeLabel: "Tipo de projeto",
+      messageLabel: "O que você precisa?",
       selectPlaceholder: "Selecione",
-      messagePlaceholder: "Ex.: tenho uma vaga de dev full-stack, ou: preciso de um sistema de agendamentos.",
-      submit: "Enviar mensagem",
-      footNote: "Sem cadastro e sem lista de e-mail. Vai direto para mim.",
+      messagePlaceholder: "Ex.: tenho uma clínica e controlo os agendamentos no caderno.",
+      submit: "Pedir orçamento",
+      footNote: "Sem cadastro e sem lista de e-mail. Vai direto para a Devtec.",
       missingFields: (count) =>
         `Faltou preencher ${count} ${count === 1 ? "campo" : "campos"}.`,
-      successKicker: "Mensagem pronta",
+      successKicker: "Pedido pronto",
       successTitle: (firstName) => `Valeu, ${firstName}.`,
       successBody:
-        "Falta um passo: abra o e-mail já preenchido e envie. Ele chega direto na minha caixa de entrada.",
-      successType: "Assunto",
+        "Falta um passo: abra o e-mail já preenchido e envie. Ele chega direto na caixa de entrada da Devtec.",
+      successType: "Tipo",
       successEmail: "E-mail",
       openEmail: "Abrir no e-mail",
     },
@@ -208,11 +257,11 @@ export const pt: Translation = {
   contactErrors: {
     name: "Informe seu nome.",
     email: "Informe um e-mail válido.",
-    projectType: "Escolha um assunto.",
+    projectType: "Escolha o tipo de projeto.",
     message: "Conte um pouco mais sobre o que você precisa.",
   },
   mailto: {
-    subject: (projectType, name) => `[Devtec] ${projectType || "Contato"} — ${name}`,
-    bodyLabels: { name: "Nome", email: "E-mail", type: "Assunto" },
+    subject: (projectType, name) => `[Devtec] ${projectType || "Novo projeto"} — ${name}`,
+    bodyLabels: { name: "Nome", email: "E-mail", type: "Tipo" },
   },
 };
