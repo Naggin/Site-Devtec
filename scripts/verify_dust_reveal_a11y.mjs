@@ -12,13 +12,13 @@ page.on("pageerror", (e) => errors.push(String(e)));
 
 await page.goto(URL, { waitUntil: "networkidle" });
 await page.evaluate(() => {
-  const el = document.getElementById("servicos");
+  const el = document.getElementById("projetos");
   window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top - 120);
 });
 await page.waitForTimeout(600);
 
 const state = await page.evaluate(() => {
-  const nodes = [...document.querySelectorAll("#servicos .reveal, #servicos .reveal-left")].filter(
+  const nodes = [...document.querySelectorAll("#projetos .reveal, #projetos .reveal-left")].filter(
     (n) => {
       const r = n.getBoundingClientRect();
       return r.bottom > 0 && r.top < window.innerHeight - 80;

@@ -41,7 +41,7 @@ const probe = () =>
 
 const report = [];
 
-for (const id of ["sobre", "servicos", "projetos", "processo", "contato"]) {
+for (const id of ["servicos", "projetos", "sobre", "contato"]) {
   await page.evaluate((target) => {
     const el = document.getElementById(target);
     window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top - 120);

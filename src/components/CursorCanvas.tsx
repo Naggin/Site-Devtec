@@ -41,8 +41,6 @@ const QUIET_SELECTOR = [
   ".hero-badge",
   ".section-title",
   ".section-sub",
-  ".proof-item",
-  ".faq-item",
   ".contact-info",
   ".projects-showcase-label",
 ].join(", ");

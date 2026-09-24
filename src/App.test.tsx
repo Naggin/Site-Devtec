@@ -4,12 +4,13 @@ import App from "./App";
 import { renderWithLanguage } from "./test/renderWithLanguage";
 
 describe("site Devtec", () => {
-  it("mostra o site, os projetos e aceita um briefing de contato", async () => {
+  it("mostra o site, os projetos e aceita um pedido de orçamento", async () => {
     const user = userEvent.setup();
     renderWithLanguage(<App />);
 
     // Hero
-    expect(screen.getByRole("heading", { name: /Transformo/i })).toBeInTheDocument();
+    // As linhas do título são blocos separados; o texto precisa manter os espaços.
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Sites, sistemas e apps.");
 
     // Little Learners — primeiro projeto
     const llCard = screen.getByRole("heading", { name: "Little Learners Planner" }).closest("article");
@@ -20,8 +21,9 @@ describe("site Devtec", () => {
     );
 
     // Outros projetos
-    expect(screen.getByRole("heading", { name: "Moneyzin" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "JantaJá" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Juliana Queiroz" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "CasaOS" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "SuporteTI" })).toBeInTheDocument();
 
     // Formulário de contato
     await user.type(screen.getByLabelText("Nome"), "Carla Mendes");
@@ -31,7 +33,7 @@ describe("site Devtec", () => {
       screen.getByLabelText("O que você precisa?"),
       "Quero um site para divulgar meu trabalho.",
     );
-    await user.click(screen.getByRole("button", { name: "Enviar briefing" }));
+    await user.click(screen.getByRole("button", { name: "Pedir orçamento" }));
 
     expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Carla");
     expect(screen.getByTestId("inquiry-success")).toHaveTextContent("Site institucional");
@@ -41,17 +43,14 @@ describe("site Devtec", () => {
     );
   });
 
-  it("explica o processo, o que fica com o cliente e responde às dúvidas", () => {
+  it("apresenta os serviços e a Devtec com o fundador", () => {
     renderWithLanguage(<App />);
 
-    expect(
-      screen.getByRole("heading", { name: /Como isso funciona na prática/ }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Entender o problema" })).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: /O que fica com você no final/ }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("O código no seu repositório")).toBeInTheDocument();
-    expect(screen.getByText(/O código é meu mesmo\?/)).toBeInTheDocument();
+    const services = screen.getByRole("heading", { name: "O que a Devtec faz." }).closest("section");
+    expect(within(services!).getAllByRole("heading", { level: 3 })).toHaveLength(4);
+
+    const about = screen.getByRole("heading", { name: "Sobre a Devtec." }).closest("section");
+    expect(within(about!).getByText("Antonio Junior")).toBeInTheDocument();
+    expect(within(about!).getByText("projetos em produção")).toBeInTheDocument();
   });
 });

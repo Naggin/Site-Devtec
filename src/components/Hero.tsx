@@ -1,5 +1,4 @@
 import StackPanel from "./StackPanel";
-import LiveDeployTerminal from "./LiveDeployTerminal";
 import { useLanguage } from "../i18n/useLanguage";
 
 export default function Hero() {
@@ -16,8 +15,8 @@ export default function Hero() {
             </div>
 
             <h1>
-              <span className="line-white">{t.hero.lineWhite1}</span>
-              <span className="line-red">{t.hero.lineRed}</span>
+              <span className="line-white">{t.hero.lineWhite1}</span>{" "}
+              <span className="line-red">{t.hero.lineRed}</span>{" "}
               <span className="line-white">{t.hero.lineWhite2}</span>
             </h1>
 
@@ -34,8 +33,6 @@ export default function Hero() {
                 {t.hero.ctaSecondary}
               </a>
             </div>
-
-            <LiveDeployTerminal />
           </div>
 
           <StackPanel />

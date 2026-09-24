@@ -45,4 +45,4 @@ node scripts/perf_dust_reveal.mjs          # custo em frames num scroll contínu
 
 ## Conteúdo
 
-Textos, projetos e e-mail de contato ficam em `src/data.ts`. Ajuste ali quando quiser atualizar o portfólio sem mexer no layout.
+Textos e projetos ficam em `src/i18n/pt.ts` e `src/i18n/en.ts` (os dois precisam andar juntos); e-mail e links de contato ficam em `src/data.ts`. Ajuste ali quando quiser atualizar o portfólio sem mexer no layout.
