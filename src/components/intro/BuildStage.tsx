@@ -26,6 +26,11 @@ export function BuildStage({ id, children }: { id: StageId; children: ReactNode 
   return <StageContext.Provider value={id}>{children}</StageContext.Provider>;
 }
 
+/** Seção (BuildStage) que envolve o componente, ou null fora de uma. */
+export function useStageId(): StageId | null {
+  return useContext(StageContext);
+}
+
 /** Status da etapa da seção atual (ou de `id`, se informado). Fora de um BuildStage, segue a fase. */
 export function useStageStatus(id?: StageId): StageStatus {
   const ctxId = useContext(StageContext);

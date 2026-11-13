@@ -38,7 +38,8 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string | null>(null);
-  const visible = useStageStatus() !== "hidden";
+  // Na intro a navbar só aparece quando o raio do ui-designer a invoca.
+  const visible = useStageStatus() === "built";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
