@@ -153,7 +153,7 @@ export const EVENTS: SquadEvent[] = [
   { t: 6000, type: "line", agent: rag, kind: "result", text: "30 repos · 12 no ar" },
   { t: 6200, type: "line", agent: rag, kind: "tool", text: "Embed(READMEs → vector store)" },
   { t: 6900, type: "line", agent: rag, kind: "result", text: "12 docs indexados · top-k=4" },
-  { t: 7100, type: "message", from: rag, to: fp, text: "8 projetos selecionados + resumos (RAG)" },
+  { t: 7100, type: "message", from: rag, to: fp, text: "9 projetos selecionados + resumos (RAG)" },
   { t: 7600, type: "line", agent: rag, kind: "tool", text: "Query(\"trajetória profissional\")" },
   { t: 8100, type: "line", agent: rag, kind: "result", text: "5 marcos recuperados" },
   { t: 9400, type: "line", agent: rag, kind: "tool", text: "Write(src/components/sections/Timeline.tsx)" },
@@ -185,12 +185,12 @@ export const EVENTS: SquadEvent[] = [
 
   // frontend-projects: espera os dados do RAG e monta o showcase
   { t: 5600, type: "line", agent: fp, kind: "text", text: "Aguardando dados do rag-researcher…" },
-  { t: 7800, type: "line", agent: fp, kind: "result", text: "recebido: 8 projetos com resumo" },
+  { t: 7800, type: "line", agent: fp, kind: "result", text: "recebido: 9 projetos com resumo" },
   { t: 8100, type: "line", agent: fp, kind: "tool", text: "Write(src/components/sections/ProjectsGrid.tsx)" },
   { t: 8100, type: "stage", stage: "projects", status: "building" },
   { t: 12600, type: "strike", agent: fp, stage: "projects" },
   { t: 12600, type: "stage", stage: "projects", status: "built" },
-  { t: 12650, type: "line", agent: fp, kind: "ok", text: "8 projetos no grid" },
+  { t: 12650, type: "line", agent: fp, kind: "ok", text: "9 projetos no grid" },
   { t: 12900, type: "handoff", agent: fp, text: "Showcase pronto" },
   { t: 13500, type: "close", agent: fp },
 

@@ -212,6 +212,16 @@ export const portfolioData = {
       liveUrl: "https://catalogo-perfumes-ig.vercel.app",
     },
     {
+      title: "Kreuz Barber",
+      kind: "Site de cliente · Barbeiro para eventos",
+      tags: ["React", "Vite", "WhatsApp"],
+      problem: "Jean Kreuz atende casamentos e eventos, mas o pedido de orçamento se perdia em conversas soltas.",
+      solution: "Site com portfólio de atendimentos, galeria e orçamento do pacote direto pelo WhatsApp.",
+      accent: "from-amber-500/40 via-stone-500/20 to-transparent",
+      liveUrl: "https://www.jeankreuz.com.br/",
+      repoUrl: "https://github.com/Naggin/Site-barber",
+    },
+    {
       title: "Livro Mágico",
       kind: "Livro digital · Escola Infantil Canguru",
       tags: ["JavaScript", "Bilíngue", "Storytelling"],
@@ -243,8 +253,8 @@ export const portfolioData = {
     {
       period: "2026",
       title: "Arquitetura multi-agente & RAG",
-      org: "Maestro · AI Cockpit",
-      description: "Orquestradores locais que coordenam squads de Claude, Codex e Gemini via MCP, com worktrees isolados, memória compartilhada e RAG sobre o contexto do projeto.",
+      org: "Maestro",
+      description: "Orquestrador local que coordena squads de Claude, Codex e Gemini via MCP, com worktrees isolados, memória compartilhada e RAG sobre o contexto do projeto.",
       tags: ["MCP", "RAG", "Tauri", "Multi-agente"],
     },
     {
