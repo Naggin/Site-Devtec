@@ -149,7 +149,7 @@ export const EVENTS: SquadEvent[] = [
   { t: 10300, type: "close", agent: ui },
 
   // rag-researcher: GitHub → embeddings → timeline + dados de projetos
-  { t: 5200, type: "line", agent: rag, kind: "tool", text: "Bash(gh repo list Naggin --json homepageUrl)" },
+  { t: 5200, type: "line", agent: rag, kind: "tool", text: "Bash(gh repo list --json homepageUrl)" },
   { t: 6000, type: "line", agent: rag, kind: "result", text: "30 repos · 12 no ar" },
   { t: 6200, type: "line", agent: rag, kind: "tool", text: "Embed(READMEs → vector store)" },
   { t: 6900, type: "line", agent: rag, kind: "result", text: "12 docs indexados · top-k=4" },
