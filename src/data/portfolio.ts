@@ -52,7 +52,7 @@ export interface TimelineItem {
 }
 
 export interface SocialLink {
-  id: "github" | "linkedin" | "email" | "whatsapp";
+  id: "email" | "whatsapp";
   label: string;
   href: string;
 }
@@ -161,7 +161,6 @@ export const portfolioData = {
       solution: "Orquestrador que lê o projeto, monta um squad de até 12 subagentes isolados em worktrees e executa planos aprovados com testes, memória e recados entre agentes.",
       accent: "from-amber-500/40 via-indigo-500/20 to-transparent",
       featured: true,
-      repoUrl: "https://github.com/Naggin/maestro-releases",
     },
     {
       title: "Little Learners Planner",
@@ -219,7 +218,6 @@ export const portfolioData = {
       solution: "Site com portfólio de atendimentos, galeria e orçamento do pacote direto pelo WhatsApp.",
       accent: "from-amber-500/40 via-stone-500/20 to-transparent",
       liveUrl: "https://www.jeankreuz.com.br/",
-      repoUrl: "https://github.com/Naggin/Site-barber",
     },
     {
       title: "Livro Mágico",
@@ -238,7 +236,6 @@ export const portfolioData = {
       solution: "Site com fluxo de contato que organiza o pedido antes de chegar ao técnico.",
       accent: "from-orange-500/40 via-rose-500/20 to-transparent",
       liveUrl: "https://siteparasuportetcnico.vercel.app",
-      repoUrl: "https://github.com/Naggin/Siteparasuportetcnico",
     },  ] satisfies Project[],
 
   // TODO(Antonio): ajustar períodos e cargos reais.
@@ -281,11 +278,8 @@ export const portfolioData = {
   ] satisfies TimelineItem[],
 
   links: [
-    { id: "github", label: "github.com/Naggin", href: "https://github.com/Naggin" },
-    // TODO(Antonio): confirmar URL do LinkedIn e número do WhatsApp.
-    { id: "linkedin", label: "LinkedIn", href: "https://www.linkedin.com/" },
-    { id: "email", label: "antoniocjr1998@gmail.com", href: "mailto:antoniocjr1998@gmail.com" },
-    { id: "whatsapp", label: "WhatsApp", href: "https://wa.me/" },
+    { id: "email", label: "antoniocfjr@icloud.com", href: "mailto:antoniocfjr@icloud.com" },
+    { id: "whatsapp", label: "(51) 98974-6959", href: "https://wa.me/5551989746959" },
   ] satisfies SocialLink[],
 
   navItems: [
