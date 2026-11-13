@@ -8,8 +8,8 @@ import { useStageStatus } from "@/components/intro/BuildStage";
 import { portfolioData } from "@/data/portfolio";
 import { useTextScramble } from "@/hooks/useTextScramble";
 
-/** Espera o scanner do BuildBlock começar a imprimir antes de decodificar, para o efeito ser visto. */
-const BUILD_DELAY = 800;
+/** Na intro, decodifica logo depois que o raio invoca o hero (o círculo de revelação já está abrindo). */
+const BUILD_DELAY = 350;
 
 /** Texto acessível: leitores de tela recebem o texto final; o embaralhado é só visual. */
 function ScrambleText({ text, scrambled }: { text: string; scrambled: string }) {
@@ -25,8 +25,8 @@ export function Hero() {
   const { phase, runId } = useIntro();
   const reduce = useReducedMotion();
   const status = useStageStatus();
-  const play = status !== "hidden";
-  const delay = status === "building" ? BUILD_DELAY : 0;
+  const play = status === "built";
+  const delay = phase === "building" ? BUILD_DELAY : 0;
 
   const name = useTextScramble(portfolioData.name, { play, replayKey: runId, delay, duration: 1100 });
   const role = useTextScramble(portfolioData.role, { play, replayKey: runId, delay: delay + 250, duration: 900 });

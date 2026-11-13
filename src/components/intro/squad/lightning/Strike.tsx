@@ -11,6 +11,8 @@ import { makeBolt, rng, toPath, type BoltShape } from "./bolt";
 
 /** Linha do tempo de um raio, em ms desde o evento "strike". */
 const GROW = 120;
+/** Quanto o raio leva do pane até o alvo: a seção começa a ser invocada no impacto. */
+export const STRIKE_GROW = GROW;
 /** Re-gera o caminho nesses instantes (o raio "treme"). */
 const RESEED = [200, 330, 450];
 /** Quedas de brilho entre os re-seeds: [início, fim, opacidade]. */
