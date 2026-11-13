@@ -1,39 +1,14 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Menu, RotateCcw, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useIntro } from "@/components/intro/IntroContext";
 import { useStageStatus } from "@/components/intro/BuildStage";
 import { portfolioData } from "@/data/portfolio";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-/** Badge "● Built by Claude • Replay Intro" — reabre o terminal do Ato 1. */
-function ReplayBadge({ onClick, className = "" }: { onClick: () => void; className?: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`group inline-flex items-center gap-2 rounded-full border border-brand-line bg-brand-dim px-3 py-1.5 font-mono text-[11px] text-brand-ink transition-colors hover:border-brand/60 hover:bg-brand/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ink/60 ${className}`}
-      aria-label="Built by Claude — assistir a intro novamente"
-    >
-      <span className="relative flex h-1.5 w-1.5">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60" />
-        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand" />
-      </span>
-      <span>Built by Claude</span>
-      <span className="text-brand-ink/40">•</span>
-      <span className="inline-flex items-center gap-1 text-ink/80 transition-colors group-hover:text-ink">
-        Replay Intro
-        <RotateCcw className="h-3 w-3 transition-transform duration-500 group-hover:-rotate-[360deg]" />
-      </span>
-    </button>
-  );
-}
-
 export function Navbar() {
-  const { replay } = useIntro();
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -70,11 +45,6 @@ export function Navbar() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
-
-  const handleReplay = () => {
-    setOpen(false);
-    replay();
-  };
 
   return (
     <AnimatePresence>
@@ -132,7 +102,6 @@ export function Navbar() {
             </ul>
 
             <div className="flex items-center gap-2">
-              <ReplayBadge onClick={handleReplay} className="hidden sm:inline-flex" />
               <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
@@ -177,9 +146,6 @@ export function Navbar() {
                     </motion.li>
                   ))}
                 </ul>
-                <div className="mt-1 border-t border-line px-2 pb-1 pt-3 sm:hidden">
-                  <ReplayBadge onClick={handleReplay} />
-                </div>
               </motion.div>
             )}
           </AnimatePresence>
