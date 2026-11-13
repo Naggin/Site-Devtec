@@ -170,6 +170,7 @@ export const portfolioData = {
       solution: "Gera a semana de aulas, pareceres descritivos e flashcards em minutos, com export em PDF e envio por WhatsApp.",
       accent: "from-amber-500/40 via-orange-500/20 to-transparent",
       featured: true,
+      image: "/projects/little-learners-planner.jpg",
       liveUrl: "https://www.littlelearnersplanner.com.br/home",
     },
     {
@@ -180,6 +181,7 @@ export const portfolioData = {
       solution: "Um app só, instalável, em que quem mora junto vê a mesma lista atualizada em tempo real.",
       accent: "from-violet-500/40 via-indigo-500/20 to-transparent",
       featured: true,
+      image: "/projects/casaos.jpg",
       liveUrl: "https://casa-os-zeta.vercel.app",
     },
     {
@@ -189,6 +191,7 @@ export const portfolioData = {
       problem: "Apostar sem controle de banca nem visão dos jogos leva a decisões no impulso.",
       solution: "Centro de controle com gestão de banca, calendário da NBA e cinco ligas europeias.",
       accent: "from-emerald-500/40 via-teal-500/20 to-transparent",
+      image: "/projects/prumo.jpg",
       liveUrl: "https://banca-hub-tau.vercel.app",
     },
     {
@@ -199,6 +202,7 @@ export const portfolioData = {
       solution: "Site institucional com serviços e blog que leva o visitante direto ao contato.",
       accent: "from-teal-500/40 via-emerald-500/20 to-transparent",
       featured: true,
+      image: "/projects/juliana-queiroz.jpg",
       liveUrl: "https://juliana-queiroz.vercel.app",
     },
     {
@@ -208,6 +212,7 @@ export const portfolioData = {
       problem: "Vender perfumes mandando foto por foto no Instagram não escala.",
       solution: "Catálogo online em que o cliente escolhe os perfumes e finaliza o pedido pelo WhatsApp.",
       accent: "from-rose-500/40 via-amber-500/20 to-transparent",
+      image: "/projects/rq-importados.jpg",
       liveUrl: "https://catalogo-perfumes-ig.vercel.app",
     },
     {
@@ -217,6 +222,7 @@ export const portfolioData = {
       problem: "Jean Kreuz atende casamentos e eventos, mas o pedido de orçamento se perdia em conversas soltas.",
       solution: "Site com portfólio de atendimentos, galeria e orçamento do pacote direto pelo WhatsApp.",
       accent: "from-amber-500/40 via-stone-500/20 to-transparent",
+      image: "/projects/kreuz-barber.jpg",
       liveUrl: "https://www.jeankreuz.com.br/",
     },
     {
@@ -226,6 +232,7 @@ export const portfolioData = {
       problem: "A memória do ano da turma ficava presa em papel e fotos soltas.",
       solution: "Livro encantado digital do ano da turma, para compartilhar com as famílias.",
       accent: "from-fuchsia-500/40 via-amber-500/20 to-transparent",
+      image: "/projects/livro-magico.jpg",
       liveUrl: "https://livro-magico.vercel.app",
     },
     {
@@ -235,6 +242,7 @@ export const portfolioData = {
       problem: "Pedidos de suporte chegavam desorganizados pelo telefone.",
       solution: "Site com fluxo de contato que organiza o pedido antes de chegar ao técnico.",
       accent: "from-orange-500/40 via-rose-500/20 to-transparent",
+      image: "/projects/suporteti.jpg",
       liveUrl: "https://siteparasuportetcnico.vercel.app",
     },  ] satisfies Project[],
 
