@@ -164,16 +164,6 @@ export const portfolioData = {
       repoUrl: "https://github.com/Naggin/maestro-releases",
     },
     {
-      title: "AI Cockpit",
-      kind: "App desktop · Agentes + MCP",
-      tags: ["Tauri", "React", "MCP Server", "SQLite", "xterm.js"],
-      problem: "Agentes, consumo de tokens e fluxo Git espalhados em ferramentas diferentes.",
-      solution: "Cockpit local-first com terminais lado a lado (Claude, Gemini, Codex), servidor MCP e painel no mesmo SQLite: o que um agente muda aparece na hora.",
-      accent: "from-indigo-500/40 via-violet-500/20 to-transparent",
-      featured: true,
-      repoUrl: "https://github.com/Naggin/IAcockpit-releases",
-    },
-    {
       title: "Little Learners Planner",
       kind: "Produto · EdTech + IA",
       tags: ["Web app", "IA", "PDF", "WhatsApp"],
@@ -203,21 +193,13 @@ export const portfolioData = {
       liveUrl: "https://banca-hub-tau.vercel.app",
     },
     {
-      title: "Relatório Neuropsicopedagógico",
-      kind: "Ferramenta profissional",
-      tags: ["JavaScript", "Documentos", "Saúde"],
-      problem: "Relatórios de avaliação levavam horas para redigir e formatar.",
-      solution: "Gerador que estrutura a avaliação e entrega o relatório pronto para a família.",
-      accent: "from-sky-500/40 via-indigo-500/20 to-transparent",
-      liveUrl: "https://relatorios-de-avalia-o.vercel.app",
-    },
-    {
       title: "Juliana Queiroz",
       kind: "Site de cliente",
       tags: ["Next.js", "TypeScript", "Tailwind", "MDX"],
       problem: "Famílias não entendiam o atendimento e precisavam ligar antes de agendar.",
       solution: "Site institucional com serviços e blog que leva o visitante direto ao contato.",
       accent: "from-teal-500/40 via-emerald-500/20 to-transparent",
+      featured: true,
       liveUrl: "https://juliana-queiroz.vercel.app",
     },
     {
@@ -230,14 +212,14 @@ export const portfolioData = {
       liveUrl: "https://catalogo-perfumes-ig.vercel.app",
     },
     {
-      title: "Moneyzin",
-      kind: "Web app · Finanças pessoais",
-      tags: ["TypeScript", "Dashboard"],
-      problem: "Difícil enxergar para onde o dinheiro vai no mês.",
-      solution: "Controle financeiro pessoal: gastos, receitas e gráficos num lugar só.",
-      accent: "from-lime-500/40 via-emerald-500/20 to-transparent",
-      liveUrl: "https://moneyzin.vercel.app",
-      repoUrl: "https://github.com/Naggin/moneyzin",
+      title: "Kreuz Barber",
+      kind: "Site de cliente · Barbeiro para eventos",
+      tags: ["React", "Vite", "WhatsApp"],
+      problem: "Jean Kreuz atende casamentos e eventos, mas o pedido de orçamento se perdia em conversas soltas.",
+      solution: "Site com portfólio de atendimentos, galeria e orçamento do pacote direto pelo WhatsApp.",
+      accent: "from-amber-500/40 via-stone-500/20 to-transparent",
+      liveUrl: "https://www.jeankreuz.com.br/",
+      repoUrl: "https://github.com/Naggin/Site-barber",
     },
     {
       title: "Livro Mágico",
@@ -257,18 +239,7 @@ export const portfolioData = {
       accent: "from-orange-500/40 via-rose-500/20 to-transparent",
       liveUrl: "https://siteparasuportetcnico.vercel.app",
       repoUrl: "https://github.com/Naggin/Siteparasuportetcnico",
-    },
-    {
-      title: "Devtec",
-      kind: "Site institucional",
-      tags: ["React 19", "Vite", "i18n", "Canvas"],
-      problem: "A Devtec precisava de uma vitrine que mostrasse o trabalho, não só falasse dele.",
-      solution: "Site bilíngue com troca de idioma em poeira de brasa e commits reais do GitHub.",
-      accent: "from-red-500/40 via-orange-500/20 to-transparent",
-      liveUrl: "https://ajrdevtec.vercel.app",
-      repoUrl: "https://github.com/Naggin/Site-Devtec",
-    },
-  ] satisfies Project[],
+    },  ] satisfies Project[],
 
   // TODO(Antonio): ajustar períodos e cargos reais.
   timeline: [
@@ -282,8 +253,8 @@ export const portfolioData = {
     {
       period: "2026",
       title: "Arquitetura multi-agente & RAG",
-      org: "Maestro · AI Cockpit",
-      description: "Orquestradores locais que coordenam squads de Claude, Codex e Gemini via MCP, com worktrees isolados, memória compartilhada e RAG sobre o contexto do projeto.",
+      org: "Maestro",
+      description: "Orquestrador local que coordena squads de Claude, Codex e Gemini via MCP, com worktrees isolados, memória compartilhada e RAG sobre o contexto do projeto.",
       tags: ["MCP", "RAG", "Tauri", "Multi-agente"],
     },
     {

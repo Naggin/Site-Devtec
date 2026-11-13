@@ -45,7 +45,7 @@ const useHydrated = () =>
  * ligados por linhas, trocando pacotes. Tudo derivado de script.ts.
  */
 export function SquadScene() {
-  const { time, skip } = useIntro();
+  const { time } = useIntro();
   const t = useSceneTime(time);
   const vp = useViewport();
   const hydrated = useHydrated();
@@ -90,14 +90,6 @@ export function SquadScene() {
           </>
         )}
       </div>
-
-      <button
-        type="button"
-        onClick={skip}
-        className="pointer-events-auto fixed right-3 top-3 rounded-md border border-white/15 bg-black/60 px-3 py-1.5 font-mono text-[12px] text-white/80 backdrop-blur-md transition-colors hover:border-white/30 hover:text-white lg:right-4 lg:top-4"
-      >
-        <span style={{ color: CC.orange }}>[ESC]</span> Pular Intro
-      </button>
     </div>
   );
 }

@@ -4,7 +4,8 @@ import { animate, useMotionValue, useMotionValueEvent, useReducedMotion, type An
 import { useCallback, useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { STAGE_ANCHOR, type StageId } from "../BuildStage";
 import { useIntro } from "../IntroContext";
-import { lastEvent } from "./script";
+import { STRIKE_GROW } from "./lightning/Strike";
+import { EVENTS, lastEvent } from "./script";
 
 /** Largura a partir da qual os panes ficam em colunas laterais (abaixo: barra no topo + pills na base). */
 const DESKTOP_MIN = 1024;
@@ -20,8 +21,16 @@ const MOBILE_PILLS = 0.25;
 /** Duração do zoom-in final (evento camera "full"). */
 const ZOOM_IN_S = 1.3;
 const ZOOM_EASE = [0.65, 0, 0.35, 1] as const;
-/** Pan entre seções no overview. */
-const PAN_SPRING = { type: "spring", stiffness: 55, damping: 17, mass: 1 } as const;
+/**
+ * Pan entre seções no overview: tween curto em vez de mola, para a câmera chegar e
+ * PARAR antes do raio (o roteiro dá foco 700ms antes de cada strike).
+ */
+const PAN = { duration: 0.6, ease: [0.65, 0, 0.35, 1] } as const;
+/** Reação ao impacto do raio: punch-in curto + tranco vertical, de volta em ~0.5s. */
+const PUNCH = { duration: 0.5, times: [0, 0.18, 1], ease: ["easeOut", "easeInOut"] } as const;
+const PUNCH_SCALE = 1.03;
+const JOLT = { duration: 0.35, times: [0, 0.2, 0.55, 1] } as const;
+const STRIKES = EVENTS.filter((e) => e.type === "strike");
 
 interface Frame {
   /** Escala do site no overview. */
@@ -67,6 +76,10 @@ export function SiteCamera({ children }: { children: ReactNode }) {
   const s = useMotionValue(1);
   const ty = useMotionValue(0);
   const f = useMotionValue(1);
+  // p = punch-in do impacto (multiplica a escala), j = tranco vertical (px).
+  const p = useMotionValue(1);
+  const j = useMotionValue(0);
+  const prevT = useRef(0);
   const controls = useRef<AnimationPlaybackControls[]>([]);
   const shot = useRef<string | null>(null);
   // Tamanho do site sem transform. Em cache: ler offset* dentro de paint() forçava layout da página inteira a cada frame.
@@ -76,9 +89,11 @@ export function SiteCamera({ children }: { children: ReactNode }) {
     if (el) size.current = { w: el.offsetWidth, h: el.offsetHeight };
   }, []);
 
+  const punchCtl = useRef<AnimationPlaybackControls[]>([]);
   const stop = () => {
-    for (const c of controls.current) c.stop();
+    for (const c of [...controls.current, ...punchCtl.current]) c.stop();
     controls.current = [];
+    punchCtl.current = [];
   };
 
   /** Pinta transform, recorte e moldura a partir de s/ty/f. */
@@ -91,18 +106,24 @@ export function SiteCamera({ children }: { children: ReactNode }) {
     const sv = s.get();
     const tv = ty.get();
     const fv = f.get();
+    const pv = p.get();
 
     // Janela visível interpola entre a do overview e a viewport inteira.
     const top = fr.top * fv;
     const bottom = vh + (fr.bottom - vh) * fv;
+    // Punch-in centrado no meio da janela; a moldura fica parada e o site "salta" dentro dela.
+    const mid = (top + bottom) / 2;
+    const se = sv * pv;
+    const te = mid - (mid - tv) * pv + j.get();
     const height = size.current.h;
-    const clipTop = Math.max(0, (top - tv) / sv);
-    const clipBottom = Math.max(0, height - (bottom - tv) / sv);
-    const r = (fr.radius * fv) / sv;
+    const clipTop = Math.max(0, (top - te) / se);
+    const clipBottom = Math.max(0, height - (bottom - te) / se);
+    const clipX = Math.max(0, (size.current.w * (se - sv)) / 2 / se);
+    const r = (fr.radius * fv) / se;
 
     el.style.transformOrigin = "50% 0";
-    el.style.transform = `translate3d(0, ${tv}px, 0) scale(${sv})`;
-    el.style.clipPath = `inset(${clipTop}px 0 ${clipBottom}px 0 round 0 0 ${r}px ${r}px)`;
+    el.style.transform = `translate3d(0, ${te}px, 0) scale(${se})`;
+    el.style.clipPath = `inset(${clipTop}px ${clipX}px ${clipBottom}px ${clipX}px round 0 0 ${r}px ${r}px)`;
 
     const w = size.current.w * sv;
     const left = (vw - w) / 2;
@@ -114,9 +135,11 @@ export function SiteCamera({ children }: { children: ReactNode }) {
       box.style.height = `${bottom - top + fr.bar * fv}px`;
       box.style.opacity = String(fv);
     }
-  }, [s, ty, f]);
+  }, [s, ty, f, p, j]);
 
   useMotionValueEvent(s, "change", paint);
+  useMotionValueEvent(p, "change", paint);
+  useMotionValueEvent(j, "change", paint);
   useMotionValueEvent(ty, "change", paint);
   useMotionValueEvent(f, "change", paint);
 
@@ -135,8 +158,10 @@ export function SiteCamera({ children }: { children: ReactNode }) {
       if (anchor) {
         const base = el.getBoundingClientRect();
         const rect = anchor.getBoundingClientRect();
-        y = (rect.top - base.top) / s.get();
-        h = rect.height / s.get();
+        // Escala efetiva inclui o punch do impacto, se ainda estiver rodando.
+        const scale = s.get() * p.get();
+        y = (rect.top - base.top) / scale;
+        h = rect.height / scale;
       }
 
       // Centraliza a seção; se não couber, mostra o começo dela.
@@ -147,7 +172,7 @@ export function SiteCamera({ children }: { children: ReactNode }) {
       t = clamp(t, Math.min(fr.top, fr.bottom - fr.scale * size.current.h), fr.top);
       return { s: fr.scale, ty: t, f: 1 };
     },
-    [s],
+    [s, p],
   );
 
   const go = useCallback(
@@ -159,16 +184,19 @@ export function SiteCamera({ children }: { children: ReactNode }) {
       const next = target(mode, stage);
       stop();
       if (snap) {
+        // Reinício (replay) ou resize: sem punch residual.
+        p.set(1);
+        j.set(0);
         s.set(next.s);
         ty.set(next.ty);
         f.set(next.f);
         paint();
         return;
       }
-      const opts = mode === "full" ? { duration: ZOOM_IN_S, ease: ZOOM_EASE } : PAN_SPRING;
+      const opts = mode === "full" ? { duration: ZOOM_IN_S, ease: ZOOM_EASE } : PAN;
       controls.current = [animate(s, next.s, opts), animate(ty, next.ty, opts), animate(f, next.f, opts)];
     },
-    [time, target, s, ty, f, paint, measure],
+    [time, target, s, ty, f, p, j, paint, measure],
   );
 
   // Começa já em overview (atrás do terminal do Ato 1) a cada (re)início da intro.
@@ -181,6 +209,16 @@ export function SiteCamera({ children }: { children: ReactNode }) {
   // Eventos "camera"/"focus" do roteiro: só anima quando o alvo muda.
   useMotionValueEvent(time, "change", (t) => {
     if (!active) return;
+    // Impacto de um raio neste frame: a câmera reage (só no overview).
+    const before = prevT.current;
+    prevT.current = t;
+    if (lastEvent(t, "camera")?.mode === "overview" && STRIKES.some((e) => before < e.t + STRIKE_GROW && e.t + STRIKE_GROW <= t)) {
+      for (const c of punchCtl.current) c.stop();
+      punchCtl.current = [
+        animate(p, [1, PUNCH_SCALE, 1], { duration: PUNCH.duration, times: [...PUNCH.times], ease: [...PUNCH.ease] }),
+        animate(j, [0, 5, -2, 0], { duration: JOLT.duration, times: [...JOLT.times] }),
+      ];
+    }
     const mode = lastEvent(t, "camera")?.mode ?? "terminal";
     const stage = lastEvent(t, "focus")?.stage ?? "hero";
     const key = `${mode}:${stage}`;
@@ -214,6 +252,9 @@ export function SiteCamera({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
     if (active) return;
     stop();
+    // Zera o punch antes de limpar o transform: jump() ainda dispara um paint.
+    p.jump(1);
+    j.jump(0);
     const el = wrapRef.current;
     if (el) {
       el.style.transform = "none";
@@ -221,7 +262,7 @@ export function SiteCamera({ children }: { children: ReactNode }) {
       el.style.clipPath = "";
     }
     if (phase === "done") window.scrollTo({ top: 0, behavior: "instant" });
-  }, [active, phase]);
+  }, [active, phase, p, j]);
 
   return (
     <>
