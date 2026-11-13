@@ -32,44 +32,43 @@ function hostOf(url?: string) {
 function Preview({ project, compact }: { project: Project; compact: boolean }) {
   return (
     <div className={`relative ${compact ? "aspect-[16/7]" : "aspect-[16/10]"} overflow-hidden rounded-2xl border border-line bg-bg-2`}>
-      {project.image ? (
-        <Image
-          src={project.image}
-          alt={`Preview de ${project.title}`}
-          fill
-          sizes={compact ? "(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw" : "(min-width: 1024px) 45vw, 100vw"}
-          className="object-cover transition-transform duration-700 group-hover/card:scale-[1.03]"
-        />
-      ) : (
-        <>
-          <div aria-hidden className={`absolute inset-0 bg-linear-to-br ${project.accent}`} />
-          <div aria-hidden className="bg-grid absolute inset-0 opacity-60" />
-          {/* Mock de janela */}
-          <div
-            aria-hidden
-            className={`absolute bottom-0 rounded-t-xl border border-b-0 border-line bg-bg/80 shadow-2xl backdrop-blur-md transition-transform duration-700 group-hover/card:-translate-y-1.5 ${compact ? "inset-x-5 top-5" : "inset-x-6 top-8 sm:inset-x-10 sm:top-10"}`}
-          >
-            <div className="flex items-center gap-1.5 border-b border-white/5 px-3 py-2">
-              <span className="size-2 rounded-full bg-[#ff5f57]" />
-              <span className="size-2 rounded-full bg-[#febc2e]" />
-              <span className="size-2 rounded-full bg-[#28c840]" />
-              <span className="ml-2 truncate rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-ink-2">
-                {hostOf(project.liveUrl)}
-              </span>
-            </div>
-            <div className="space-y-2.5 p-4">
-              <div className="h-2.5 w-2/5 rounded-full bg-white/20" />
-              <div className="h-2 w-4/5 rounded-full bg-white/10" />
-              <div className="h-2 w-3/5 rounded-full bg-white/10" />
-              <div className={`grid grid-cols-3 gap-2 pt-2 ${compact ? "hidden" : ""}`}>
-                <div className="h-10 rounded-lg bg-white/5" />
-                <div className="h-10 rounded-lg bg-white/5" />
-                <div className="h-10 rounded-lg bg-white/5" />
-              </div>
+      <div aria-hidden className={`absolute inset-0 bg-linear-to-br ${project.accent}`} />
+      <div aria-hidden className="bg-grid absolute inset-0 opacity-60" />
+      {/* Janela de browser: com a foto do site no ar, ou esqueleto quando não há (ex.: app desktop). */}
+      <div
+        className={`absolute bottom-0 flex flex-col overflow-hidden rounded-t-xl border border-b-0 border-line bg-bg/80 shadow-2xl backdrop-blur-md transition-transform duration-700 group-hover/card:-translate-y-1.5 ${compact ? "inset-x-5 top-5" : "inset-x-6 top-8 sm:inset-x-10 sm:top-10"}`}
+      >
+        <div aria-hidden className="flex shrink-0 items-center gap-1.5 border-b border-white/5 px-3 py-2">
+          <span className="size-2 rounded-full bg-[#ff5f57]" />
+          <span className="size-2 rounded-full bg-[#febc2e]" />
+          <span className="size-2 rounded-full bg-[#28c840]" />
+          <span className="ml-2 truncate rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-ink-2">
+            {hostOf(project.liveUrl)}
+          </span>
+        </div>
+        {project.image ? (
+          <div className="relative min-h-0 flex-1">
+            <Image
+              src={project.image}
+              alt={`Página inicial de ${project.title}`}
+              fill
+              sizes={compact ? "(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw" : "(min-width: 1024px) 45vw, 100vw"}
+              className="object-cover object-top"
+            />
+          </div>
+        ) : (
+          <div aria-hidden className="space-y-2.5 p-4">
+            <div className="h-2.5 w-2/5 rounded-full bg-white/20" />
+            <div className="h-2 w-4/5 rounded-full bg-white/10" />
+            <div className="h-2 w-3/5 rounded-full bg-white/10" />
+            <div className={`grid grid-cols-3 gap-2 pt-2 ${compact ? "hidden" : ""}`}>
+              <div className="h-10 rounded-lg bg-white/5" />
+              <div className="h-10 rounded-lg bg-white/5" />
+              <div className="h-10 rounded-lg bg-white/5" />
             </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }
