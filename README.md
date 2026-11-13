@@ -1,13 +1,14 @@
 # Devtec
 
-Site institucional e portfólio de **Antonio Junior** — desenvolvimento web, apps e produtos digitais.
+Portfólio de **Antonio Junior**: desenvolvimento web, apps, IA e arquitetura multi-agente.
+
+Ao abrir o site, o Claude Code recebe um prompt, monta um squad de subagentes em panes (ui-designer, rag-researcher, frontend, qa-reviewer) e eles constroem o portfólio ao vivo: trocam mensagens, montam as seções em paralelo e marcam cada seção pronta com um raio. `Esc` pula a intro; "Replay Intro" na navbar assiste de novo.
 
 ## Stack
 
-- React 19 + TypeScript
-- Vite 7
-- Vitest + Testing Library
-- ESLint
+- Next.js (App Router) + React 19 + TypeScript
+- Tailwind CSS v4
+- Framer Motion + Lucide
 
 ## Desenvolvimento
 
@@ -16,33 +17,19 @@ npm install
 npm run dev
 ```
 
-O servidor sobe em `http://localhost:5173`.
-
 | Comando | Uso |
 | --- | --- |
-| `npm run dev` | Servidor de desenvolvimento |
+| `npm run dev` | Servidor de desenvolvimento (porta 3000) |
 | `npm run lint` | Lint |
-| `npm test` | Testes |
-| `npm run build` | Build de produção em `dist/` |
-| `npm run preview` | Preview do build |
-
-## Movimento
-
-Dois efeitos partilham a mesma poeira de brasa (`src/lib/dustPainter.ts`):
-
-- **Troca de idioma** — o site inteiro se desfaz na diagonal e volta traduzido (`DustTransition`).
-- **Entrada das seções** — cada bloco se junta a partir da mesma poeira ao entrar em cena (`dustReveal`), e a borda entre seções acende no vermelho da marca.
-
-Com `prefers-reduced-motion: reduce` os dois saem de cena e o conteúdo aparece direto. Para verificar num browser de verdade, com o `npm run dev` no ar:
-
-```bash
-node scripts/verify_dust_reveal.mjs        # entrada das seções
-node scripts/verify_dust_reveal_a11y.mjs   # reduced motion
-node scripts/verify_dust_cross.mjs         # idioma trocado no meio de uma entrada
-node scripts/verify_dust_playwright.mjs    # troca de idioma
-node scripts/perf_dust_reveal.mjs          # custo em frames num scroll contínuo
-```
+| `npx tsc --noEmit` | Typecheck |
+| `npm run build` | Build de produção |
+| `npm run start` | Serve o build |
 
 ## Conteúdo
 
-Textos e projetos ficam em `src/i18n/pt.ts` e `src/i18n/en.ts` (os dois precisam andar juntos); e-mail e links de contato ficam em `src/data.ts`. Ajuste ali quando quiser atualizar o portfólio sem mexer no layout.
+Textos, skills, projetos, trajetória e links ficam em `src/data/portfolio.ts`.
+
+## Intro
+
+O roteiro inteiro (tempos, falas dos agentes, mensagens, raios e câmera) está em `src/components/intro/squad/script.ts`.
+Com `prefers-reduced-motion: reduce` a intro é pulada e o site aparece direto.

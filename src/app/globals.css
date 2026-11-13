@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/* Paleta e tipografia herdadas do site anterior da Devtec (Site-Devtec-main/src/index.css). */
+:root {
+  /* superfícies */
+  --bg: #080808;
+  --bg-2: #111111;
+  --bg-3: #1a1a1a;
+  --bg-card: #0e0e0e;
+
+  /* texto — --ink-3 garante 4.5:1 sobre --bg-2, pois quase todo texto pequeno usa ele */
+  --ink: #f4f4f4;
+  --ink-2: #a0a0a0;
+  --ink-3: #8a8a8a;
+
+  /* vermelho da marca — --brand para fundos e títulos, --brand-ink para texto pequeno (AA) */
+  --brand: #e02020;
+  --brand-hover: #c41a1a;
+  --brand-ink: #ff5f5f;
+  --brand-dim: rgb(224 32 32 / 0.12);
+  --brand-glow: rgb(224 32 32 / 0.25);
+  --brand-line: rgb(224 32 32 / 0.18);
+
+  --line: rgb(255 255 255 / 0.08);
+  --line-strong: rgb(255 255 255 / 0.14);
+
+  /* só para status (disponível, ✓) */
+  --green: #4ade80;
+  --danger: #f87171;
+
+  --radius: 16px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Legado: cores da intro do Claude Code. O site não usa mais. */
+  --claude: #d97757;
+  --indigo: #6366f1;
+  --emerald: #10b981;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-bg-3: var(--bg-3);
+  --color-card: var(--bg-card);
+  --color-surface: var(--bg-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-fg: var(--ink);
+  --color-muted: var(--ink-2);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-dim: var(--brand-dim);
+  --color-brand-glow: var(--brand-glow);
+  --color-brand-line: var(--brand-line);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-green: var(--green);
+  --color-danger: var(--danger);
+
+  --color-claude: var(--claude);
+  --color-indigo-brand: var(--indigo);
+  --color-emerald-brand: var(--emerald);
+
+  --radius-brand: var(--radius);
+  --ease-brand: var(--ease-out);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  line-height: 1.65;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: var(--brand-glow);
+  color: var(--ink);
+}
+
+/* Grade vermelha do site antigo, bem mais discreta */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(224 32 32 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(224 32 32 / 0.07) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+
+/* Kicker do site antigo: mono, caixa alta, traço vermelho à esquerda */
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-ink);
+}
+.kicker::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: var(--brand);
+}
+
+/* Durante a intro o site está em zoom-out: sombras e blur quase não aparecem
+   e são o que mais custa frames (medido). Voltam quando a intro termina. */
+[data-intro] [data-site-camera] * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
